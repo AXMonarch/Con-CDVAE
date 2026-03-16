@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Con-CDVAE Activation Flow</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg:        #fff0db;
+    --surface:   #DBEAFF;
+    --border:    #1e2128;
+    --encoder:   #1a4a6b;
+    --encoder-b: #2a7ab8;
+    --cond:      #4a2a6b;
+    --cond-b:    #8a4ab8;
+    --fuse:      #1a5a3a;
+    --fuse-b:    #2ab870;
+    --decoder:   #6b3a1a;
+    --decoder-b: #e07030;
+    --output:    #4a4a1a;
+    --output-b:  #c8b830;
+    --arrow:     #3a4050;
+    --text:      #e0e4f0;
+    --muted:     #6a7080;
+    --accent:    #50c8f0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 36px;
+    text-align: center;
+    letter-spacing: 0.08em;
+  }
+
+  svg {
+    width: 100%;
+    max-width: 1100px;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 28px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+
+  .annotation {
+    margin-top: 32px;
+    max-width: 900px;
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 28px;
+    background: var(--surface);
+  }
+
+  .annotation h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: 14px;
+    letter-spacing: 0.06em;
+  }
+
+  .ann-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 8px 20px;
+    margin-bottom: 10px;
+    font-size: 0.68rem;
+    line-height: 1.5;
+  }
+
+  .ann-key {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .ann-val {
+    color: #a0a8b8;
+  }
+
+  .patch-note {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #0f1a10;
+    border-left: 3px solid #2ab870;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    color: #80c890;
+    line-height: 1.6;
+  }
+
+  /* Poster Layout */
+  .poster-section {
+    display: flex;
+    gap: 40px;
+    margin-top: 40px;
+    max-width: 1200px;
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .poster-image {
+    flex: 0 0 350px;
+  }
+
+  .poster-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .poster-content {
+    flex: 1;
+    color: var(--text);
+  }
+
+  .problem-section, .solution-section {
+    margin-bottom: 30px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .section-content {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #2c3e50;
+    margin-bottom: 16px;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 6px;
+    margin: 16px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .key-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .feature-item {
+    background: rgba(80, 200, 240, 0.05);
+    border: 1px solid rgba(80, 200, 240, 0.2);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+  }
+
+  .feature-title {
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  @media (max-width: 768px) {
+    .poster-section {
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .poster-image {
+      flex: none;
+    }
+    
+    .key-features {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Con-CDVAE — Conditional Crystal Generation with Formation Energy Control</h1>
+<p class="subtitle">THERMODYNAMICALLY-GUIDED CRYSTAL STRUCTURE GENERATION USING CONDITIONAL VARIATIONAL AUTOENCODERS</p>
+
+<!-- Poster Layout: SVG Diagram on Left, Text Blocks on Right -->
+<div style="max-width: 1400px; width: 100%; margin: 40px auto; display: flex; gap: 40px; align-items: flex-start; padding: 0 20px;">
+  
+  <!-- Left: SVG Diagram Container -->
+  <div style="flex: 0 0 auto; width: 650px; min-width: 650px;">
+    <svg viewBox="0 0 1100 680" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+  <defs>
+    <!-- Arrow markers -->
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#3a4050"/>
+    </marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#2ab870"/>
+    </marker>
+    <marker id="arr-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#e07030"/>
+    </marker>
+    <marker id="arr-yellow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#c8b830"/>
+    </marker>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#2a7ab8"/>
+    </marker>
+    <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#8a4ab8"/>
+    </marker>
+
+    <!-- Glow filters -->
+    <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-green" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BACKGROUND SECTIONS -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- Encoder zone -->
+  <rect x="20" y="20" width="220" height="380" rx="8"
+        fill="#B3EBF2" stroke="#1a3a5a" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="130" y="42" text-anchor="middle" fill="#2a7ab8" font-family="Syne,sans-serif"
+        font-size="11" font-weight="600" letter-spacing="2">ENCODER</text>
+
+  <!-- Conditioning zone -->
+  <rect x="20" y="420" width="220" height="220" rx="8"
+        fill="#E7DDFF" stroke="#3a1a5a" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="130" y="442" text-anchor="middle" fill="#8a4ab8" font-family="Syne,sans-serif"
+        font-size="11" font-weight="600" letter-spacing="2">CONDITIONAL</text>
+
+  <!-- Bottleneck zone -->
+  <rect x="270" y="20" width="180" height="380" rx="8"
+        fill="#D1FFBD" stroke="#1a5a2a" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="360" y="42" text-anchor="middle" fill="#2ab870" font-family="Syne,sans-serif"
+        font-size="11" font-weight="600" letter-spacing="2">BOTTLENECK</text>
+
+  <!-- Fusion zone -->
+  <rect x="270" y="420" width="180" height="220" rx="8"
+        fill="#FFFACD" stroke="#5a5a1a" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="360" y="442" text-anchor="middle" fill="#c8b830" font-family="Syne,sans-serif"
+        font-size="11" font-weight="600" letter-spacing="2">FUSION</text>
+
+  <!-- Decoder zone -->
+  <rect x="480" y="20" width="350" height="620" rx="8"
+        fill="#FFDBBB" stroke="#5a2a1a" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="655" y="42" text-anchor="middle" fill="#e07030" font-family="Syne,sans-serif"
+        font-size="11" font-weight="600" letter-spacing="2">DECODER </text>
+
+  <!-- Output zone -->
+  <rect x="860" y="20" width="220" height="620" rx="8"
+        fill="#FFEE8C" stroke="#5a5a1a" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="970" y="42" text-anchor="middle" fill="#c8b830" font-family="Syne,sans-serif"
+        font-size="11" font-weight="600" letter-spacing="2">OUTPUT HEADS</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ENCODER BLOCKS -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- Crystal input -->
+  <rect x="40" y="55" width="180" height="40" rx="5"
+        fill="#0a1520" stroke="#2a5a8a" stroke-width="1.5"/>
+  <text x="130" y="71" text-anchor="middle" fill="#6ab0e0" font-size="10" font-weight="600">Crystal Input</text>
+  <text x="130" y="85" text-anchor="middle" fill="#4a7090" font-size="9">M = (A, X, L)</text>
+
+  <!-- enc.emb -->
+  <rect x="40" y="115" width="180" height="44" rx="5"
+        fill="#0f2035" stroke="#2a7ab8" stroke-width="1.5"/>
+  <text x="130" y="132" text-anchor="middle" fill="#60b0f0" font-size="10" font-weight="600">enc.emb</text>
+  <text x="130" y="147" text-anchor="middle" fill="#4a8ab8" font-size="9">EmbeddingBlock · (406, 128)</text>
+
+  <!-- mp blocks -->
+  <rect x="40" y="179" width="180" height="34" rx="4" fill="#0f2035" stroke="#2a7ab8" stroke-width="1"/>
+  <text x="130" y="192" text-anchor="middle" fill="#60b0f0" font-size="9" font-weight="600">enc.mp_0</text>
+  <text x="130" y="205" text-anchor="middle" fill="#4a7090" font-size="8">InteractionPPBlock · (406,128)</text>
+
+  <rect x="40" y="221" width="180" height="34" rx="4" fill="#0f2035" stroke="#2a7ab8" stroke-width="1"/>
+  <text x="130" y="234" text-anchor="middle" fill="#60b0f0" font-size="9" font-weight="600">enc.mp_1 → mp_2 → mp_3</text>
+  <text x="130" y="247" text-anchor="middle" fill="#4a7090" font-size="8">4× message passing · (406,128)</text>
+
+  <!-- out block -->
+  <rect x="40" y="269" width="180" height="44" rx="5"
+        fill="#0f2035" stroke="#2a7ab8" stroke-width="1.5"/>
+  <text x="130" y="286" text-anchor="middle" fill="#60b0f0" font-size="10" font-weight="600">enc.out_4</text>
+  <text x="130" y="301" text-anchor="middle" fill="#4a8ab8" font-size="9">OutputPPBlock · (93, 256)</text>
+
+  <!-- fc_mu / fc_var -->
+  <rect x="40" y="333" width="84" height="50" rx="5"
+        fill="#102820" stroke="#20a860" stroke-width="2" filter="url(#glow-green)"/>
+  <text x="82" y="351" text-anchor="middle" fill="#40e890" font-size="10" font-weight="700">fc_mu</text>
+  <text x="82" y="364" text-anchor="middle" fill="#30a060" font-size="8">z_mu</text>
+  <text x="82" y="376" text-anchor="middle" fill="#30a060" font-size="8">(8, 256)</text>
+
+  <rect x="136" y="333" width="84" height="50" rx="5"
+        fill="#102820" stroke="#20a860" stroke-width="1.5"/>
+  <text x="178" y="351" text-anchor="middle" fill="#40e890" font-size="10" font-weight="600">fc_var</text>
+  <text x="178" y="364" text-anchor="middle" fill="#30a060" font-size="8">z_var</text>
+  <text x="178" y="376" text-anchor="middle" fill="#30a060" font-size="8">(8, 256)</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- CONDITIONING BLOCKS -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- Formation energy input -->
+  <rect x="40" y="455" width="180" height="34" rx="4"
+        fill="#1a0d28" stroke="#6a3a8a" stroke-width="1.5"/>
+  <text x="130" y="469" text-anchor="middle" fill="#b070e0" font-size="10" font-weight="600">Formation Energy</text>
+  <text x="130" y="482" text-anchor="middle" fill="#7a4a90" font-size="8">scalar → GaussianRBF → (8,15)</text>
+
+  <!-- condition dense layers -->
+  <rect x="40" y="507" width="180" height="34" rx="4"
+        fill="#1a0d28" stroke="#6a3a8a" stroke-width="1"/>
+  <text x="130" y="521" text-anchor="middle" fill="#b070e0" font-size="9" font-weight="600">cond.dense_0 → dense_3</text>
+  <text x="130" y="534" text-anchor="middle" fill="#7a4a90" font-size="8">4× Dense · (8, 64)</text>
+
+  <!-- condition_emb -->
+  <rect x="40" y="559" width="180" height="50" rx="5"
+        fill="#200d35" stroke="#8a4ab8" stroke-width="2" filter="url(#glow-blue)"/>
+  <text x="130" y="577" text-anchor="middle" fill="#c080f8" font-size="10" font-weight="700">condition_emb</text>
+  <text x="130" y="591" text-anchor="middle" fill="#8a50b8" font-size="8">cond.fusion_out · (8, 128)</text>
+  <text x="130" y="603" text-anchor="middle" fill="#6a3a90" font-size="8">formation energy encoded</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BOTTLENECK / VAE -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- reparameterize -->
+  <rect x="288" y="333" width="144" height="50" rx="5"
+        fill="#102820" stroke="#20a860" stroke-width="2" filter="url(#glow-green)"/>
+  <text x="360" y="351" text-anchor="middle" fill="#40e890" font-size="10" font-weight="700">z (sampled)</text>
+  <text x="360" y="364" text-anchor="middle" fill="#30a060" font-size="8">reparameterise trick</text>
+  <text x="360" y="376" text-anchor="middle" fill="#30a060" font-size="8">z_mu + ε·exp(z_var/2) · (8,256)</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- FUSION -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- concat label -->
+  <rect x="288" y="490" width="144" height="30" rx="4"
+        fill="#151510" stroke="#808010" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="360" y="501" text-anchor="middle" fill="#c8b030" font-size="9">cat(z, condition_emb)</text>
+  <text x="360" y="514" text-anchor="middle" fill="#808010" font-size="8">(8, 384)</text>
+
+  <!-- z_condition MLP -->
+  <rect x="288" y="538" width="144" height="34" rx="4"
+        fill="#1a1a08" stroke="#b8a820" stroke-width="1.5"/>
+  <text x="360" y="552" text-anchor="middle" fill="#e8d840" font-size="9" font-weight="600">z_condition MLP</text>
+  <text x="360" y="565" text-anchor="middle" fill="#908020" font-size="8">Linear→BN→ReLU→Linear</text>
+
+  <!-- z_cond.out — THE KEY NODE -->
+  <rect x="280" y="588" width="160" height="52" rx="6"
+        fill="#1a2a10" stroke="#50e870" stroke-width="3" filter="url(#glow-green)"/>
+  <text x="360" y="607" text-anchor="middle" fill="#70ff90" font-size="11" font-weight="700">z_cond.out</text>
+  <text x="360" y="621" text-anchor="middle" fill="#40c060" font-size="8">THE CAUSAL BOTTLENECK</text>
+  <text x="360" y="634" text-anchor="middle" fill="#40c060" font-size="8">(8, 256) → drives everything</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- DECODER BLOCKS -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- time_mlp -->
+  <rect x="498" y="55" width="150" height="40" rx="4"
+        fill="#1a100a" stroke="#c06020" stroke-width="1.5"/>
+  <text x="573" y="71" text-anchor="middle" fill="#e08040" font-size="10" font-weight="600">time_mlp</text>
+  <text x="573" y="84" text-anchor="middle" fill="#a05020" font-size="8">SinusoidalEmb · (8, 64)</text>
+
+  <!-- concat z_con + time -->
+  <rect x="498" y="115" width="150" height="34" rx="4"
+        fill="#1a100a" stroke="#e07030" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="573" y="129" text-anchor="middle" fill="#e07030" font-size="9">cat(z_con, time_emb)</text>
+  <text x="573" y="142" text-anchor="middle" fill="#804020" font-size="8">(8, 320)</text>
+
+  <!-- atom_latent_emb -->
+  <rect x="498" y="169" width="150" height="44" rx="5"
+        fill="#1a100a" stroke="#e07030" stroke-width="1.5"/>
+  <text x="573" y="186" text-anchor="middle" fill="#f09050" font-size="10" font-weight="600">dec.atom_latent</text>
+  <text x="573" y="200" text-anchor="middle" fill="#a06030" font-size="8">Linear(448→128) · (93,128)</text>
+
+  <!-- int blocks -->
+  <rect x="498" y="233" width="150" height="34" rx="4" fill="#1a100a" stroke="#e07030" stroke-width="1"/>
+  <text x="573" y="247" text-anchor="middle" fill="#f09050" font-size="9" font-weight="600">dec.int_0</text>
+  <text x="573" y="260" text-anchor="middle" fill="#804020" font-size="8">InteractionBlock · (93,128)</text>
+
+  <rect x="498" y="275" width="150" height="34" rx="4" fill="#1a100a" stroke="#e07030" stroke-width="1"/>
+  <text x="573" y="289" text-anchor="middle" fill="#f09050" font-size="9" font-weight="600">dec.int_1 → int_2</text>
+  <text x="573" y="302" text-anchor="middle" fill="#804020" font-size="8">3× GemNet-T blocks</text>
+
+  <!-- fc_atom -->
+  <rect x="498" y="329" width="150" height="50" rx="5"
+        fill="#201408" stroke="#e07030" stroke-width="2"/>
+  <text x="573" y="349" text-anchor="middle" fill="#f0a060" font-size="10" font-weight="700">fc_atom</text>
+  <text x="573" y="363" text-anchor="middle" fill="#c07040" font-size="8">Linear(128→100)</text>
+  <text x="573" y="376" text-anchor="middle" fill="#c07040" font-size="8">per-atom type logits (93,100)</text>
+
+  <!-- noisy coords input -->
+  <rect x="668" y="169" width="142" height="44" rx="4"
+        fill="#1a100a" stroke="#a05020" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="739" y="186" text-anchor="middle" fill="#c07040" font-size="9">noisy_frac_coords</text>
+  <text x="739" y="200" text-anchor="middle" fill="#804020" font-size="8">x_t + ε·σ_t</text>
+  <text x="739" y="213" text-anchor="middle" fill="#604010" font-size="8">(N_atoms, 3)</text>
+
+  <!-- coord diff output -->
+  <rect x="668" y="329" width="142" height="50" rx="5"
+        fill="#201408" stroke="#e07030" stroke-width="2"/>
+  <text x="739" y="349" text-anchor="middle" fill="#f0a060" font-size="10" font-weight="700">pred_cart_coord_diff</text>
+  <text x="739" y="363" text-anchor="middle" fill="#c07040" font-size="8">denoised coordinate</text>
+  <text x="739" y="376" text-anchor="middle" fill="#c07040" font-size="8">displacement (N_atoms, 3)</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- OUTPUT HEADS -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <rect x="878" y="140" width="184" height="50" rx="5"
+        fill="#1a1a08" stroke="#c8b830" stroke-width="1.5"/>
+  <text x="970" y="160" text-anchor="middle" fill="#e8d840" font-size="10" font-weight="600">pred.num_atoms</text>
+  <text x="970" y="174" text-anchor="middle" fill="#909020" font-size="8">fc_num_atoms · (8, 21)</text>
+  <text x="970" y="186" text-anchor="middle" fill="#606010" font-size="8">atom count distribution</text>
+
+  <rect x="878" y="210" width="184" height="50" rx="5"
+        fill="#1a1a08" stroke="#c8b830" stroke-width="1.5"/>
+  <text x="970" y="230" text-anchor="middle" fill="#e8d840" font-size="10" font-weight="600">pred.lattice</text>
+  <text x="970" y="244" text-anchor="middle" fill="#909020" font-size="8">fc_lattice · (8, 6)</text>
+  <text x="970" y="256" text-anchor="middle" fill="#606010" font-size="8">a, b, c, α, β, γ</text>
+
+  <rect x="878" y="280" width="184" height="50" rx="5"
+        fill="#1a1a08" stroke="#c8b830" stroke-width="1.5"/>
+  <text x="970" y="300" text-anchor="middle" fill="#e8d840" font-size="10" font-weight="600">pred.composition</text>
+  <text x="970" y="314" text-anchor="middle" fill="#909020" font-size="8">fc_composition · (74, 100)</text>
+  <text x="970" y="326" text-anchor="middle" fill="#606010" font-size="8">element logits per atom</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- PATCH TARGET BADGE -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="282" y="572" width="156" height="8" rx="2" fill="#50e870" opacity="0.15"/>
+  <text x="360" y="648" text-anchor="middle" fill="#50e870" font-size="8" font-style="italic">← PATCH THIS to control all outputs</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ARROWS -->
+  <!-- ═══════════════════════════════════════════ -->
+
+  <!-- Crystal → enc.emb -->
+  <line x1="130" y1="95" x2="130" y2="113" stroke="#2a7ab8" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+  <!-- enc.emb → mp_0 -->
+  <line x1="130" y1="159" x2="130" y2="177" stroke="#2a7ab8" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+  <!-- mp_0 → mp_1 -->
+  <line x1="130" y1="213" x2="130" y2="219" stroke="#2a7ab8" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+  <!-- mp_3 → out_4 -->
+  <line x1="130" y1="255" x2="130" y2="267" stroke="#2a7ab8" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+
+  <!-- out_4 → fc_mu / fc_var -->
+  <line x1="100" y1="313" x2="82" y2="331" stroke="#2ab870" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <line x1="160" y1="313" x2="178" y2="331" stroke="#2ab870" stroke-width="1.5" marker-end="url(#arr-green)"/>
+
+  <!-- fc_mu → z sampled -->
+  <line x1="130" y1="358" x2="288" y2="355" stroke="#2ab870" stroke-width="2" marker-end="url(#arr-green)"/>
+
+  <!-- Formation energy → cond.dense -->
+  <line x1="130" y1="489" x2="130" y2="505" stroke="#8a4ab8" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+
+  <!-- cond.dense → condition_emb -->
+  <line x1="130" y1="541" x2="130" y2="557" stroke="#8a4ab8" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+
+  <!-- z sampled → cat -->
+  <line x1="360" y1="383" x2="360" y2="488" stroke="#c8b830" stroke-width="2" marker-end="url(#arr-yellow)"/>
+
+  <!-- condition_emb → cat -->
+  <line x1="220" y1="584" x2="288" y2="510" stroke="#8a4ab8" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arr-yellow)"/>
+
+  <!-- cat → z_condition -->
+  <line x1="360" y1="520" x2="360" y2="536" stroke="#c8b830" stroke-width="1.5" marker-end="url(#arr-yellow)"/>
+
+  <!-- z_condition → z_cond.out -->
+  <line x1="360" y1="572" x2="360" y2="586" stroke="#50e870" stroke-width="2.5" marker-end="url(#arr-green)"/>
+
+  <!-- z_cond.out → time_mlp (top) -->
+  <path d="M 440 614 Q 460 580 460 90 Q 460 75 498 75" stroke="#50e870" stroke-width="2"
+        fill="none" stroke-dasharray="5,3" marker-end="url(#arr-green)"/>
+
+  <!-- z_cond+time → atom_latent -->
+  <line x1="573" y1="149" x2="573" y2="167" stroke="#e07030" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  <!-- atom_latent → int_0 -->
+  <line x1="573" y1="213" x2="573" y2="231" stroke="#e07030" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  <!-- int_0 → int_1 -->
+  <line x1="573" y1="267" x2="573" y2="273" stroke="#e07030" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  <!-- int_2 → fc_atom -->
+  <line x1="573" y1="309" x2="573" y2="327" stroke="#e07030" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  <!-- noisy coords → atom_latent -->
+  <line x1="739" y1="213" x2="680" y2="195" stroke="#a05020" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-orange)"/>
+
+  <!-- z_cond.out → output heads (via decode_stats) -->
+  <path d="M 440 610 Q 860 610 878 165" stroke="#c8b830" stroke-width="1.5"
+        fill="none" stroke-dasharray="4,3" marker-end="url(#arr-yellow)"/>
+
+  <!-- output head arrows -->
+  <line x1="878" y1="165" x2="878" y2="168" stroke="#c8b830" stroke-width="1" marker-end="url(#arr-yellow)"/>
+
+  <!-- fc_atom → pred_atom_types (to output zone) -->
+  <line x1="648" y1="354" x2="876" y2="354" stroke="#e07030" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+
+  <!-- pred coord diff arrow to output zone -->
+  <line x1="810" y1="354" x2="876" y2="390" stroke="#e07030" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-orange)"/>
+
+  <!-- pred coord output box -->
+  <rect x="878" y="360" width="184" height="50" rx="5"
+        fill="#1a100a" stroke="#e07030" stroke-width="1.5"/>
+  <text x="970" y="380" text-anchor="middle" fill="#f09050" font-size="10" font-weight="600">pred_atom_types</text>
+  <text x="970" y="394" text-anchor="middle" fill="#a06030" font-size="8">fc_atom output · (93,100)</text>
+  <text x="970" y="406" text-anchor="middle" fill="#604010" font-size="8">per-atom element class</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SHAPE LABELS ON ARROWS -->
+  <!-- ═══════════════════════════════════════════ -->
+  <text x="150" y="108" fill="#2a6a90" font-size="8">(8,256)+(8,128)</text>
+  <text x="365" y="483" fill="#909020" font-size="8">(8,384)</text>
+
+</svg>
+
+    <!-- Legend below SVG -->
+<div class="legend" style="margin-top: 20px;">
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#2a7ab8"></div>
+    <span>Encoder</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#8a4ab8"></div>
+    <span>Conditioning</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#2ab870"></div>
+    <span>VAE Bottleneck</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#c8b830"></div>
+    <span>Fusion → z_cond</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#e07030"></div>
+    <span>Decoder</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#c8b830; opacity:0.6"></div>
+    <span>Output Heads</span>
+  </div>
+</div>
+
+<!-- Right: Problem & Solution Text Blocks -->
+<div style="flex: 1; min-width: 400px;">
+
+  <!-- Problem Block -->
+  <div style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); border-left: 4px solid #dc3545; padding: 20px 24px; border-radius: 8px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(220,53,69,0.1);">
+    <h2 style="font-family: 'Arial', sans-serif; font-size: 1.1rem; font-weight: 700; color: #721c24; margin-bottom: 12px; letter-spacing: 0.05em;">
+      THE PROBLEM: Lack of Interpretability in Black Box Models
+    </h2>
+    <div style="font-size: 0.9rem; line-height: 1.5; color: #721c24;">
+      <strong>Crystal generation models operate as black boxes with limited mechanistic understanding.</strong>
+      Existing VAE architectures fail to provide clear causal pathways between input conditions
+      and generated outputs, making it impossible to understand <em>why</em> specific crystal
+      structures are generated or <em>how</em> formation energy influences the generation process.
+    </div>
+  </div>
+
+  <!-- Solution Block -->
+  <div style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-left: 4px solid #28a745; padding: 20px 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(40,167,69,0.1);">
+    <h2 style="font-family: 'Arial', sans-serif; font-size: 1.1rem; font-weight: 700; color: #155724; margin-bottom: 12px; letter-spacing: 0.05em;">
+      OUR SOLUTION: Mechanistically Interpretable Conditional VAE
+    </h2>
+    <div style="font-size: 0.9rem; line-height: 1.5; color: #155724;">
+      <strong>Con-CDVAE achieves mechanistic interpretability through a transparent causal bottleneck (z_cond).</strong>
+      We enable precise understanding by: <strong>(1) Neural Activation Tracing:</strong> Every neuron's contribution
+      is trackable from input formation energy through the conditioning pathway to final predictions.
+      <strong>(2) Causal Intervention:</strong> By patching z_cond vectors between crystals, we demonstrated
+      that this 256-dimensional bottleneck causally controls ALL outputs (lattice, composition, atom types).
+      <strong>(3) Transparent Information Flow:</strong> The fusion of structural encoding (z_mu) with
+      formation energy conditioning creates an interpretable pathway where we can identify exactly which
+      neurons encode thermodynamic vs. structural information.
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
