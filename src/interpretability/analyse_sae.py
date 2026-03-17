@@ -15,7 +15,6 @@
 # These analyses let us label features post-hoc and identify which ones
 # correspond to physically meaningful properties.
 
-import csv
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -114,12 +113,14 @@ class SAEAnalyser:
         fire_rate = is_active.mean(dim=0).numpy()
 
         # Mean and std only counting nonzero entries
-        sum_act = H.abs().sum(dim=0)
+        # Use abs() consistently — activations can be negative
+        H_abs = H.abs()
+        sum_act = (H_abs * is_active).sum(dim=0)
         count_act = is_active.sum(dim=0).clamp(min=1)
         mean_act = (sum_act / count_act).numpy()
 
-        # Std when active: E[x^2] - E[x]^2
-        sum_sq = (H ** 2).sum(dim=0)
+        # Std when active: sqrt(E[|x|^2] - E[|x|]^2)
+        sum_sq = (H_abs ** 2 * is_active).sum(dim=0)
         mean_sq = (sum_sq / count_act).numpy()
         std_act = np.sqrt(np.maximum(mean_sq - mean_act ** 2, 0.0))
 
@@ -306,6 +307,9 @@ class SAEAnalyser:
         # Zero out diagonal and lower triangle to avoid duplicates
         mask = np.triu(np.ones_like(cooc, dtype=bool), k=1)
         vals = cooc[mask]
+        n_top = min(n_top, len(vals))
+        if n_top == 0:
+            return []
         indices = np.argpartition(vals, -n_top)[-n_top:]
         indices = indices[np.argsort(vals[indices])[::-1]]
 
@@ -425,11 +429,15 @@ class SAEAnalyser:
             elem: count / n_total for elem, count in global_counts.items()
         }
 
-        # Per-feature enrichment
+        # Per-feature enrichment (only for features that actually fire)
         n_features = H.shape[1]
         enrichment = {}
+        fire_mask = (H.abs() > 0).any(dim=0)  # skip dead features
 
         for j in range(n_features):
+            if not fire_mask[j]:
+                enrichment[j] = []
+                continue
             vals, idx = torch.topk(H[:, j], min(n_top_crystals, len(H)))
             active = vals > 0
             top_idx = idx[active].tolist()
@@ -491,6 +499,10 @@ class SAEAnalyser:
 
         alignment = {}
         for prop_name, w_probe in probe_weights.items():
+            # Classification probes have shape (num_classes, input_dim) with
+            # num_classes > 1 — they don't define a single direction, so skip
+            if w_probe.dim() > 1 and w_probe.shape[0] != 1:
+                continue
             if w_probe.dim() > 1:
                 w_probe = w_probe.squeeze(0)
             w_probe = w_probe.to(W_dec.device)
@@ -511,8 +523,10 @@ class SAEAnalyser:
         H: torch.Tensor,
         labels: dict[str, np.ndarray],
         n_top_features: int = 20,
-        probe_weights: dict[str, torch.Tensor] | None = None,
-        dataset=None,
+        stats: dict[str, np.ndarray] | None = None,
+        corrs: dict[str, np.ndarray] | None = None,
+        align: dict[str, np.ndarray] | None = None,
+        enrich: dict[int, list] | None = None,
     ) -> list[dict]:
         """
         Build a unified summary table of the most interesting features.
@@ -524,29 +538,23 @@ class SAEAnalyser:
         H : Tensor (N, n_features)
         labels : dict of property labels
         n_top_features : int
-        probe_weights : optional dict of linear probe weights for alignment
-        dataset : optional CrystDataset for element enrichment
+        stats : pre-computed activation stats (avoids recomputation)
+        corrs : pre-computed property correlations (avoids recomputation)
+        align : pre-computed probe alignment
+        enrich : pre-computed element enrichment
 
         Returns
         -------
         dashboard : list of dicts, one per feature, with keys:
             "feature_idx", "fire_rate", "mean_act", "std_act",
             "top_property", "top_corr", "all_corrs",
-            "probe_alignment" (if probe_weights given),
-            "enriched_elements" (if dataset given)
+            "probe_alignment" (if align given),
+            "enriched_elements" (if enrich given)
         """
-        stats = self.activation_stats(H)
-        corrs = self.property_correlations(H, labels)
-
-        # Probe alignment (optional)
-        align = None
-        if probe_weights is not None:
-            align = self.probe_alignment(probe_weights)
-
-        # Element enrichment (optional)
-        enrich = None
-        if dataset is not None:
-            enrich = self.element_enrichment(H, dataset)
+        if stats is None:
+            stats = self.activation_stats(H)
+        if corrs is None:
+            corrs = self.property_correlations(H, labels)
 
         # Find peak |correlation| per feature across all properties
         n_features = H.shape[1]
@@ -655,6 +663,7 @@ class SAEAnalyser:
         probe_weights: dict[str, torch.Tensor] | None = None,
         dataset=None,
         n_top_features: int = 30,
+        sim_threshold: float = 0.8,
     ) -> dict:
         """
         Run the complete analysis pipeline and return all results.
@@ -689,7 +698,7 @@ class SAEAnalyser:
 
         print("Computing decoder similarity matrix...")
         dec_sim = self.decoder_similarity()
-        clusters = self.decoder_similarity_clusters(dec_sim, threshold=0.8)
+        clusters = self.decoder_similarity_clusters(dec_sim, threshold=sim_threshold)
 
         # Optional analyses
         align = None
@@ -706,8 +715,10 @@ class SAEAnalyser:
         dashboard = self.feature_dashboard(
             H, labels,
             n_top_features=n_top_features,
-            probe_weights=probe_weights,
-            dataset=dataset,
+            stats=stats,
+            corrs=corrs,
+            align=align,
+            enrich=enrich,
         )
 
         # Summary statistics
@@ -728,6 +739,7 @@ class SAEAnalyser:
             "dashboard": dashboard,
             "n_dead": n_dead,
             "n_rare": n_rare,
+            "sim_threshold": sim_threshold,
         }
 
     def print_full_report(self, results: dict) -> None:
@@ -748,11 +760,12 @@ class SAEAnalyser:
 
         # Decoder similarity clusters
         clusters = results["decoder_clusters"]
+        threshold = results.get("sim_threshold", "?")
         if clusters:
-            print(f"\nDecoder similarity clusters (cosine > 0.8):")
+            print(f"\nDecoder similarity clusters (cosine > {threshold}):")
             for i, cluster in enumerate(clusters[:10]):
                 print(f"  Cluster {i}: features {cluster}")
         else:
-            print(f"\nNo decoder similarity clusters found (threshold 0.8)")
+            print(f"\nNo decoder similarity clusters found (threshold {threshold})")
 
         print()

@@ -175,11 +175,11 @@ def run_probe_pipeline(args):
             results[(prop_name, hook_name)] = metrics
 
             # Save individual probe model (for SAE probe alignment later)
-            probe_dir = output_dir / "probes"
-            probe_dir.mkdir(exist_ok=True)
+            probe_dir = output_dir / "probes" / args.probe_type
+            probe_dir.mkdir(parents=True, exist_ok=True)
             torch.save(
                 trainer.probe.state_dict(),
-                probe_dir / f"{prop_name}_{hook_name}_{args.probe_type}.pt",
+                probe_dir / f"{prop_name}_{hook_name}.pt",
             )
 
             # Print inline

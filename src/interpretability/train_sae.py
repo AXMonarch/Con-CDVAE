@@ -12,7 +12,6 @@
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
-from pathlib import Path
 
 from .sae_model import TopKSAE, SAEConfig
 

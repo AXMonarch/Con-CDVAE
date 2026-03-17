@@ -59,25 +59,25 @@ def load_probe_weights(probe_results_path: str, hook_point: str) -> dict[str, to
     results_dir = Path(probe_results_path).parent
     weights = {}
 
-    # Look for individually saved probe models
-    probe_dir = results_dir / "probes"
-    if probe_dir.exists():
-        for path in probe_dir.glob(f"*_{hook_point}_linear.pt"):
-            prop_name = path.stem.replace(f"_{hook_point}_linear", "")
+    # Only linear probes have a single weight direction usable for alignment.
+    # Structure: probes/linear/{prop}_{hook}.pt
+    linear_dir = results_dir / "probes" / "linear"
+    if linear_dir.exists():
+        for path in linear_dir.glob(f"*_{hook_point}.pt"):
+            prop_name = path.stem.replace(f"_{hook_point}", "")
             state = torch.load(path, weights_only=False)
             if "linear.weight" in state:
-                weights[prop_name] = state["linear.weight"].squeeze(0).cpu()
-        if weights:
-            return weights
+                weights[prop_name] = state["linear.weight"].cpu()
 
-    # Fallback: if no individual probes saved, we can't extract weights
-    # from the summary results dict (it only stores metrics, not models)
-    print("  Note: No saved probe model files found. Skipping probe alignment.")
-    print(f"  (Looked in {probe_dir})")
+    if not weights:
+        print("  Note: No linear probe model files found. Skipping probe alignment.")
+        print(f"  (Looked in {linear_dir} for *_{hook_point}.pt)")
+        print("  Re-run probes with --probe_type linear to generate them.")
+
     return weights
 
 
-def load_dataset_for_enrichment(data_dir: str, model_dir: str):
+def load_dataset_for_enrichment(data_dir: str, model_dir: str, split: str = "val"):
     """
     Load the dataset for element enrichment analysis.
 
@@ -90,11 +90,11 @@ def load_dataset_for_enrichment(data_dir: str, model_dir: str):
     _, _, cfg = load_model(model_path=model_dir_abs)
 
     from concdvae.pl_data.dataset import CrystDataset
-    csv_path = Path(data_dir) / "val.csv"
-    save_path = Path(data_dir) / "val_data.pt"
+    csv_path = Path(data_dir) / f"{split}.csv"
+    save_path = Path(data_dir) / f"{split}_data.pt"
 
     dataset = CrystDataset(
-        name="SAE analysis val",
+        name=f"SAE analysis {split}",
         path=str(csv_path),
         prop=cfg.data.prop,
         niggli=cfg.data.niggli,
