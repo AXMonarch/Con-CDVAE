@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAE Feature Database — MP20 Crystal Embeddings</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --surface2: #1e2126;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8eaed;
+    --text2: #8b909a;
+    --text3: #555b66;
+    --accent: #5b8fff;
+    --accent2: #2d5adb;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+
+    --c-blue: #3b82f6;
+    --c-teal: #14b8a6;
+    --c-amber: #f59e0b;
+    --c-coral: #f97316;
+    --c-purple: #8b5cf6;
+    --c-green: #22c55e;
+    --c-pink: #ec4899;
+    --c-gray: #6b7280;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 2.5rem 1.5rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .header-left h1 {
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+
+  .header-left p {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--mono);
+    letter-spacing: 0.02em;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .stat {
+    text-align: right;
+  }
+
+  .stat-val {
+    font-family: var(--mono);
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .controls {
+    padding: 1.25rem 2.5rem;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+    max-width: 420px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-family: var(--mono);
+    font-size: 12px;
+    pointer-events: none;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 8px 12px 8px 34px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+
+  input[type="text"]::placeholder { color: var(--text3); }
+
+  .filter-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.12s;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  .filter-btn:hover { border-color: var(--border2); background: var(--surface2); color: var(--text); }
+  .filter-btn.active { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+
+  .sort-select {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text2);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 7px 10px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .sort-select:focus { border-color: var(--accent); }
+
+  .results-info {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  main {
+    padding: 1.5rem 2.5rem 4rem;
+  }
+
+  .cluster-section { margin-bottom: 2.5rem; }
+
+  .cluster-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cluster-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .cluster-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text2);
+    font-weight: 500;
+  }
+
+  .cluster-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    margin-left: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 6px 10px;
+    text-align: left;
+    font-weight: 400;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  th:hover { color: var(--text2); }
+
+  th.sorted { color: var(--accent); }
+
+  th.r { text-align: right; }
+
+  td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: var(--surface2); }
+
+  .td-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+
+  .td-label {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 400;
+    max-width: 260px;
+  }
+
+  .td-cluster {
+    white-space: nowrap;
+  }
+
+  .cluster-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border-radius: 20px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+
+  .td-firerate {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .td-formation {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .pos { color: #f97316; }
+  .neg { color: #22c55e; }
+
+  .td-elements {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+
+  .bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+
+  .bar-bg {
+    width: 60px;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent2);
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text3);
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+
+  .highlight {
+    background: rgba(91, 143, 255, 0.25);
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+
+  @media (max-width: 768px) {
+    header { padding: 1.5rem; }
+    .controls { padding: 1rem 1.5rem; }
+    main { padding: 1rem 1.5rem 3rem; }
+    .td-elements { display: none; }
+    .header-stats { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>SAE Feature Database</h1>
+    <p>MP20 Crystal Structure Embeddings &mdash; Sparse Autoencoder</p>
+  </div>
+  <div class="header-stats">
+    <div class="stat">
+      <div class="stat-val" id="total-count">100</div>
+      <div class="stat-label">Features</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">10</div>
+      <div class="stat-label">Clusters</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">4096</div>
+      <div class="stat-label">SAE width</div>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">&#8981;</span>
+    <input type="text" id="search" placeholder="Search ID, label, element..." autocomplete="off" />
+  </div>
+  <div class="filter-group" id="cluster-filters"></div>
+  <select class="sort-select" id="sort-select">
+    <option value="cluster">Sort: cluster</option>
+    <option value="id">Sort: feature ID</option>
+    <option value="firerate-desc">Sort: fire rate ↓</option>
+    <option value="firerate-asc">Sort: fire rate ↑</option>
+    <option value="formation-asc">Sort: E_f most neg.</option>
+    <option value="formation-desc">Sort: E_f most pos.</option>
+  </select>
+  <span class="results-info" id="results-info">100 / 100</span>
+</div>
+
+<main id="main"></main>
+
+<script>
+const CLUSTERS = {
+  "Strongly bonded insulators":  { color: "#3b82f6", dot: "#3b82f6" },
+  "Transition metal oxides":     { color: "#14b8a6", dot: "#14b8a6" },
+  "Metallic / intermetallic":    { color: "#f59e0b", dot: "#f59e0b" },
+  "Noble metal / precious":      { color: "#f97316", dot: "#f97316" },
+  "Rare-earth compounds":        { color: "#f97316", dot: "#f97316" },
+  "Structural/complexity":       { color: "#6b7280", dot: "#6b7280" },
+  "Light-element compounds":     { color: "#22c55e", dot: "#22c55e" },
+  "Semiconductors & band gap":   { color: "#8b5cf6", dot: "#8b5cf6" },
+  "Actinide/heavy metal":        { color: "#ec4899", dot: "#ec4899" },
+  "Alkali halides":              { color: "#60a5fa", dot: "#60a5fa" },
+  "Noble-gas / rare phase":      { color: "#9ca3af", dot: "#9ca3af" },
+};
+
+const DATA = [
+  { id:3289, label:"Lanthanide oxide formation energy",    cluster:"Strongly bonded insulators",  firerate:18.4, formation:-0.647, elements:"Dy, Lu, Nd, Y, La" },
+  { id:2363, label:"Silicate/oxide ionic stability",        cluster:"Strongly bonded insulators",  firerate:16.4, formation:-0.616, elements:"Ti, Si, Mg, O, Ca" },
+  { id:3003, label:"Fluoride/alkali-metal bonding",         cluster:"Strongly bonded insulators",  firerate:21.5, formation:-0.604, elements:"F, Mn, K, Li" },
+  { id:3913, label:"Heavy-element ionic compound",          cluster:"Strongly bonded insulators",  firerate:19.1, formation:-0.585, elements:"Bi, Pa, Hf, U, Tm" },
+  { id:416,  label:"Wide-gap fluoride/halide insulator",    cluster:"Strongly bonded insulators",  firerate:14.5, formation:-0.569, elements:"Pa, Sc, Hf, K, F" },
+  { id:1494, label:"Actinide fluoride wide bandgap",        cluster:"Strongly bonded insulators",  firerate:8.6,  formation:-0.562, elements:"Pa, Be, F, Y, Th" },
+  { id:3140, label:"Heavy alkali fluoride wide-gap",        cluster:"Strongly bonded insulators",  firerate:22.2, formation:-0.424, elements:"Rb, F, Tl, Cs, K" },
+  { id:1452, label:"Phosphate/oxide anionic network",       cluster:"Strongly bonded insulators",  firerate:22.2, formation:-0.511, elements:"P, O, Be, B, Ti" },
+  { id:24,   label:"Zr/rare-earth fluoride insulator",      cluster:"Strongly bonded insulators",  firerate:4.8,  formation:-0.388, elements:"Zr, Tb, F, Er, U" },
+  { id:469,  label:"B/Sc boride/scandate insulator",        cluster:"Strongly bonded insulators",  firerate:3.4,  formation:-0.263, elements:"B, Sc, Bi, Lu, O" },
+  { id:1849, label:"Alkali halide ionic crystal",           cluster:"Alkali halides",              firerate:12.6, formation:-0.169, elements:"K, I, Cl, Cs, Rb" },
+  { id:3304, label:"Alkali chloride/halide salt",           cluster:"Alkali halides",              firerate:13.0, formation:-0.239, elements:"Cl, Rb, K, Na, Br" },
+  { id:1822, label:"Cs/F/Al wide-gap fluoride",             cluster:"Alkali halides",              firerate:5.1,  formation:-0.130, elements:"Cs, F, Al, H, Tl" },
+  { id:965,  label:"Large unit cell complexity",            cluster:"Structural/complexity",       firerate:28.7, formation:-0.546, elements:"Np, W, Ba, Re, Si" },
+  { id:2746, label:"Niobate/zirconate perovskite-type",     cluster:"Structural/complexity",       firerate:21.3, formation:-0.518, elements:"Na, Zr, Nb, Eu, Sr" },
+  { id:1318, label:"Structural complexity / num atoms",     cluster:"Structural/complexity",       firerate:25.2, formation:-0.021, elements:"Ga, Lu, Co, Tm, Pb" },
+  { id:3309, label:"Low-symmetry small-cell structure",     cluster:"Structural/complexity",       firerate:15.8, formation:+0.233, elements:"Pm, Zn, Y, Hg, Tm" },
+  { id:3454, label:"Simple binary/ternary structure",       cluster:"Structural/complexity",       firerate:12.4, formation:+0.118, elements:"Ac, Sn, Ag, Pm, Hg" },
+  { id:3830, label:"Tl/S/halide low-symmetry phase",        cluster:"Structural/complexity",       firerate:17.7, formation:-0.168, elements:"Tl, S, Rb, Cl, V" },
+  { id:3506, label:"Early transition metal oxide",          cluster:"Transition metal oxides",     firerate:12.6, formation:-0.497, elements:"Pa, Ba, Ti, Zr, Ta" },
+  { id:2522, label:"Tantalate/alkali transition metal",     cluster:"Transition metal oxides",     firerate:13.1, formation:-0.461, elements:"Ta, Np, K, Eu, W" },
+  { id:3071, label:"Vanadium/niobium fluoride compound",    cluster:"Transition metal oxides",     firerate:12.6, formation:-0.455, elements:"F, V, Np, Nb, Na" },
+  { id:2018, label:"Cr/Mo transition metal compound",       cluster:"Transition metal oxides",     firerate:19.6, formation:-0.454, elements:"Ac, Mo, Cr, Np, Dy" },
+  { id:3509, label:"Phosphide/lithium transition metal",    cluster:"Transition metal oxides",     firerate:16.6, formation:-0.450, elements:"P, Li, Fe, F, V" },
+  { id:3142, label:"Vanadium/molybdenum oxide",             cluster:"Transition metal oxides",     firerate:16.4, formation:-0.412, elements:"V, Mo, W, Cr, O" },
+  { id:434,  label:"3d transition metal oxide/sulfide",     cluster:"Transition metal oxides",     firerate:18.1, formation:-0.403, elements:"Co, Li, Cr, Ti, W" },
+  { id:3610, label:"Li/Sc/Mn light transition metal",       cluster:"Transition metal oxides",     firerate:16.4, formation:-0.400, elements:"Li, Sc, Mn, Pa, V" },
+  { id:1792, label:"Mn/Sr/Ca oxide perovskite-like",        cluster:"Transition metal oxides",     firerate:11.9, formation:-0.398, elements:"Mn, Sr, Ca, Eu, O" },
+  { id:1047, label:"Vanadium fluoride strong oxidizer",     cluster:"Transition metal oxides",     firerate:14.1, formation:-0.375, elements:"V, F, O, Fe, Li" },
+  { id:2043, label:"Zr/Nb early transition metal",          cluster:"Transition metal oxides",     firerate:3.3,  formation:-0.303, elements:"Zr, Nb, Ce, Pa, Ta" },
+  { id:123,  label:"Sr/Ti/La perovskite precursor",         cluster:"Transition metal oxides",     firerate:3.9,  formation:-0.295, elements:"Sr, Ti, La, Ce, Nd" },
+  { id:2155, label:"Nb/Ti/Ta mixed transition metal",       cluster:"Transition metal oxides",     firerate:11.8, formation:-0.294, elements:"Nb, Ti, Ta, La, S" },
+  { id:968,  label:"Cd/Ni/Hf transition-metal phase",       cluster:"Transition metal oxides",     firerate:15.3, formation:+0.256, elements:"Cd, Ni, Gd, Hf, Zr" },
+  { id:161,  label:"Li/Co/Mn oxide battery-like",           cluster:"Transition metal oxides",     firerate:16.9, formation:-0.277, elements:"Li, Co, Mn, O, Ni" },
+  { id:2144, label:"Ni/Co/Ca oxide compound",               cluster:"Transition metal oxides",     firerate:11.5, formation:-0.266, elements:"Ni, Co, Ca, O, Li" },
+  { id:1979, label:"Mn/Li/Co oxide (battery-type)",         cluster:"Transition metal oxides",     firerate:8.5,  formation:-0.239, elements:"Mn, Li, Co, O, V" },
+  { id:2171, label:"Lithium/beryllium semiconductor",       cluster:"Semiconductors & band gap",   firerate:24.5, formation:-0.338, elements:"Be, P, Li, F, Na" },
+  { id:1629, label:"Silicon/hydrogen semiconductor",        cluster:"Semiconductors & band gap",   firerate:13.8, formation:-0.365, elements:"Si, H, Be, F, O" },
+  { id:311,  label:"Be/Zn/Ag semiconductor alloy",          cluster:"Semiconductors & band gap",   firerate:17.3, formation:-0.152, elements:"Be, Zn, H, Ag, Cd" },
+  { id:1889, label:"Pt/Sb/Sn semiconducting alloy",         cluster:"Semiconductors & band gap",   firerate:6.5,  formation:+0.096, elements:"Pt, Sb, Sn, Be, Yb" },
+  { id:2223, label:"Cu/Li/F oxide semiconductor",           cluster:"Semiconductors & band gap",   firerate:10.0, formation:-0.225, elements:"Cu, Li, F, O, Ag" },
+  { id:2114, label:"Heavy lanthanide intermetallic",        cluster:"Metallic / intermetallic",    firerate:29.1, formation:+0.358, elements:"Ho, Ga, Tm, Er, Ge" },
+  { id:3099, label:"Boride/Rh/Ru metallic compound",        cluster:"Metallic / intermetallic",    firerate:30.7, formation:+0.120, elements:"B, Pu, Rh, Ru, Ir" },
+  { id:3961, label:"He anomaly / Pb-Ca metallic",           cluster:"Metallic / intermetallic",    firerate:23.6, formation:+0.339, elements:"He, Pb, Pm, Ca, Ac" },
+  { id:3721, label:"Zn/Ga/Tc intermetallic structure",      cluster:"Metallic / intermetallic",    firerate:19.5, formation:+0.247, elements:"Pm, Tc, Zn, Ga, Pa" },
+  { id:2076, label:"Al/Be intermetallic metallic",          cluster:"Metallic / intermetallic",    firerate:17.1, formation:+0.316, elements:"Al, Be, Np, Fe, H" },
+  { id:1490, label:"Co/Fe magnetic intermetallic",          cluster:"Metallic / intermetallic",    firerate:20.2, formation:+0.313, elements:"Co, Th, Fe, Dy, Lu" },
+  { id:857,  label:"Cd/Hg/Tl heavy post-transition",        cluster:"Metallic / intermetallic",    firerate:14.1, formation:+0.183, elements:"Cd, Hg, Pu, Tl, Lu" },
+  { id:3066, label:"Ga/In/Nd metallic conductor",           cluster:"Metallic / intermetallic",    firerate:26.9, formation:+0.310, elements:"Ga, Pr, In, Nd, Sm" },
+  { id:482,  label:"Mg/Tc intermetallic small cell",         cluster:"Metallic / intermetallic",    firerate:14.8, formation:+0.301, elements:"Mg, Tc, Pm, Tm, Zn" },
+  { id:2518, label:"Rh/Pm/Al metallic conductor",           cluster:"Metallic / intermetallic",    firerate:9.9,  formation:+0.184, elements:"Pm, Rh, Al, Np, Lu" },
+  { id:2116, label:"Tc/Pm synthetic-element phase",         cluster:"Metallic / intermetallic",    firerate:8.0,  formation:+0.183, elements:"Tc, Pm, Ir, Tm, Hf" },
+  { id:2132, label:"Hg/Au/Cd amalgam-type",                 cluster:"Metallic / intermetallic",    firerate:13.9, formation:+0.126, elements:"Hg, Au, Cd, Pu, Pd" },
+  { id:3175, label:"General metallic bonding baseline",     cluster:"Metallic / intermetallic",    firerate:39.9, formation:+0.272, elements:"Ge, La, Zn, Sb, Ac" },
+  { id:1777, label:"Ga/Pu/Tb metallic semimetal",           cluster:"Metallic / intermetallic",    firerate:13.7, formation:+0.243, elements:"Ga, Pu, Tb, Mg, Ni" },
+  { id:326,  label:"Nb/Sn/Pb superconductor-type",          cluster:"Metallic / intermetallic",    firerate:6.1,  formation:+0.233, elements:"Nb, Pu, Sn, Pb, In" },
+  { id:3801, label:"Pt/Ni noble metal compound",            cluster:"Noble metal / precious",      firerate:27.7, formation:+0.258, elements:"Pt, Sc, Tm, Ni, Ho" },
+  { id:873,  label:"Cd/Au/Zn noble metal alloy",            cluster:"Noble metal / precious",      firerate:21.5, formation:+0.306, elements:"Cd, Au, Zn, Tc, Be" },
+  { id:1506, label:"Pd/La/Pr noble-lanthanide alloy",       cluster:"Noble metal / precious",      firerate:31.7, formation:+0.206, elements:"Pr, Pd, La, Ir, Eu" },
+  { id:736,  label:"Si/Pt/Rh metallic silicide",            cluster:"Noble metal / precious",      firerate:21.0, formation:+0.197, elements:"Si, Pt, Sm, Rh, Ru" },
+  { id:2516, label:"Au/Yb noble metal compound",            cluster:"Noble metal / precious",      firerate:23.1, formation:+0.276, elements:"Au, Yb, Sn, Pd, Ce" },
+  { id:1316, label:"Ru/Tc/Np metallic rare element",        cluster:"Noble metal / precious",      firerate:6.2,  formation:+0.145, elements:"Ru, Np, Tc, Pa, Ac" },
+  { id:404,  label:"Tc/Pm/Ir noble metallic phase",         cluster:"Noble metal / precious",      firerate:9.6,  formation:+0.240, elements:"Tc, Pm, Ir, Zn, Pd" },
+  { id:3196, label:"Ni/Pt/Si metallic compound",            cluster:"Noble metal / precious",      firerate:20.4, formation:+0.233, elements:"Ni, Ho, Pt, Si, Dy" },
+  { id:225,  label:"Tc/Re/Ti metallic refractory",          cluster:"Noble metal / precious",      firerate:15.8, formation:+0.225, elements:"Tc, Re, Be, Ti, Ru" },
+  { id:2515, label:"Ir/Tm/Er heavy noble metallic",         cluster:"Noble metal / precious",      firerate:15.2, formation:+0.166, elements:"Ir, Tm, Er, Ho, Au" },
+  { id:1210, label:"Pm/Ir/Rh synthetic metallic",           cluster:"Noble metal / precious",      firerate:3.8,  formation:+0.085, elements:"Pm, Ir, Tm, Rh, Er" },
+  { id:1673, label:"Os/Si/Ir noble intermetallic",          cluster:"Noble metal / precious",      firerate:17.5, formation:+0.291, elements:"Os, Si, Ir, Ni, Fe" },
+  { id:3868, label:"Rare-earth Sm/Hf intermetallic",        cluster:"Rare-earth compounds",        firerate:8.4,  formation:-0.417, elements:"Sm, Hf, Yb, Sc, Gd" },
+  { id:2299, label:"Sm/Hg/Nd lanthanide alloy",             cluster:"Rare-earth compounds",        firerate:12.7, formation:+0.249, elements:"Sm, Hg, Nd, Tl, Yb" },
+  { id:3702, label:"Ni/Dy/Al magnetic compound",            cluster:"Rare-earth compounds",        firerate:14.1, formation:+0.251, elements:"Ni, Dy, Al, Nd, C" },
+  { id:1672, label:"Eu/Ir/In rare-earth metallic",          cluster:"Rare-earth compounds",        firerate:30.8, formation:+0.238, elements:"Eu, Ir, In, Pt, Au" },
+  { id:2525, label:"Tm/Tl/Gd heavy lanthanide",             cluster:"Rare-earth compounds",        firerate:8.7,  formation:+0.247, elements:"Tm, Tl, Gd, Ce, Er" },
+  { id:1987, label:"Er/Hf/Zn rare-earth metallic",          cluster:"Rare-earth compounds",        firerate:11.9, formation:+0.212, elements:"Er, Hf, Zn, Tl, Sm" },
+  { id:2085, label:"Mg/Ce rare-earth intermetallic",        cluster:"Rare-earth compounds",        firerate:7.6,  formation:+0.261, elements:"Mg, Ce, Sc, Pu, Cd" },
+  { id:1276, label:"Hydrogen-containing ionic compound",    cluster:"Light-element compounds",     firerate:19.7, formation:-0.475, elements:"H, Sr, P, Al, O" },
+  { id:3509, label:"Phosphide/lithium transition metal",    cluster:"Light-element compounds",     firerate:16.6, formation:-0.450, elements:"P, Li, Fe, F, V" },
+  { id:2735, label:"Strontium/iodide ionic compound",       cluster:"Light-element compounds",     firerate:19.4, formation:-0.362, elements:"Sr, I, Ba, Sb, N" },
+  { id:264,  label:"Hydroxide/sulfate salt",                cluster:"Light-element compounds",     firerate:14.5, formation:-0.349, elements:"H, K, S, Al, O" },
+  { id:1498, label:"H-rich Ba/Sr compound",                 cluster:"Light-element compounds",     firerate:17.8, formation:-0.344, elements:"H, Ba, Cu, Sr, F" },
+  { id:1794, label:"H/N/K light ionic compound",            cluster:"Light-element compounds",     firerate:20.3, formation:-0.191, elements:"H, N, K, I, Na" },
+  { id:2527, label:"Li/Be light-metal intermetallic",       cluster:"Light-element compounds",     firerate:17.1, formation:+0.241, elements:"Li, Be, In, Pd, Hg" },
+  { id:3166, label:"P/Ir/Fe phosphide intermetallic",       cluster:"Light-element compounds",     firerate:20.3, formation:+0.236, elements:"P, Ir, U, Fe, Ge" },
+  { id:596,  label:"N/Hf/Th nitride/carbide",              cluster:"Light-element compounds",     firerate:10.3, formation:-0.234, elements:"N, Hf, Th, Pa, Pu" },
+  { id:2360, label:"H/Cs/W chalcogenide phase",             cluster:"Light-element compounds",     firerate:14.7, formation:-0.243, elements:"H, Cs, W, Te, Li" },
+  { id:2910, label:"Bi/Sr/Ba chalcogenide",                 cluster:"Light-element compounds",     firerate:5.0,  formation:-0.252, elements:"Bi, Sr, Ba, Os, Ca" },
+  { id:561,  label:"Ba/actinide heavy-metal compound",      cluster:"Actinide/heavy metal",        firerate:5.6,  formation:-0.340, elements:"Ba, Pa, Pu, Re, U" },
+  { id:862,  label:"Th/Ce actinide compound",               cluster:"Actinide/heavy metal",        firerate:8.7,  formation:-0.319, elements:"Th, Ce, Yb, Pa, Ho" },
+  { id:254,  label:"Pu/Th actinide structure",              cluster:"Actinide/heavy metal",        firerate:11.2, formation:+0.013, elements:"Pu, Th, Bi, Te, Nd" },
+  { id:684,  label:"U/Np/Co actinide metallic",             cluster:"Actinide/heavy metal",        firerate:19.1, formation:+0.302, elements:"U, Np, Co, B, Ge" },
+  { id:3262, label:"Ba/Re/Pb heavy metal oxide",            cluster:"Actinide/heavy metal",        firerate:7.7,  formation:-0.268, elements:"Ba, Re, Pb, Fe, Bi" },
+  { id:299,  label:"Pm/Ac/Tl rare-metal compound",          cluster:"Actinide/heavy metal",        firerate:10.9, formation:+0.188, elements:"Pm, Ac, Tl, Ag, Er" },
+  { id:144,  label:"Np/Os/Dy actinide intermetallic",       cluster:"Actinide/heavy metal",        firerate:9.1,  formation:+0.249, elements:"Np, Os, Dy, Fe, Re" },
+  { id:3963, label:"W/Ta/Na heavy metal phase",             cluster:"Actinide/heavy metal",        firerate:3.9,  formation:-0.253, elements:"W, Ta, Na, Ac, F" },
+  { id:2422, label:"Xe/I/Cs noble-gas compound",            cluster:"Noble-gas / rare phase",      firerate:5.0,  formation:+0.044, elements:"Xe, I, Cs, Rb, Cl" },
+  { id:81,   label:"Xe/I/Te chalcogenide/halide",           cluster:"Noble-gas / rare phase",      firerate:16.3, formation:+0.228, elements:"Xe, I, Te, W, Mo" },
+  { id:1931, label:"He/Tc/Os anomalous metallic",           cluster:"Noble-gas / rare phase",      firerate:9.4,  formation:+0.242, elements:"He, Tc, Pm, Os, Ru" },
+  { id:462,  label:"He/Th/Zn anomalous metallic",           cluster:"Noble-gas / rare phase",      firerate:12.9, formation:+0.223, elements:"He, Pm, Th, Zn, Be" },
+];
+
+const MAX_FIRERATE = Math.max(...DATA.map(d => d.firerate));
+
+let activeCluster = null;
+let sortMode = 'cluster';
+let searchQuery = '';
+
+function clusterStyle(name) {
+  const c = CLUSTERS[name] || { color: '#6b7280' };
+  return { color: c.color };
+}
+
+function highlight(text, q) {
+  if (!q) return text;
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return text.replace(re, '<mark class="highlight">$1</mark>');
+}
+
+function getSorted(data) {
+  const d = [...data];
+  if (sortMode === 'id') return d.sort((a,b) => a.id - b.id);
+  if (sortMode === 'firerate-desc') return d.sort((a,b) => b.firerate - a.firerate);
+  if (sortMode === 'firerate-asc') return d.sort((a,b) => a.firerate - b.firerate);
+  if (sortMode === 'formation-asc') return d.sort((a,b) => a.formation - b.formation);
+  if (sortMode === 'formation-desc') return d.sort((a,b) => b.formation - a.formation);
+  return d.sort((a,b) => a.cluster.localeCompare(b.cluster) || a.id - b.id);
+}
+
+function render() {
+  const q = searchQuery.toLowerCase().trim();
+
+  let filtered = DATA.filter(d => {
+    const matchCluster = !activeCluster || d.cluster === activeCluster;
+    const matchSearch = !q ||
+      d.id.toString().includes(q) ||
+      d.label.toLowerCase().includes(q) ||
+      d.cluster.toLowerCase().includes(q) ||
+      d.elements.toLowerCase().includes(q);
+    return matchCluster && matchSearch;
+  });
+
+  document.getElementById('results-info').textContent = `${filtered.length} / ${DATA.length}`;
+
+  const main = document.getElementById('main');
+
+  if (!filtered.length) {
+    main.innerHTML = '<div class="no-results">no features match your query</div>';
+    return;
+  }
+
+  const sorted = getSorted(filtered);
+
+  if (sortMode === 'cluster') {
+    const byCluster = {};
+    sorted.forEach(d => {
+      if (!byCluster[d.cluster]) byCluster[d.cluster] = [];
+      byCluster[d.cluster].push(d);
+    });
+
+    let html = '';
+    for (const [cname, items] of Object.entries(byCluster)) {
+      const col = (CLUSTERS[cname] || { color: '#6b7280' }).color;
+      html += `<div class="cluster-section">
+        <div class="cluster-header">
+          <div class="cluster-dot" style="background:${col}"></div>
+          <span class="cluster-name">${cname}</span>
+          <span class="cluster-count">${items.length} feature${items.length !== 1 ? 's' : ''}</span>
+        </div>
+        ${renderTable(items, q)}
+      </div>`;
+    }
+    main.innerHTML = html;
+  } else {
+    main.innerHTML = renderTable(sorted, q);
+  }
+}
+
+function renderTable(items, q) {
+  return `<table>
+    <thead>
+      <tr>
+        <th style="width:80px">ID</th>
+        <th>Label</th>
+        <th style="width:180px">Cluster</th>
+        <th class="r" style="width:110px">Fire rate</th>
+        <th class="r" style="width:90px">E_f (eV)</th>
+        <th style="width:160px">Top elements</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${items.map(d => {
+        const col = (CLUSTERS[d.cluster] || { color: '#6b7280' }).color;
+        const sign = d.formation >= 0 ? '+' : '';
+        const fclass = d.formation < 0 ? 'neg' : 'pos';
+        const barW = Math.round((d.firerate / MAX_FIRERATE) * 100);
+        return `<tr>
+          <td class="td-id">#${d.id}</td>
+          <td class="td-label">${highlight(d.label, q)}</td>
+          <td class="td-cluster">
+            <span class="cluster-pill" style="color:${col};border-color:${col}22;background:${col}11">
+              <span style="width:5px;height:5px;border-radius:50%;background:${col};display:inline-block;flex-shrink:0"></span>
+              ${highlight(d.cluster, q)}
+            </span>
+          </td>
+          <td class="td-firerate">
+            <div class="bar-wrap">
+              <span>${d.firerate.toFixed(1)}%</span>
+              <div class="bar-bg"><div class="bar-fill" style="width:${barW}%"></div></div>
+            </div>
+          </td>
+          <td class="td-formation ${fclass}">${sign}${d.formation.toFixed(3)}</td>
+          <td class="td-elements">${highlight(d.elements, q)}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+function buildFilters() {
+  const wrap = document.getElementById('cluster-filters');
+  const allBtn = document.createElement('button');
+  allBtn.className = 'filter-btn active';
+  allBtn.textContent = 'All';
+  allBtn.dataset.cluster = '';
+  wrap.appendChild(allBtn);
+
+  const clusterNames = [...new Set(DATA.map(d => d.cluster))].sort();
+  clusterNames.forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.textContent = name;
+    btn.dataset.cluster = name;
+    const col = (CLUSTERS[name] || { color: '#6b7280' }).color;
+    btn.addEventListener('mouseenter', () => { if (!btn.classList.contains('active')) btn.style.borderColor = col; });
+    btn.addEventListener('mouseleave', () => { if (!btn.classList.contains('active')) btn.style.borderColor = ''; });
+    wrap.appendChild(btn);
+  });
+
+  wrap.addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    wrap.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.style.borderColor = ''; b.style.color = ''; });
+    btn.classList.add('active');
+    activeCluster = btn.dataset.cluster || null;
+    if (activeCluster) {
+      const col = (CLUSTERS[activeCluster] || { color: '#6b7280' }).color;
+      btn.style.borderColor = col;
+      btn.style.color = col;
+    }
+    render();
+  });
+}
+
+document.getElementById('search').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  render();
+});
+
+document.getElementById('sort-select').addEventListener('change', e => {
+  sortMode = e.target.value;
+  render();
+});
+
+buildFilters();
+render();
+</script>
+</body>
+</html>
