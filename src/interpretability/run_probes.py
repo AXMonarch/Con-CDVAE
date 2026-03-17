@@ -45,12 +45,15 @@ def load_frozen_model(model_dir: str, device: str = "cpu"):
     sys.path.insert(0, str(REPO_ROOT / "scripts"))
     from eval_utils import load_model
 
-    model, _, cfg = load_model(model_path=model_dir)
+    # eval_utils / Hydra requires an absolute path
+    model_dir_abs = str(Path(model_dir).resolve())
+
+    model, _, cfg = load_model(model_path=model_dir_abs)
     model.to(device)
     model.eval()
 
     # Load lattice scaler (required for forward pass)
-    scaler_path = Path(model_dir) / "lattice_scaler.pt"
+    scaler_path = Path(model_dir_abs) / "lattice_scaler.pt"
     if scaler_path.exists():
         model.lattice_scaler = torch.load(
             scaler_path, map_location=device, weights_only=False,
