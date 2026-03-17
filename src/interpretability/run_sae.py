@@ -196,7 +196,7 @@ def run_sae_pipeline(args):
         labels=val_labels,
         probe_weights=probe_weights if probe_weights else None,
         dataset=dataset,
-        n_top_features=30,
+        n_top_features=100,
     )
 
     # Print full report
