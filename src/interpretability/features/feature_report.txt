@@ -1,0 +1,3700 @@
+
+============================================================
+FEATURE 3289
+============================================================
+Fire rate:  18.4%
+Mean act:   1.3740
+Std act:    0.7581
+Max act:    4.3970
+
+Property correlations:
+                   band_gap  r=+0.3284  █████████
+             crystal_system  r=-0.2031  ██████
+               e_above_hull  r=+0.1166  ███
+           formation_energy  r=-0.6471  ███████████████████
+                   is_metal  r=-0.2837  ████████
+                  num_atoms  r=+0.3373  ██████████
+                 spacegroup  r=-0.2055  ██████
+
+Probe direction alignment:
+           formation_energy  cos=-0.1586
+                   band_gap  cos=+0.1032
+               e_above_hull  cos=+0.0091
+                  num_atoms  cos=+0.1622
+
+Enriched elements (vs dataset baseline):
+   Dy  7.18x
+   Lu  5.93x
+   Nd  5.40x
+    Y  4.86x
+   La  4.72x
+
+Top co-occurring features:
+  Feature  965  co-occur=12.5%
+  Feature 3003  co-occur=10.8%
+  Feature 2363  co-occur=9.6%
+  Feature 3913  co-occur=9.3%
+  Feature 1452  co-occur=9.3%
+
+============================================================
+FEATURE 2363
+============================================================
+Fire rate:  16.4%
+Mean act:   1.2590
+Std act:    0.6532
+Max act:    4.4401
+
+Property correlations:
+                   band_gap  r=+0.4045  ████████████
+             crystal_system  r=-0.2207  ██████
+               e_above_hull  r=+0.1495  ████
+           formation_energy  r=-0.6157  ██████████████████
+                   is_metal  r=-0.3330  █████████
+                  num_atoms  r=+0.3350  ██████████
+                 spacegroup  r=-0.2279  ██████
+
+Probe direction alignment:
+           formation_energy  cos=-0.1078
+                   band_gap  cos=+0.0739
+               e_above_hull  cos=-0.0154
+                  num_atoms  cos=+0.0261
+
+Enriched elements (vs dataset baseline):
+   Ti  10.47x
+   Si  6.10x
+   Mg  5.99x
+    O  3.87x
+   Ca  3.56x
+
+Top co-occurring features:
+  Feature  965  co-occur=12.1%
+  Feature 1276  co-occur=9.7%
+  Feature 3289  co-occur=9.6%
+  Feature 3003  co-occur=9.5%
+  Feature 3913  co-occur=9.4%
+
+============================================================
+FEATURE 3003
+============================================================
+Fire rate:  21.5%
+Mean act:   1.6729
+Std act:    1.0985
+Max act:    5.5807
+
+Property correlations:
+                   band_gap  r=+0.4023  ████████████
+             crystal_system  r=-0.1233  ███
+               e_above_hull  r=+0.1182  ███
+           formation_energy  r=-0.6035  ██████████████████
+                   is_metal  r=-0.3105  █████████
+                  num_atoms  r=+0.2221  ██████
+                 spacegroup  r=-0.1224  ███
+
+Probe direction alignment:
+           formation_energy  cos=-0.1016
+                   band_gap  cos=+0.0178
+               e_above_hull  cos=-0.0004
+                  num_atoms  cos=+0.0421
+
+Enriched elements (vs dataset baseline):
+    F  14.14x
+   Mn  9.86x
+    K  8.20x
+   Li  3.66x
+   Hf  3.64x
+
+Top co-occurring features:
+  Feature  965  co-occur=12.5%
+  Feature 3289  co-occur=10.8%
+  Feature 2746  co-occur=10.5%
+  Feature 1452  co-occur=10.3%
+  Feature 1139  co-occur=10.2%
+
+============================================================
+FEATURE 3913
+============================================================
+Fire rate:  19.1%
+Mean act:   1.1753
+Std act:    0.5545
+Max act:    3.3849
+
+Property correlations:
+                   band_gap  r=+0.3374  ██████████
+             crystal_system  r=-0.1792  █████
+               e_above_hull  r=+0.0779  ██
+           formation_energy  r=-0.5846  █████████████████
+                   is_metal  r=-0.3113  █████████
+                  num_atoms  r=+0.2516  ███████
+                 spacegroup  r=-0.1751  █████
+
+Probe direction alignment:
+           formation_energy  cos=-0.1274
+                   band_gap  cos=+0.0562
+               e_above_hull  cos=+0.0087
+                  num_atoms  cos=+0.0990
+
+Enriched elements (vs dataset baseline):
+   Bi  9.91x
+   Pa  8.62x
+   Hf  7.29x
+    U  4.94x
+   Tm  4.62x
+
+Top co-occurring features:
+  Feature  965  co-occur=12.2%
+  Feature 1452  co-occur=10.2%
+  Feature 3003  co-occur=10.1%
+  Feature 2171  co-occur=9.6%
+  Feature 2363  co-occur=9.4%
+
+============================================================
+FEATURE 416
+============================================================
+Fire rate:  14.5%
+Mean act:   1.2381
+Std act:    0.7050
+Max act:    4.0917
+
+Property correlations:
+                   band_gap  r=+0.4197  ████████████
+             crystal_system  r=+0.1168  ███
+               e_above_hull  r=+0.0551  █
+           formation_energy  r=-0.5694  █████████████████
+                   is_metal  r=-0.2870  ████████
+                  num_atoms  r=+0.0356  █
+                 spacegroup  r=+0.1139  ███
+
+Probe direction alignment:
+           formation_energy  cos=-0.1353
+                   band_gap  cos=+0.1734
+               e_above_hull  cos=+0.0017
+                  num_atoms  cos=-0.0130
+
+Enriched elements (vs dataset baseline):
+   Pa  8.62x
+   Sc  7.14x
+   Hf  6.07x
+    K  5.13x
+    F  4.81x
+
+Top co-occurring features:
+  Feature 3140  co-occur=8.4%
+  Feature  965  co-occur=8.3%
+  Feature 3003  co-occur=8.2%
+  Feature 2746  co-occur=7.6%
+  Feature 1139  co-occur=7.4%
+
+============================================================
+FEATURE 1494
+============================================================
+Fire rate:  8.6%
+Mean act:   1.0543
+Std act:    0.5186
+Max act:    3.2277
+
+Property correlations:
+                   band_gap  r=+0.4356  █████████████
+             crystal_system  r=-0.0635  █
+               e_above_hull  r=+0.0190  
+           formation_energy  r=-0.5620  ████████████████
+                   is_metal  r=-0.2649  ███████
+                  num_atoms  r=+0.1068  ███
+                 spacegroup  r=-0.0602  █
+
+Probe direction alignment:
+           formation_energy  cos=-0.1607
+                   band_gap  cos=+0.1673
+               e_above_hull  cos=+0.0418
+                  num_atoms  cos=+0.0456
+
+Enriched elements (vs dataset baseline):
+   Pa  21.54x
+   Be  10.64x
+    F  9.05x
+    Y  5.40x
+   Th  5.03x
+
+Top co-occurring features:
+  Feature 3289  co-occur=6.3%
+  Feature 3003  co-occur=5.8%
+  Feature 3913  co-occur=5.6%
+  Feature  416  co-occur=5.3%
+  Feature 2363  co-occur=5.3%
+
+============================================================
+FEATURE 965
+============================================================
+Fire rate:  28.7%
+Mean act:   1.6318
+Std act:    0.8685
+Max act:    5.3959
+
+Property correlations:
+                   band_gap  r=+0.2693  ████████
+             crystal_system  r=-0.2954  ████████
+               e_above_hull  r=+0.1507  ████
+           formation_energy  r=-0.5458  ████████████████
+                   is_metal  r=-0.3372  ██████████
+                  num_atoms  r=+0.5503  ████████████████
+                 spacegroup  r=-0.3066  █████████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0573
+                   band_gap  cos=-0.0325
+               e_above_hull  cos=-0.0097
+                  num_atoms  cos=+0.2122
+
+Enriched elements (vs dataset baseline):
+   Np  7.54x
+    W  6.36x
+   Ba  5.56x
+   Re  4.47x
+   Si  4.31x
+
+Top co-occurring features:
+  Feature 1139  co-occur=14.1%
+  Feature 2171  co-occur=13.3%
+  Feature 1452  co-occur=12.9%
+  Feature 3003  co-occur=12.5%
+  Feature 3289  co-occur=12.5%
+
+============================================================
+FEATURE 2746
+============================================================
+Fire rate:  21.3%
+Mean act:   1.2665
+Std act:    0.6835
+Max act:    4.3700
+
+Property correlations:
+                   band_gap  r=+0.2306  ██████
+             crystal_system  r=-0.0372  █
+               e_above_hull  r=+0.1206  ███
+           formation_energy  r=-0.5181  ███████████████
+                   is_metal  r=-0.2712  ████████
+                  num_atoms  r=+0.1775  █████
+                 spacegroup  r=-0.0428  █
+
+Probe direction alignment:
+           formation_energy  cos=-0.0367
+                   band_gap  cos=-0.0525
+               e_above_hull  cos=-0.0148
+                  num_atoms  cos=+0.0358
+
+Enriched elements (vs dataset baseline):
+   Na  13.76x
+   Zr  12.82x
+   Nb  10.50x
+   Eu  6.81x
+   Sr  6.06x
+
+Top co-occurring features:
+  Feature  965  co-occur=12.3%
+  Feature 3003  co-occur=10.5%
+  Feature 1139  co-occur=10.4%
+  Feature 3913  co-occur=9.3%
+  Feature 3140  co-occur=9.2%
+
+============================================================
+FEATURE 1452
+============================================================
+Fire rate:  22.2%
+Mean act:   1.2540
+Std act:    0.6849
+Max act:    4.4244
+
+Property correlations:
+                   band_gap  r=+0.3184  █████████
+             crystal_system  r=-0.2709  ████████
+               e_above_hull  r=+0.0961  ██
+           formation_energy  r=-0.5113  ███████████████
+                   is_metal  r=-0.3099  █████████
+                  num_atoms  r=+0.2272  ██████
+                 spacegroup  r=-0.2692  ████████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0553
+                   band_gap  cos=+0.0090
+               e_above_hull  cos=-0.0144
+                  num_atoms  cos=-0.0346
+
+Enriched elements (vs dataset baseline):
+    P  11.91x
+    O  3.95x
+   Be  3.55x
+    B  2.71x
+   Ti  2.49x
+
+Top co-occurring features:
+  Feature  965  co-occur=12.9%
+  Feature 2171  co-occur=10.3%
+  Feature 3003  co-occur=10.3%
+  Feature 3913  co-occur=10.2%
+  Feature 1276  co-occur=10.2%
+
+============================================================
+FEATURE 3506
+============================================================
+Fire rate:  12.6%
+Mean act:   0.8798
+Std act:    0.3628
+Max act:    2.3537
+
+Property correlations:
+                   band_gap  r=+0.2569  ███████
+             crystal_system  r=-0.0576  █
+               e_above_hull  r=+0.0834  ██
+           formation_energy  r=-0.4972  ██████████████
+                   is_metal  r=-0.2621  ███████
+                  num_atoms  r=+0.1762  █████
+                 spacegroup  r=-0.0582  █
+
+Probe direction alignment:
+           formation_energy  cos=-0.0385
+                   band_gap  cos=-0.0492
+               e_above_hull  cos=+0.0194
+                  num_atoms  cos=+0.0327
+
+Enriched elements (vs dataset baseline):
+   Pa  21.54x
+   Ba  8.13x
+   Ti  7.48x
+   Zr  6.79x
+   Ta  6.42x
+
+Top co-occurring features:
+  Feature  965  co-occur=8.3%
+  Feature 2746  co-occur=7.4%
+  Feature 3913  co-occur=7.3%
+  Feature 2363  co-occur=6.9%
+  Feature 3289  co-occur=6.7%
+
+============================================================
+FEATURE 1276
+============================================================
+Fire rate:  19.7%
+Mean act:   1.0613
+Std act:    0.5300
+Max act:    3.7850
+
+Property correlations:
+                   band_gap  r=+0.2902  ████████
+             crystal_system  r=-0.2568  ███████
+               e_above_hull  r=+0.1081  ███
+           formation_energy  r=-0.4750  ██████████████
+                   is_metal  r=-0.2641  ███████
+                  num_atoms  r=+0.3125  █████████
+                 spacegroup  r=-0.2559  ███████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0751
+                   band_gap  cos=+0.0210
+               e_above_hull  cos=+0.0047
+                  num_atoms  cos=+0.0999
+
+Enriched elements (vs dataset baseline):
+    H  8.81x
+   Sr  5.25x
+    P  5.10x
+   Al  4.10x
+    O  3.95x
+
+Top co-occurring features:
+  Feature  965  co-occur=11.1%
+  Feature 1452  co-occur=10.2%
+  Feature 2171  co-occur=9.8%
+  Feature 2363  co-occur=9.7%
+  Feature 3289  co-occur=9.3%
+
+============================================================
+FEATURE 2522
+============================================================
+Fire rate:  13.1%
+Mean act:   0.9746
+Std act:    0.4255
+Max act:    2.6070
+
+Property correlations:
+                   band_gap  r=+0.3331  █████████
+             crystal_system  r=-0.1665  ████
+               e_above_hull  r=+0.0661  █
+           formation_energy  r=-0.4613  █████████████
+                   is_metal  r=-0.3052  █████████
+                  num_atoms  r=+0.2491  ███████
+                 spacegroup  r=-0.1694  █████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0831
+                   band_gap  cos=+0.0726
+               e_above_hull  cos=+0.0317
+                  num_atoms  cos=+0.0688
+
+Enriched elements (vs dataset baseline):
+   Ta  13.92x
+   Np  7.54x
+    K  7.18x
+   Eu  6.81x
+    W  6.36x
+
+Top co-occurring features:
+  Feature  965  co-occur=10.0%
+  Feature 2171  co-occur=7.7%
+  Feature 2746  co-occur=7.6%
+  Feature 3289  co-occur=7.0%
+  Feature 1452  co-occur=7.0%
+
+============================================================
+FEATURE 3071
+============================================================
+Fire rate:  12.6%
+Mean act:   0.8550
+Std act:    0.3336
+Max act:    2.3514
+
+Property correlations:
+                   band_gap  r=+0.2863  ████████
+             crystal_system  r=-0.1453  ████
+               e_above_hull  r=+0.1001  ███
+           formation_energy  r=-0.4553  █████████████
+                   is_metal  r=-0.2453  ███████
+                  num_atoms  r=+0.1473  ████
+                 spacegroup  r=-0.1431  ████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0748
+                   band_gap  cos=+0.0299
+               e_above_hull  cos=-0.0263
+                  num_atoms  cos=-0.0130
+
+Enriched elements (vs dataset baseline):
+    F  8.76x
+    V  8.74x
+   Np  7.54x
+   Nb  6.46x
+   Na  5.29x
+
+Top co-occurring features:
+  Feature  965  co-occur=7.8%
+  Feature 3913  co-occur=7.4%
+  Feature 2746  co-occur=7.2%
+  Feature 1139  co-occur=7.0%
+  Feature 1452  co-occur=7.0%
+
+============================================================
+FEATURE 2018
+============================================================
+Fire rate:  19.6%
+Mean act:   1.0756
+Std act:    0.5076
+Max act:    3.5277
+
+Property correlations:
+                   band_gap  r=+0.2222  ██████
+             crystal_system  r=-0.1854  █████
+               e_above_hull  r=+0.0865  ██
+           formation_energy  r=-0.4539  █████████████
+                   is_metal  r=-0.1935  █████
+                  num_atoms  r=+0.2936  ████████
+                 spacegroup  r=-0.1881  █████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0801
+                   band_gap  cos=+0.0487
+               e_above_hull  cos=+0.0040
+                  num_atoms  cos=+0.1004
+
+Enriched elements (vs dataset baseline):
+   Ac  11.31x
+   Mo  10.40x
+   Cr  9.23x
+   Np  7.54x
+   Dy  4.31x
+
+Top co-occurring features:
+  Feature  965  co-occur=11.1%
+  Feature 1139  co-occur=9.2%
+  Feature 3289  co-occur=8.9%
+  Feature 3003  co-occur=8.6%
+  Feature 1452  co-occur=8.4%
+
+============================================================
+FEATURE 3509
+============================================================
+Fire rate:  16.6%
+Mean act:   0.9520
+Std act:    0.4335
+Max act:    2.9710
+
+Property correlations:
+                   band_gap  r=+0.2985  ████████
+             crystal_system  r=-0.2426  ███████
+               e_above_hull  r=+0.1707  █████
+           formation_energy  r=-0.4496  █████████████
+                   is_metal  r=-0.3045  █████████
+                  num_atoms  r=+0.2962  ████████
+                 spacegroup  r=-0.2426  ███████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0211
+                   band_gap  cos=+0.0424
+               e_above_hull  cos=+0.0288
+                  num_atoms  cos=+0.0318
+
+Enriched elements (vs dataset baseline):
+    P  8.51x
+   Li  7.56x
+   Fe  5.95x
+    F  5.94x
+    V  5.65x
+
+Top co-occurring features:
+  Feature  965  co-occur=12.0%
+  Feature 1452  co-occur=9.5%
+  Feature 2171  co-occur=9.2%
+  Feature 1139  co-occur=8.8%
+  Feature 3003  co-occur=8.7%
+
+============================================================
+FEATURE 2171
+============================================================
+Fire rate:  24.5%
+Mean act:   1.3538
+Std act:    0.7622
+Max act:    5.1413
+
+Property correlations:
+                   band_gap  r=+0.4389  █████████████
+             crystal_system  r=-0.3013  █████████
+               e_above_hull  r=+0.0732  ██
+           formation_energy  r=-0.3380  ██████████
+                   is_metal  r=-0.3995  ███████████
+                  num_atoms  r=+0.3443  ██████████
+                 spacegroup  r=-0.3142  █████████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0193
+                   band_gap  cos=+0.1581
+               e_above_hull  cos=-0.0088
+                  num_atoms  cos=+0.1034
+
+Enriched elements (vs dataset baseline):
+   Be  10.64x
+    P  9.64x
+   Li  6.58x
+    F  5.37x
+   Na  5.29x
+
+Top co-occurring features:
+  Feature  965  co-occur=13.3%
+  Feature 1139  co-occur=12.3%
+  Feature 1794  co-occur=10.5%
+  Feature 1452  co-occur=10.3%
+  Feature 1020  co-occur=10.2%
+
+============================================================
+FEATURE 3140
+============================================================
+Fire rate:  22.2%
+Mean act:   1.7858
+Std act:    1.2471
+Max act:    6.0778
+
+Property correlations:
+                   band_gap  r=+0.4340  █████████████
+             crystal_system  r=+0.2139  ██████
+               e_above_hull  r=+0.0669  ██
+           formation_energy  r=-0.4236  ████████████
+                   is_metal  r=-0.3218  █████████
+                  num_atoms  r=+0.0422  █
+                 spacegroup  r=+0.2003  ██████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0891
+                   band_gap  cos=+0.1537
+               e_above_hull  cos=-0.0169
+                  num_atoms  cos=+0.0100
+
+Enriched elements (vs dataset baseline):
+   Rb  17.55x
+    F  12.16x
+   Tl  11.18x
+   Cs  8.25x
+    K  5.64x
+
+Top co-occurring features:
+  Feature  965  co-occur=11.5%
+  Feature 1139  co-occur=11.2%
+  Feature 3003  co-occur=10.0%
+  Feature 2360  co-occur=9.8%
+  Feature 2746  co-occur=9.2%
+
+============================================================
+FEATURE 1318
+============================================================
+Fire rate:  25.2%
+Mean act:   1.2003
+Std act:    0.6624
+Max act:    4.3320
+
+Property correlations:
+                   band_gap  r=+0.0711  ██
+             crystal_system  r=-0.1290  ███
+               e_above_hull  r=-0.0052  
+           formation_energy  r=-0.0206  
+                   is_metal  r=-0.0944  ██
+                  num_atoms  r=+0.4170  ████████████
+                 spacegroup  r=-0.1274  ███
+
+Probe direction alignment:
+           formation_energy  cos=+0.0468
+                   band_gap  cos=+0.0067
+               e_above_hull  cos=+0.0037
+                  num_atoms  cos=+0.1684
+
+Enriched elements (vs dataset baseline):
+   Ga  4.46x
+   Lu  3.95x
+   Co  3.91x
+   Tm  3.69x
+   Pb  3.62x
+
+Top co-occurring features:
+  Feature  965  co-occur=11.7%
+  Feature 3175  co-occur=11.0%
+  Feature  208  co-occur=10.3%
+  Feature 2171  co-occur=9.9%
+  Feature 1020  co-occur=9.5%
+
+============================================================
+FEATURE 3868
+============================================================
+Fire rate:  8.4%
+Mean act:   0.9062
+Std act:    0.3924
+Max act:    2.5909
+
+Property correlations:
+                   band_gap  r=+0.1317  ███
+             crystal_system  r=-0.1021  ███
+               e_above_hull  r=+0.0366  █
+           formation_energy  r=-0.4167  ████████████
+                   is_metal  r=-0.1366  ████
+                  num_atoms  r=+0.2109  ██████
+                 spacegroup  r=-0.1045  ███
+
+Probe direction alignment:
+           formation_energy  cos=-0.0571
+                   band_gap  cos=+0.0060
+               e_above_hull  cos=+0.0035
+                  num_atoms  cos=+0.0590
+
+Enriched elements (vs dataset baseline):
+   Sm  11.72x
+   Hf  4.86x
+   Yb  4.50x
+   Sc  3.97x
+   Gd  3.89x
+
+Top co-occurring features:
+  Feature  965  co-occur=5.5%
+  Feature 3289  co-occur=5.3%
+  Feature 3913  co-occur=5.1%
+  Feature 2363  co-occur=4.7%
+  Feature 2735  co-occur=4.4%
+
+============================================================
+FEATURE 3142
+============================================================
+Fire rate:  16.4%
+Mean act:   1.0673
+Std act:    0.5185
+Max act:    3.4214
+
+Property correlations:
+                   band_gap  r=+0.2539  ███████
+             crystal_system  r=-0.2008  ██████
+               e_above_hull  r=+0.1444  ████
+           formation_energy  r=-0.4119  ████████████
+                   is_metal  r=-0.3004  █████████
+                  num_atoms  r=+0.2071  ██████
+                 spacegroup  r=-0.2016  ██████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0793
+                   band_gap  cos=+0.0259
+               e_above_hull  cos=+0.0200
+                  num_atoms  cos=-0.0294
+
+Enriched elements (vs dataset baseline):
+    V  11.82x
+   Mo  9.01x
+    W  6.36x
+   Cr  4.31x
+    O  3.63x
+
+Top co-occurring features:
+  Feature  965  co-occur=9.8%
+  Feature 3509  co-occur=8.6%
+  Feature 2746  co-occur=8.4%
+  Feature 1139  co-occur=8.2%
+  Feature 2171  co-occur=8.2%
+
+============================================================
+FEATURE 434
+============================================================
+Fire rate:  18.1%
+Mean act:   1.1911
+Std act:    0.5949
+Max act:    3.5858
+
+Property correlations:
+                   band_gap  r=+0.0902  ██
+             crystal_system  r=-0.2877  ████████
+               e_above_hull  r=+0.2344  ███████
+           formation_energy  r=-0.4026  ████████████
+                   is_metal  r=-0.2128  ██████
+                  num_atoms  r=+0.3525  ██████████
+                 spacegroup  r=-0.2878  ████████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0384
+                   band_gap  cos=-0.0455
+               e_above_hull  cos=-0.0084
+                  num_atoms  cos=+0.1172
+
+Enriched elements (vs dataset baseline):
+   Co  6.52x
+   Li  6.34x
+   Cr  5.54x
+   Ti  5.48x
+    W  5.46x
+
+Top co-occurring features:
+  Feature  965  co-occur=11.7%
+  Feature 1139  co-occur=9.4%
+  Feature 1452  co-occur=9.4%
+  Feature 3289  co-occur=9.0%
+  Feature  161  co-occur=8.9%
+
+============================================================
+FEATURE 3610
+============================================================
+Fire rate:  16.4%
+Mean act:   1.0364
+Std act:    0.5063
+Max act:    3.0622
+
+Property correlations:
+                   band_gap  r=+0.2857  ████████
+             crystal_system  r=-0.0773  ██
+               e_above_hull  r=+0.1212  ███
+           formation_energy  r=-0.4000  ████████████
+                   is_metal  r=-0.2782  ████████
+                  num_atoms  r=+0.1356  ████
+                 spacegroup  r=-0.0789  ██
+
+Probe direction alignment:
+           formation_energy  cos=-0.0662
+                   band_gap  cos=+0.0326
+               e_above_hull  cos=-0.0195
+                  num_atoms  cos=+0.0311
+
+Enriched elements (vs dataset baseline):
+   Li  8.78x
+   Sc  7.14x
+   Mn  6.46x
+   Pa  4.31x
+    V  4.11x
+
+Top co-occurring features:
+  Feature  965  co-occur=9.4%
+  Feature 3003  co-occur=8.4%
+  Feature 1139  co-occur=8.3%
+  Feature 2171  co-occur=8.0%
+  Feature 3913  co-occur=7.5%
+
+============================================================
+FEATURE 1792
+============================================================
+Fire rate:  11.9%
+Mean act:   0.9262
+Std act:    0.3985
+Max act:    2.5836
+
+Property correlations:
+                   band_gap  r=+0.1718  █████
+             crystal_system  r=-0.0247  
+               e_above_hull  r=+0.1342  ████
+           formation_energy  r=-0.3984  ███████████
+                   is_metal  r=-0.1960  █████
+                  num_atoms  r=+0.1380  ████
+                 spacegroup  r=-0.0233  
+
+Probe direction alignment:
+           formation_energy  cos=-0.0512
+                   band_gap  cos=-0.0246
+               e_above_hull  cos=+0.0353
+                  num_atoms  cos=+0.0021
+
+Enriched elements (vs dataset baseline):
+   Mn  7.14x
+   Sr  6.06x
+   Ca  4.45x
+   Eu  3.79x
+    O  3.39x
+
+Top co-occurring features:
+  Feature  965  co-occur=8.2%
+  Feature 2746  co-occur=7.2%
+  Feature 3003  co-occur=7.1%
+  Feature 1139  co-occur=7.1%
+  Feature 3140  co-occur=6.5%
+
+============================================================
+FEATURE 3309
+============================================================
+Fire rate:  15.8%
+Mean act:   1.4677
+Std act:    0.8702
+Max act:    4.9254
+
+Property correlations:
+                   band_gap  r=-0.1654  ████
+             crystal_system  r=+0.3977  ███████████
+               e_above_hull  r=-0.1012  ███
+           formation_energy  r=+0.2328  ██████
+                   is_metal  r=+0.2275  ██████
+                  num_atoms  r=-0.3483  ██████████
+                 spacegroup  r=+0.3750  ███████████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0073
+                   band_gap  cos=-0.0270
+               e_above_hull  cos=-0.0019
+                  num_atoms  cos=-0.0013
+
+Enriched elements (vs dataset baseline):
+   Pm  30.50x
+   Zn  14.24x
+    Y  9.18x
+   Hg  6.30x
+   Tm  5.54x
+
+Top co-occurring features:
+  Feature 2447  co-occur=7.9%
+  Feature 3721  co-occur=7.7%
+  Feature  482  co-occur=7.3%
+  Feature 3801  co-occur=7.3%
+  Feature 1506  co-occur=7.0%
+
+============================================================
+FEATURE 3454
+============================================================
+Fire rate:  12.4%
+Mean act:   1.0136
+Std act:    0.4362
+Max act:    2.7871
+
+Property correlations:
+                   band_gap  r=-0.0068  
+             crystal_system  r=+0.3928  ███████████
+               e_above_hull  r=-0.0055  
+           formation_energy  r=+0.1181  ███
+                   is_metal  r=+0.0567  █
+                  num_atoms  r=-0.2655  ███████
+                 spacegroup  r=+0.3668  ███████████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0301
+                   band_gap  cos=+0.0042
+               e_above_hull  cos=+0.0149
+                  num_atoms  cos=-0.0558
+
+Enriched elements (vs dataset baseline):
+   Ac  22.62x
+   Sn  7.60x
+   Ag  7.13x
+   Pm  6.10x
+   Hg  4.50x
+
+Top co-occurring features:
+  Feature 2447  co-occur=6.6%
+  Feature 1672  co-occur=6.4%
+  Feature 3309  co-occur=6.3%
+  Feature 2527  co-occur=5.5%
+  Feature 1849  co-occur=5.5%
+
+============================================================
+FEATURE 1629
+============================================================
+Fire rate:  13.8%
+Mean act:   1.0346
+Std act:    0.5553
+Max act:    4.8041
+
+Property correlations:
+                   band_gap  r=+0.3917  ███████████
+             crystal_system  r=-0.1863  █████
+               e_above_hull  r=+0.0348  █
+           formation_energy  r=-0.3652  ██████████
+                   is_metal  r=-0.3297  █████████
+                  num_atoms  r=+0.2076  ██████
+                 spacegroup  r=-0.1915  █████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0378
+                   band_gap  cos=+0.0982
+               e_above_hull  cos=+0.0095
+                  num_atoms  cos=+0.0178
+
+Enriched elements (vs dataset baseline):
+   Si  8.98x
+    H  5.60x
+   Be  3.55x
+    F  3.39x
+    O  3.07x
+
+Top co-occurring features:
+  Feature  965  co-occur=9.3%
+  Feature 2171  co-occur=7.5%
+  Feature 1452  co-occur=7.4%
+  Feature 1139  co-occur=7.1%
+  Feature 3509  co-occur=7.1%
+
+============================================================
+FEATURE 24
+============================================================
+Fire rate:  4.8%
+Mean act:   0.8498
+Std act:    0.3242
+Max act:    2.0643
+
+Property correlations:
+                   band_gap  r=+0.2289  ██████
+             crystal_system  r=-0.0677  ██
+               e_above_hull  r=+0.0086  
+           formation_energy  r=-0.3875  ███████████
+                   is_metal  r=-0.1557  ████
+                  num_atoms  r=+0.0613  █
+                 spacegroup  r=-0.0614  █
+
+Probe direction alignment:
+           formation_energy  cos=-0.0998
+                   band_gap  cos=+0.0721
+               e_above_hull  cos=-0.0327
+                  num_atoms  cos=-0.0211
+
+Enriched elements (vs dataset baseline):
+   Zr  8.29x
+   Tb  7.24x
+    F  6.22x
+   Er  5.55x
+    U  4.94x
+
+Top co-occurring features:
+  Feature 3289  co-occur=3.4%
+  Feature 3913  co-occur=3.1%
+  Feature 2018  co-occur=2.7%
+  Feature 2363  co-occur=2.7%
+  Feature 1452  co-occur=2.7%
+
+============================================================
+FEATURE 1047
+============================================================
+Fire rate:  14.1%
+Mean act:   1.2222
+Std act:    0.6511
+Max act:    4.0251
+
+Property correlations:
+                   band_gap  r=+0.1833  █████
+             crystal_system  r=-0.2596  ███████
+               e_above_hull  r=+0.1662  ████
+           formation_energy  r=-0.3746  ███████████
+                   is_metal  r=-0.2481  ███████
+                  num_atoms  r=+0.2170  ██████
+                 spacegroup  r=-0.2626  ███████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0467
+                   band_gap  cos=+0.0007
+               e_above_hull  cos=-0.0180
+                  num_atoms  cos=+0.0533
+
+Enriched elements (vs dataset baseline):
+    V  18.51x
+    F  12.72x
+    O  3.15x
+   Fe  2.80x
+   Li  2.44x
+
+Top co-occurring features:
+  Feature  965  co-occur=8.3%
+  Feature 3003  co-occur=8.2%
+  Feature 1452  co-occur=7.5%
+  Feature 2171  co-occur=7.3%
+  Feature 1139  co-occur=7.2%
+
+============================================================
+FEATURE 2447
+============================================================
+Fire rate:  25.9%
+Mean act:   1.2342
+Std act:    0.6149
+Max act:    4.3921
+
+Property correlations:
+                   band_gap  r=-0.1420  ████
+             crystal_system  r=+0.2977  ████████
+               e_above_hull  r=-0.0604  █
+           formation_energy  r=+0.2721  ████████
+                   is_metal  r=+0.1799  █████
+                  num_atoms  r=-0.3729  ███████████
+                 spacegroup  r=+0.2914  ████████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0138
+                   band_gap  cos=+0.0158
+               e_above_hull  cos=+0.0056
+                  num_atoms  cos=-0.0341
+
+Enriched elements (vs dataset baseline):
+   Pm  14.23x
+   Ac  11.31x
+   Pt  9.01x
+   Ca  7.56x
+   Mg  6.74x
+
+Top co-occurring features:
+  Feature 1672  co-occur=12.5%
+  Feature 2114  co-occur=11.1%
+  Feature 3801  co-occur=11.1%
+  Feature 1506  co-occur=10.9%
+  Feature 3175  co-occur=10.7%
+
+============================================================
+FEATURE 2735
+============================================================
+Fire rate:  19.4%
+Mean act:   1.0436
+Std act:    0.4923
+Max act:    3.2549
+
+Property correlations:
+                   band_gap  r=+0.2498  ███████
+             crystal_system  r=-0.0781  ██
+               e_above_hull  r=+0.0118  
+           formation_energy  r=-0.3621  ██████████
+                   is_metal  r=-0.2696  ████████
+                  num_atoms  r=+0.1961  █████
+                 spacegroup  r=-0.0823  ██
+
+Probe direction alignment:
+           formation_energy  cos=-0.0644
+                   band_gap  cos=+0.0514
+               e_above_hull  cos=-0.0038
+                  num_atoms  cos=+0.0625
+
+Enriched elements (vs dataset baseline):
+   Sr  15.75x
+    I  9.66x
+   Ba  4.71x
+   Sb  4.45x
+    N  3.05x
+
+Top co-occurring features:
+  Feature  965  co-occur=10.0%
+  Feature 1139  co-occur=8.5%
+  Feature 2746  co-occur=8.2%
+  Feature 3140  co-occur=7.9%
+  Feature 1276  co-occur=7.8%
+
+============================================================
+FEATURE 4076
+============================================================
+Fire rate:  19.7%
+Mean act:   1.0487
+Std act:    0.4813
+Max act:    3.1690
+
+Property correlations:
+                   band_gap  r=+0.2365  ███████
+             crystal_system  r=-0.2383  ███████
+               e_above_hull  r=+0.1171  ███
+           formation_energy  r=-0.3429  ██████████
+                   is_metal  r=-0.2844  ████████
+                  num_atoms  r=+0.3602  ██████████
+                 spacegroup  r=-0.2427  ███████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0131
+                   band_gap  cos=+0.0487
+               e_above_hull  cos=+0.0004
+                  num_atoms  cos=+0.1235
+
+Enriched elements (vs dataset baseline):
+   Fe  7.70x
+   Cs  5.30x
+   Li  5.12x
+   Pb  4.52x
+   Nb  4.04x
+
+Top co-occurring features:
+  Feature  965  co-occur=11.5%
+  Feature 2171  co-occur=8.8%
+  Feature 3003  co-occur=8.4%
+  Feature 2363  co-occur=8.4%
+  Feature 2746  co-occur=8.3%
+
+============================================================
+FEATURE 2114
+============================================================
+Fire rate:  29.1%
+Mean act:   1.3782
+Std act:    0.7070
+Max act:    4.5684
+
+Property correlations:
+                   band_gap  r=-0.2584  ███████
+             crystal_system  r=+0.1152  ███
+               e_above_hull  r=-0.0737  ██
+           formation_energy  r=+0.3579  ██████████
+                   is_metal  r=+0.2860  ████████
+                  num_atoms  r=-0.1791  █████
+                 spacegroup  r=+0.1127  ███
+
+Probe direction alignment:
+           formation_energy  cos=+0.0012
+                   band_gap  cos=-0.0197
+               e_above_hull  cos=+0.0006
+                  num_atoms  cos=+0.0365
+
+Enriched elements (vs dataset baseline):
+   Ho  11.75x
+   Ga  8.02x
+   Tm  6.46x
+   Er  6.24x
+   Ge  6.01x
+
+Top co-occurring features:
+  Feature 3175  co-occur=14.3%
+  Feature 3066  co-occur=12.0%
+  Feature 3801  co-occur=11.6%
+  Feature 2447  co-occur=11.1%
+  Feature 1672  co-occur=10.5%
+
+============================================================
+FEATURE 264
+============================================================
+Fire rate:  14.5%
+Mean act:   0.9949
+Std act:    0.4949
+Max act:    4.0236
+
+Property correlations:
+                   band_gap  r=+0.3087  █████████
+             crystal_system  r=-0.1153  ███
+               e_above_hull  r=+0.1085  ███
+           formation_energy  r=-0.3494  ██████████
+                   is_metal  r=-0.2778  ████████
+                  num_atoms  r=+0.1986  █████
+                 spacegroup  r=-0.1146  ███
+
+Probe direction alignment:
+           formation_energy  cos=-0.0443
+                   band_gap  cos=+0.0864
+               e_above_hull  cos=+0.0142
+                  num_atoms  cos=+0.0170
+
+Enriched elements (vs dataset baseline):
+    H  6.40x
+    K  5.64x
+    S  4.67x
+   Al  4.10x
+    O  4.04x
+
+Top co-occurring features:
+  Feature  965  co-occur=8.5%
+  Feature 1139  co-occur=7.9%
+  Feature 2171  co-occur=7.8%
+  Feature 1452  co-occur=7.4%
+  Feature 2746  co-occur=7.2%
+
+============================================================
+FEATURE 1498
+============================================================
+Fire rate:  17.8%
+Mean act:   1.1849
+Std act:    0.5841
+Max act:    3.4328
+
+Property correlations:
+                   band_gap  r=+0.2112  ██████
+             crystal_system  r=-0.2200  ██████
+               e_above_hull  r=+0.0914  ██
+           formation_energy  r=-0.3440  ██████████
+                   is_metal  r=-0.2242  ██████
+                  num_atoms  r=+0.2752  ████████
+                 spacegroup  r=-0.2219  ██████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0366
+                   band_gap  cos=+0.0341
+               e_above_hull  cos=+0.0064
+                  num_atoms  cos=+0.1275
+
+Enriched elements (vs dataset baseline):
+    H  8.01x
+   Ba  7.27x
+   Cu  4.69x
+   Sr  4.04x
+    F  3.96x
+
+Top co-occurring features:
+  Feature  965  co-occur=10.4%
+  Feature 1276  co-occur=9.0%
+  Feature 1452  co-occur=8.9%
+  Feature 3289  co-occur=8.2%
+  Feature 1139  co-occur=7.9%
+
+============================================================
+FEATURE 1139
+============================================================
+Fire rate:  26.8%
+Mean act:   1.2663
+Std act:    0.7147
+Max act:    5.1383
+
+Property correlations:
+                   band_gap  r=+0.1851  █████
+             crystal_system  r=-0.0733  ██
+               e_above_hull  r=+0.1354  ████
+           formation_energy  r=-0.3438  ██████████
+                   is_metal  r=-0.2315  ██████
+                  num_atoms  r=+0.2512  ███████
+                 spacegroup  r=-0.0807  ██
+
+Probe direction alignment:
+           formation_energy  cos=-0.0241
+                   band_gap  cos=-0.0453
+               e_above_hull  cos=+0.0147
+                  num_atoms  cos=+0.1053
+
+Enriched elements (vs dataset baseline):
+   Cr  10.46x
+   Li  10.00x
+   Ni  4.43x
+    O  3.23x
+    F  2.83x
+
+Top co-occurring features:
+  Feature  965  co-occur=14.1%
+  Feature 2171  co-occur=12.3%
+  Feature 3140  co-occur=11.2%
+  Feature 2746  co-occur=10.4%
+  Feature 3003  co-occur=10.2%
+
+============================================================
+FEATURE 3099
+============================================================
+Fire rate:  30.7%
+Mean act:   1.2837
+Std act:    0.6847
+Max act:    5.3872
+
+Property correlations:
+                   band_gap  r=-0.1030  ███
+             crystal_system  r=-0.2970  ████████
+               e_above_hull  r=-0.0750  ██
+           formation_energy  r=+0.1196  ███
+                   is_metal  r=+0.1143  ███
+                  num_atoms  r=+0.3412  ██████████
+                 spacegroup  r=-0.3005  █████████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0047
+                   band_gap  cos=-0.0105
+               e_above_hull  cos=-0.0002
+                  num_atoms  cos=+0.1254
+
+Enriched elements (vs dataset baseline):
+    B  8.81x
+   Pu  8.22x
+   Rh  6.01x
+   Ru  5.28x
+   Ir  4.23x
+
+Top co-occurring features:
+  Feature 3175  co-occur=14.2%
+  Feature 1672  co-occur=12.1%
+  Feature 3166  co-occur=10.8%
+  Feature 1506  co-occur=10.5%
+  Feature 3801  co-occur=10.4%
+
+============================================================
+FEATURE 561
+============================================================
+Fire rate:  5.6%
+Mean act:   1.0437
+Std act:    0.5341
+Max act:    3.0266
+
+Property correlations:
+                   band_gap  r=+0.1959  █████
+             crystal_system  r=+0.1886  █████
+               e_above_hull  r=+0.0477  █
+           formation_energy  r=-0.3398  ██████████
+                   is_metal  r=-0.1544  ████
+                  num_atoms  r=+0.0002  
+                 spacegroup  r=+0.1782  █████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0960
+                   band_gap  cos=-0.0140
+               e_above_hull  cos=-0.0348
+                  num_atoms  cos=-0.0354
+
+Enriched elements (vs dataset baseline):
+   Ba  17.97x
+   Pa  17.23x
+   Pu  8.22x
+   Re  6.70x
+    U  5.93x
+
+Top co-occurring features:
+  Feature 3140  co-occur=4.7%
+  Feature  416  co-occur=3.9%
+  Feature 2746  co-occur=3.8%
+  Feature  965  co-occur=3.8%
+  Feature 2360  co-occur=3.7%
+
+============================================================
+FEATURE 3961
+============================================================
+Fire rate:  23.6%
+Mean act:   1.3302
+Std act:    0.7298
+Max act:    4.4255
+
+Property correlations:
+                   band_gap  r=-0.1685  █████
+             crystal_system  r=+0.1720  █████
+               e_above_hull  r=-0.0330  
+           formation_energy  r=+0.3385  ██████████
+                   is_metal  r=+0.1916  █████
+                  num_atoms  r=-0.2007  ██████
+                 spacegroup  r=+0.1748  █████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0503
+                   band_gap  cos=-0.0197
+               e_above_hull  cos=-0.0040
+                  num_atoms  cos=+0.0330
+
+Enriched elements (vs dataset baseline):
+   He  180.94x
+   Pb  10.86x
+   Pm  10.17x
+   Ca  9.34x
+   Ac  3.77x
+
+Top co-occurring features:
+  Feature 3175  co-occur=11.1%
+  Feature 1506  co-occur=10.5%
+  Feature 2447  co-occur=10.4%
+  Feature 1672  co-occur=10.1%
+  Feature 3066  co-occur=9.5%
+
+============================================================
+FEATURE 3721
+============================================================
+Fire rate:  19.5%
+Mean act:   1.2417
+Std act:    0.7084
+Max act:    4.0571
+
+Property correlations:
+                   band_gap  r=-0.1924  █████
+             crystal_system  r=+0.3306  █████████
+               e_above_hull  r=-0.0989  ██
+           formation_energy  r=+0.2471  ███████
+                   is_metal  r=+0.2425  ███████
+                  num_atoms  r=-0.2918  ████████
+                 spacegroup  r=+0.3186  █████████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0027
+                   band_gap  cos=+0.0175
+               e_above_hull  cos=+0.0268
+                  num_atoms  cos=+0.0011
+
+Enriched elements (vs dataset baseline):
+   Pm  24.40x
+   Tc  11.08x
+   Zn  10.10x
+   Ga  8.91x
+   Pa  8.62x
+
+Top co-occurring features:
+  Feature 1672  co-occur=9.0%
+  Feature 3801  co-occur=8.7%
+  Feature 3066  co-occur=8.7%
+  Feature 2114  co-occur=8.5%
+  Feature  968  co-occur=8.2%
+
+============================================================
+FEATURE 3830
+============================================================
+Fire rate:  17.7%
+Mean act:   1.0850
+Std act:    0.6001
+Max act:    3.9504
+
+Property correlations:
+                   band_gap  r=+0.1641  ████
+             crystal_system  r=-0.2907  ████████
+               e_above_hull  r=+0.0378  █
+           formation_energy  r=-0.1680  █████
+                   is_metal  r=-0.2266  ██████
+                  num_atoms  r=+0.3278  █████████
+                 spacegroup  r=-0.3086  █████████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0203
+                   band_gap  cos=+0.0302
+               e_above_hull  cos=+0.0284
+                  num_atoms  cos=+0.1008
+
+Enriched elements (vs dataset baseline):
+   Tl  6.29x
+    S  5.50x
+   Rb  4.84x
+   Cl  4.57x
+    V  4.11x
+
+Top co-occurring features:
+  Feature  965  co-occur=8.9%
+  Feature 3099  co-occur=8.8%
+  Feature 2833  co-occur=7.5%
+  Feature 2171  co-occur=7.5%
+  Feature 1020  co-occur=7.3%
+
+============================================================
+FEATURE 862
+============================================================
+Fire rate:  8.7%
+Mean act:   1.0635
+Std act:    0.5188
+Max act:    3.3367
+
+Property correlations:
+                   band_gap  r=+0.1387  ████
+             crystal_system  r=+0.0039  
+               e_above_hull  r=+0.0146  
+           formation_energy  r=-0.3193  █████████
+                   is_metal  r=-0.1391  ████
+                  num_atoms  r=-0.1322  ███
+                 spacegroup  r=+0.0295  
+
+Probe direction alignment:
+           formation_energy  cos=-0.1269
+                   band_gap  cos=+0.0115
+               e_above_hull  cos=-0.0268
+                  num_atoms  cos=-0.0514
+
+Enriched elements (vs dataset baseline):
+   Th  6.70x
+   Ce  4.62x
+   Yb  4.50x
+   Pa  4.31x
+   Ho  3.92x
+
+Top co-occurring features:
+  Feature 1452  co-occur=3.7%
+  Feature 3003  co-occur=3.5%
+  Feature 2735  co-occur=3.4%
+  Feature 3289  co-occur=3.2%
+  Feature 1276  co-occur=3.1%
+
+============================================================
+FEATURE 1794
+============================================================
+Fire rate:  20.3%
+Mean act:   1.2307
+Std act:    0.6377
+Max act:    3.9723
+
+Property correlations:
+                   band_gap  r=+0.3187  █████████
+             crystal_system  r=-0.2282  ██████
+               e_above_hull  r=+0.0848  ██
+           formation_energy  r=-0.1914  █████
+                   is_metal  r=-0.3168  █████████
+                  num_atoms  r=+0.2152  ██████
+                 spacegroup  r=-0.2359  ███████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0062
+                   band_gap  cos=+0.1276
+               e_above_hull  cos=-0.0048
+                  num_atoms  cos=+0.0563
+
+Enriched elements (vs dataset baseline):
+    H  21.62x
+    N  8.53x
+    K  6.66x
+    I  6.15x
+   Na  4.76x
+
+Top co-occurring features:
+  Feature 2171  co-occur=10.5%
+  Feature  965  co-occur=10.4%
+  Feature 1452  co-occur=9.1%
+  Feature 1139  co-occur=9.1%
+  Feature  161  co-occur=8.9%
+
+============================================================
+FEATURE 2076
+============================================================
+Fire rate:  17.1%
+Mean act:   1.2637
+Std act:    0.6918
+Max act:    4.1119
+
+Property correlations:
+                   band_gap  r=-0.1582  ████
+             crystal_system  r=+0.0617  █
+               e_above_hull  r=-0.0661  █
+           formation_energy  r=+0.3163  █████████
+                   is_metal  r=+0.2261  ██████
+                  num_atoms  r=-0.0541  █
+                 spacegroup  r=+0.0723  ██
+
+Probe direction alignment:
+           formation_energy  cos=+0.0422
+                   band_gap  cos=+0.0015
+               e_above_hull  cos=+0.0064
+                  num_atoms  cos=+0.0830
+
+Enriched elements (vs dataset baseline):
+   Al  15.70x
+   Be  14.19x
+   Np  7.54x
+   Fe  4.90x
+    H  4.00x
+
+Top co-occurring features:
+  Feature 1490  co-occur=8.4%
+  Feature 3175  co-occur=8.4%
+  Feature 3066  co-occur=8.0%
+  Feature 1672  co-occur=7.7%
+  Feature 2516  co-occur=7.3%
+
+============================================================
+FEATURE 1490
+============================================================
+Fire rate:  20.2%
+Mean act:   1.4365
+Std act:    0.8798
+Max act:    5.5530
+
+Property correlations:
+                   band_gap  r=-0.2125  ██████
+             crystal_system  r=+0.1388  ████
+               e_above_hull  r=-0.0493  █
+           formation_energy  r=+0.3126  █████████
+                   is_metal  r=+0.2875  ████████
+                  num_atoms  r=-0.1159  ███
+                 spacegroup  r=+0.1405  ████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0161
+                   band_gap  cos=-0.0229
+               e_above_hull  cos=+0.0098
+                  num_atoms  cos=+0.0499
+
+Enriched elements (vs dataset baseline):
+   Co  13.04x
+   Th  6.70x
+   Fe  5.60x
+   Dy  5.03x
+   Lu  4.94x
+
+Top co-occurring features:
+  Feature 1506  co-occur=10.6%
+  Feature 3175  co-occur=10.1%
+  Feature 2114  co-occur=9.8%
+  Feature 1672  co-occur=8.6%
+  Feature 2076  co-occur=8.4%
+
+============================================================
+FEATURE 857
+============================================================
+Fire rate:  14.1%
+Mean act:   1.2344
+Std act:    0.6881
+Max act:    5.1620
+
+Property correlations:
+                   band_gap  r=-0.0935  ██
+             crystal_system  r=+0.2011  ██████
+               e_above_hull  r=-0.0486  █
+           formation_energy  r=+0.1830  █████
+                   is_metal  r=+0.1245  ███
+                  num_atoms  r=-0.3125  █████████
+                 spacegroup  r=+0.1972  █████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0274
+                   band_gap  cos=+0.0056
+               e_above_hull  cos=+0.0165
+                  num_atoms  cos=-0.0213
+
+Enriched elements (vs dataset baseline):
+   Cd  17.37x
+   Hg  10.80x
+   Pu  8.22x
+   Tl  6.99x
+   Lu  4.94x
+
+Top co-occurring features:
+  Feature 2447  co-occur=6.4%
+  Feature 3801  co-occur=5.9%
+  Feature 2516  co-occur=5.5%
+  Feature 3066  co-occur=5.4%
+  Feature 2132  co-occur=5.2%
+
+============================================================
+FEATURE 254
+============================================================
+Fire rate:  11.2%
+Mean act:   0.9271
+Std act:    0.5464
+Max act:    3.9684
+
+Property correlations:
+                   band_gap  r=-0.0371  █
+             crystal_system  r=+0.2807  ████████
+               e_above_hull  r=-0.0591  █
+           formation_energy  r=+0.0132  
+                   is_metal  r=+0.0202  
+                  num_atoms  r=-0.3118  █████████
+                 spacegroup  r=+0.2717  ████████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0310
+                   band_gap  cos=-0.0112
+               e_above_hull  cos=-0.0011
+                  num_atoms  cos=-0.0424
+
+Enriched elements (vs dataset baseline):
+   Pu  12.34x
+   Th  5.03x
+   Bi  3.96x
+   Te  3.66x
+   Nd  3.38x
+
+Top co-occurring features:
+  Feature 2447  co-occur=5.7%
+  Feature 1506  co-occur=5.2%
+  Feature 2114  co-occur=4.8%
+  Feature 3721  co-occur=4.6%
+  Feature 3175  co-occur=4.5%
+
+============================================================
+FEATURE 3066
+============================================================
+Fire rate:  26.9%
+Mean act:   1.4280
+Std act:    0.7954
+Max act:    5.4408
+
+Property correlations:
+                   band_gap  r=-0.2341  ███████
+             crystal_system  r=+0.0888  ██
+               e_above_hull  r=-0.1306  ███
+           formation_energy  r=+0.3103  █████████
+                   is_metal  r=+0.2716  ████████
+                  num_atoms  r=-0.2176  ██████
+                 spacegroup  r=+0.1087  ███
+
+Probe direction alignment:
+           formation_energy  cos=+0.0020
+                   band_gap  cos=-0.0050
+               e_above_hull  cos=-0.0075
+                  num_atoms  cos=+0.0040
+
+Enriched elements (vs dataset baseline):
+   Ga  10.25x
+   Pr  8.65x
+   In  6.77x
+   Nd  5.40x
+   Sm  4.56x
+
+Top co-occurring features:
+  Feature 3175  co-occur=13.5%
+  Feature 1506  co-occur=12.7%
+  Feature 1672  co-occur=12.5%
+  Feature 2114  co-occur=12.0%
+  Feature 3801  co-occur=11.3%
+
+============================================================
+FEATURE 873
+============================================================
+Fire rate:  21.5%
+Mean act:   1.2742
+Std act:    0.6874
+Max act:    4.4509
+
+Property correlations:
+                   band_gap  r=-0.1859  █████
+             crystal_system  r=+0.1367  ████
+               e_above_hull  r=-0.0853  ██
+           formation_energy  r=+0.3063  █████████
+                   is_metal  r=+0.1880  █████
+                  num_atoms  r=-0.1811  █████
+                 spacegroup  r=+0.1369  ████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0253
+                   band_gap  cos=-0.0029
+               e_above_hull  cos=-0.0052
+                  num_atoms  cos=+0.0169
+
+Enriched elements (vs dataset baseline):
+   Cd  10.86x
+   Au  10.05x
+   Zn  8.73x
+   Tc  7.39x
+   Be  7.10x
+
+Top co-occurring features:
+  Feature 3175  co-occur=10.2%
+  Feature 1672  co-occur=9.6%
+  Feature 1506  co-occur=9.2%
+  Feature 3066  co-occur=9.1%
+  Feature 2516  co-occur=9.0%
+
+============================================================
+FEATURE 2043
+============================================================
+Fire rate:  3.3%
+Mean act:   0.7813
+Std act:    0.2776
+Max act:    1.7150
+
+Property correlations:
+                   band_gap  r=+0.0958  ██
+             crystal_system  r=-0.1087  ███
+               e_above_hull  r=+0.0571  █
+           formation_energy  r=-0.3027  █████████
+                   is_metal  r=-0.1101  ███
+                  num_atoms  r=+0.1284  ███
+                 spacegroup  r=-0.1072  ███
+
+Probe direction alignment:
+           formation_energy  cos=-0.0956
+                   band_gap  cos=+0.0254
+               e_above_hull  cos=+0.0241
+                  num_atoms  cos=+0.0608
+
+Enriched elements (vs dataset baseline):
+   Zr  12.06x
+   Nb  11.31x
+   Ce  5.78x
+   Pa  4.31x
+   Ta  4.28x
+
+Top co-occurring features:
+  Feature 2746  co-occur=2.3%
+  Feature 3289  co-occur=2.3%
+  Feature 2363  co-occur=2.3%
+  Feature 3003  co-occur=2.3%
+  Feature 3913  co-occur=2.2%
+
+============================================================
+FEATURE 684
+============================================================
+Fire rate:  19.1%
+Mean act:   1.1842
+Std act:    0.5749
+Max act:    3.8277
+
+Property correlations:
+                   band_gap  r=-0.2156  ██████
+             crystal_system  r=+0.0332  
+               e_above_hull  r=-0.0571  █
+           formation_energy  r=+0.3020  █████████
+                   is_metal  r=+0.2829  ████████
+                  num_atoms  r=-0.0883  ██
+                 spacegroup  r=+0.0376  █
+
+Probe direction alignment:
+           formation_energy  cos=+0.0353
+                   band_gap  cos=-0.0195
+               e_above_hull  cos=-0.0244
+                  num_atoms  cos=+0.0461
+
+Enriched elements (vs dataset baseline):
+    U  17.80x
+   Np  15.08x
+   Co  11.08x
+    B  5.42x
+   Ge  4.95x
+
+Top co-occurring features:
+  Feature 3175  co-occur=9.4%
+  Feature 3801  co-occur=9.0%
+  Feature 1506  co-occur=8.7%
+  Feature 3196  co-occur=8.4%
+  Feature 2114  co-occur=8.1%
+
+============================================================
+FEATURE 482
+============================================================
+Fire rate:  14.8%
+Mean act:   1.2667
+Std act:    0.7234
+Max act:    4.9624
+
+Property correlations:
+                   band_gap  r=-0.1650  ████
+             crystal_system  r=+0.2896  ████████
+               e_above_hull  r=-0.0461  █
+           formation_energy  r=+0.3012  █████████
+                   is_metal  r=+0.2328  ██████
+                  num_atoms  r=-0.2873  ████████
+                 spacegroup  r=+0.2763  ████████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0547
+                   band_gap  cos=-0.0265
+               e_above_hull  cos=-0.0064
+                  num_atoms  cos=+0.0017
+
+Enriched elements (vs dataset baseline):
+   Mg  16.48x
+   Tc  11.08x
+   Pm  8.13x
+   Tm  4.62x
+   Zn  4.13x
+
+Top co-occurring features:
+  Feature 2447  co-occur=8.1%
+  Feature 3309  co-occur=7.3%
+  Feature 2114  co-occur=7.0%
+  Feature 3801  co-occur=6.7%
+  Feature 3175  co-occur=6.2%
+
+============================================================
+FEATURE 3801
+============================================================
+Fire rate:  27.7%
+Mean act:   1.3033
+Std act:    0.6879
+Max act:    4.3092
+
+Property correlations:
+                   band_gap  r=-0.2500  ███████
+             crystal_system  r=+0.1472  ████
+               e_above_hull  r=-0.1363  ████
+           formation_energy  r=+0.2584  ███████
+                   is_metal  r=+0.3001  █████████
+                  num_atoms  r=-0.1470  ████
+                 spacegroup  r=+0.1414  ████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0397
+                   band_gap  cos=+0.0156
+               e_above_hull  cos=+0.0099
+                  num_atoms  cos=+0.0683
+
+Enriched elements (vs dataset baseline):
+   Pt  15.45x
+   Sc  10.32x
+   Tm  9.23x
+   Ni  5.82x
+   Ho  5.48x
+
+Top co-occurring features:
+  Feature 3175  co-occur=12.6%
+  Feature 2114  co-occur=11.6%
+  Feature 1506  co-occur=11.3%
+  Feature 3066  co-occur=11.3%
+  Feature 2516  co-occur=11.1%
+
+============================================================
+FEATURE 1849
+============================================================
+Fire rate:  12.6%
+Mean act:   1.2751
+Std act:    0.7840
+Max act:    4.3918
+
+Property correlations:
+                   band_gap  r=+0.1958  █████
+             crystal_system  r=+0.2962  ████████
+               e_above_hull  r=+0.0927  ██
+           formation_energy  r=-0.1692  █████
+                   is_metal  r=-0.1831  █████
+                  num_atoms  r=-0.0209  
+                 spacegroup  r=+0.2812  ████████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0163
+                   band_gap  cos=+0.0404
+               e_above_hull  cos=+0.0167
+                  num_atoms  cos=+0.0725
+
+Enriched elements (vs dataset baseline):
+    K  16.40x
+    I  14.93x
+   Cl  14.27x
+   Cs  11.20x
+   Rb  9.08x
+
+Top co-occurring features:
+  Feature 3140  co-occur=8.8%
+  Feature 1139  co-occur=6.8%
+  Feature 2360  co-occur=6.4%
+  Feature 2746  co-occur=5.7%
+  Feature  965  co-occur=5.5%
+
+============================================================
+FEATURE 123
+============================================================
+Fire rate:  3.9%
+Mean act:   0.7417
+Std act:    0.2416
+Max act:    1.7685
+
+Property correlations:
+                   band_gap  r=+0.0574  █
+             crystal_system  r=-0.1239  ███
+               e_above_hull  r=+0.0680  ██
+           formation_energy  r=-0.2945  ████████
+                   is_metal  r=-0.1019  ███
+                  num_atoms  r=+0.2170  ██████
+                 spacegroup  r=-0.1200  ███
+
+Probe direction alignment:
+           formation_energy  cos=-0.0781
+                   band_gap  cos=-0.0259
+               e_above_hull  cos=-0.0274
+                  num_atoms  cos=+0.0262
+
+Enriched elements (vs dataset baseline):
+   Sr  8.48x
+   Ti  7.48x
+   La  5.20x
+   Ce  4.62x
+   Nd  4.05x
+
+Top co-occurring features:
+  Feature  434  co-occur=2.9%
+  Feature  965  co-occur=2.8%
+  Feature 3289  co-occur=2.8%
+  Feature 2018  co-occur=2.7%
+  Feature 1276  co-occur=2.6%
+
+============================================================
+FEATURE 2155
+============================================================
+Fire rate:  11.8%
+Mean act:   1.2394
+Std act:    0.6971
+Max act:    4.9865
+
+Property correlations:
+                   band_gap  r=+0.1736  █████
+             crystal_system  r=-0.0985  ██
+               e_above_hull  r=+0.1177  ███
+           formation_energy  r=-0.2943  ████████
+                   is_metal  r=-0.2199  ██████
+                  num_atoms  r=+0.1070  ███
+                 spacegroup  r=-0.0784  ██
+
+Probe direction alignment:
+           formation_energy  cos=-0.0578
+                   band_gap  cos=+0.0839
+               e_above_hull  cos=-0.0024
+                  num_atoms  cos=+0.0220
+
+Enriched elements (vs dataset baseline):
+   Nb  6.46x
+   Ti  4.49x
+   Ta  4.28x
+   La  4.25x
+    S  4.12x
+
+Top co-occurring features:
+  Feature  434  co-occur=6.0%
+  Feature 1452  co-occur=6.0%
+  Feature 3003  co-occur=5.4%
+  Feature 3289  co-occur=5.2%
+  Feature  965  co-occur=5.0%
+
+============================================================
+FEATURE 1673
+============================================================
+Fire rate:  17.5%
+Mean act:   1.1310
+Std act:    0.5491
+Max act:    3.8174
+
+Property correlations:
+                   band_gap  r=-0.1533  ████
+             crystal_system  r=+0.0178  
+               e_above_hull  r=-0.0336  █
+           formation_energy  r=+0.2907  ████████
+                   is_metal  r=+0.1931  █████
+                  num_atoms  r=-0.1422  ████
+                 spacegroup  r=+0.0250  
+
+Probe direction alignment:
+           formation_energy  cos=+0.0120
+                   band_gap  cos=+0.0134
+               e_above_hull  cos=-0.0051
+                  num_atoms  cos=+0.0348
+
+Enriched elements (vs dataset baseline):
+   Os  9.73x
+   Si  9.69x
+   Ir  5.07x
+   Ni  4.71x
+   Fe  4.55x
+
+Top co-occurring features:
+  Feature 3175  co-occur=8.5%
+  Feature 3166  co-occur=7.4%
+  Feature  736  co-occur=7.3%
+  Feature 1506  co-occur=7.1%
+  Feature 1672  co-occur=7.1%
+
+============================================================
+FEATURE 2518
+============================================================
+Fire rate:  9.9%
+Mean act:   0.8648
+Std act:    0.3651
+Max act:    2.5611
+
+Property correlations:
+                   band_gap  r=-0.1529  ████
+             crystal_system  r=+0.2829  ████████
+               e_above_hull  r=-0.1146  ███
+           formation_energy  r=+0.1841  █████
+                   is_metal  r=+0.2006  ██████
+                  num_atoms  r=-0.2555  ███████
+                 spacegroup  r=+0.2690  ████████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0002
+                   band_gap  cos=-0.0356
+               e_above_hull  cos=-0.0057
+                  num_atoms  cos=-0.0250
+
+Enriched elements (vs dataset baseline):
+   Pm  16.26x
+   Rh  12.62x
+   Al  8.53x
+   Np  7.54x
+   Lu  5.93x
+
+Top co-occurring features:
+  Feature 3309  co-occur=5.6%
+  Feature 2114  co-occur=5.3%
+  Feature 1672  co-occur=5.0%
+  Feature 3721  co-occur=4.9%
+  Feature 3801  co-occur=4.9%
+
+============================================================
+FEATURE 3304
+============================================================
+Fire rate:  13.0%
+Mean act:   0.9622
+Std act:    0.4485
+Max act:    3.1240
+
+Property correlations:
+                   band_gap  r=+0.2759  ████████
+             crystal_system  r=-0.0488  █
+               e_above_hull  r=+0.0299  
+           formation_energy  r=-0.2394  ███████
+                   is_metal  r=-0.2814  ████████
+                  num_atoms  r=+0.0312  
+                 spacegroup  r=-0.0439  █
+
+Probe direction alignment:
+           formation_energy  cos=-0.0266
+                   band_gap  cos=+0.0604
+               e_above_hull  cos=+0.0011
+                  num_atoms  cos=-0.0015
+
+Enriched elements (vs dataset baseline):
+   Cl  17.12x
+   Rb  7.87x
+    K  7.69x
+   Na  6.35x
+   Br  3.91x
+
+Top co-occurring features:
+  Feature 2171  co-occur=7.0%
+  Feature 1139  co-occur=6.7%
+  Feature 3140  co-occur=6.5%
+  Feature 2746  co-occur=5.6%
+  Feature 3003  co-occur=5.6%
+
+============================================================
+FEATURE 1506
+============================================================
+Fire rate:  31.7%
+Mean act:   1.4811
+Std act:    0.8477
+Max act:    5.4693
+
+Property correlations:
+                   band_gap  r=-0.2167  ██████
+             crystal_system  r=+0.1688  █████
+               e_above_hull  r=-0.1223  ███
+           formation_energy  r=+0.2061  ██████
+                   is_metal  r=+0.2768  ████████
+                  num_atoms  r=-0.2803  ████████
+                 spacegroup  r=+0.1845  █████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0035
+                   band_gap  cos=-0.0224
+               e_above_hull  cos=-0.0019
+                  num_atoms  cos=-0.0249
+
+Enriched elements (vs dataset baseline):
+   Pr  8.65x
+   Pd  7.82x
+   La  5.67x
+   Ir  5.07x
+   Eu  4.54x
+
+Top co-occurring features:
+  Feature 3175  co-occur=15.0%
+  Feature 3066  co-occur=12.7%
+  Feature 1672  co-occur=12.3%
+  Feature 3801  co-occur=11.3%
+  Feature 2516  co-occur=11.2%
+
+============================================================
+FEATURE 736
+============================================================
+Fire rate:  21.0%
+Mean act:   1.2613
+Std act:    0.6835
+Max act:    4.3604
+
+Property correlations:
+                   band_gap  r=-0.2218  ██████
+             crystal_system  r=+0.0055  
+               e_above_hull  r=-0.1610  ████
+           formation_energy  r=+0.1969  █████
+                   is_metal  r=+0.2801  ████████
+                  num_atoms  r=-0.1336  ████
+                 spacegroup  r=+0.0272  
+
+Probe direction alignment:
+           formation_energy  cos=-0.0361
+                   band_gap  cos=-0.0583
+               e_above_hull  cos=-0.0240
+                  num_atoms  cos=+0.0118
+
+Enriched elements (vs dataset baseline):
+   Si  16.16x
+   Pt  9.01x
+   Sm  7.81x
+   Rh  7.21x
+   Ru  6.03x
+
+Top co-occurring features:
+  Feature 1506  co-occur=10.9%
+  Feature 3801  co-occur=10.0%
+  Feature 3196  co-occur=9.9%
+  Feature 3175  co-occur=9.9%
+  Feature 3066  co-occur=9.2%
+
+============================================================
+FEATURE 968
+============================================================
+Fire rate:  15.3%
+Mean act:   1.1603
+Std act:    0.6043
+Max act:    4.6508
+
+Property correlations:
+                   band_gap  r=-0.1851  █████
+             crystal_system  r=+0.2675  ████████
+               e_above_hull  r=-0.0719  ██
+           formation_energy  r=+0.2559  ███████
+                   is_metal  r=+0.2252  ██████
+                  num_atoms  r=-0.2775  ████████
+                 spacegroup  r=+0.2563  ███████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0079
+                   band_gap  cos=+0.0217
+               e_above_hull  cos=-0.0160
+                  num_atoms  cos=-0.0254
+
+Enriched elements (vs dataset baseline):
+   Cd  7.24x
+   Ni  6.10x
+   Gd  4.86x
+   Hf  4.86x
+   Zr  4.52x
+
+Top co-occurring features:
+  Feature 3801  co-occur=9.0%
+  Feature 3721  co-occur=8.2%
+  Feature 3066  co-occur=6.8%
+  Feature 2114  co-occur=6.6%
+  Feature 1506  co-occur=6.4%
+
+============================================================
+FEATURE 161
+============================================================
+Fire rate:  16.9%
+Mean act:   1.0680
+Std act:    0.5199
+Max act:    3.7292
+
+Property correlations:
+                   band_gap  r=+0.1343  ████
+             crystal_system  r=-0.1659  ████
+               e_above_hull  r=+0.1518  ████
+           formation_energy  r=-0.2772  ████████
+                   is_metal  r=-0.1900  █████
+                  num_atoms  r=+0.2535  ███████
+                 spacegroup  r=-0.1687  █████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0253
+                   band_gap  cos=-0.0631
+               e_above_hull  cos=+0.0223
+                  num_atoms  cos=+0.0007
+
+Enriched elements (vs dataset baseline):
+   Li  9.75x
+   Co  6.19x
+   Mn  5.10x
+    O  3.87x
+   Ni  3.60x
+
+Top co-occurring features:
+  Feature  965  co-occur=10.2%
+  Feature 1139  co-occur=9.6%
+  Feature  434  co-occur=8.9%
+  Feature 1794  co-occur=8.9%
+  Feature 2171  co-occur=8.3%
+
+============================================================
+FEATURE 2516
+============================================================
+Fire rate:  23.1%
+Mean act:   1.2924
+Std act:    0.6823
+Max act:    4.6136
+
+Property correlations:
+                   band_gap  r=-0.2113  ██████
+             crystal_system  r=+0.1751  █████
+               e_above_hull  r=-0.1434  ████
+           formation_energy  r=+0.2764  ████████
+                   is_metal  r=+0.2767  ████████
+                  num_atoms  r=-0.2270  ██████
+                 spacegroup  r=+0.1750  █████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0008
+                   band_gap  cos=+0.0020
+               e_above_hull  cos=+0.0045
+                  num_atoms  cos=+0.0338
+
+Enriched elements (vs dataset baseline):
+   Au  20.73x
+   Yb  18.90x
+   Sn  5.81x
+   Pd  4.40x
+   Ce  4.05x
+
+Top co-occurring features:
+  Feature 1506  co-occur=11.2%
+  Feature 3801  co-occur=11.1%
+  Feature 1672  co-occur=10.3%
+  Feature 3961  co-occur=9.1%
+  Feature  873  co-occur=9.0%
+
+============================================================
+FEATURE 1316
+============================================================
+Fire rate:  6.2%
+Mean act:   0.8288
+Std act:    0.3324
+Max act:    1.9386
+
+Property correlations:
+                   band_gap  r=-0.1057  ███
+             crystal_system  r=+0.2757  ████████
+               e_above_hull  r=-0.0639  █
+           formation_energy  r=+0.1452  ████
+                   is_metal  r=+0.1203  ███
+                  num_atoms  r=-0.2332  ██████
+                 spacegroup  r=+0.2582  ███████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0354
+                   band_gap  cos=+0.0216
+               e_above_hull  cos=-0.0086
+                  num_atoms  cos=+0.0591
+
+Enriched elements (vs dataset baseline):
+   Ru  21.86x
+   Np  15.08x
+   Tc  11.08x
+   Pa  8.62x
+   Ac  7.54x
+
+Top co-occurring features:
+  Feature 3721  co-occur=3.5%
+  Feature 3309  co-occur=3.4%
+  Feature 2114  co-occur=3.4%
+  Feature 2518  co-occur=3.3%
+  Feature  968  co-occur=3.2%
+
+============================================================
+FEATURE 2116
+============================================================
+Fire rate:  8.0%
+Mean act:   0.9268
+Std act:    0.3736
+Max act:    2.2606
+
+Property correlations:
+                   band_gap  r=-0.1393  ████
+             crystal_system  r=+0.2756  ████████
+               e_above_hull  r=-0.0789  ██
+           formation_energy  r=+0.1827  █████
+                   is_metal  r=+0.1905  █████
+                  num_atoms  r=-0.2504  ███████
+                 spacegroup  r=+0.2605  ███████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0447
+                   band_gap  cos=+0.0384
+               e_above_hull  cos=+0.0012
+                  num_atoms  cos=-0.0074
+
+Enriched elements (vs dataset baseline):
+   Tc  33.23x
+   Pm  14.23x
+   Ir  9.30x
+   Tm  9.23x
+   Hf  8.50x
+
+Top co-occurring features:
+  Feature 3721  co-occur=4.6%
+  Feature 3309  co-occur=4.0%
+  Feature 2516  co-occur=4.0%
+  Feature 2114  co-occur=4.0%
+  Feature 2447  co-occur=3.8%
+
+============================================================
+FEATURE 2132
+============================================================
+Fire rate:  13.9%
+Mean act:   1.0976
+Std act:    0.5633
+Max act:    3.5729
+
+Property correlations:
+                   band_gap  r=-0.0844  ██
+             crystal_system  r=+0.2739  ████████
+               e_above_hull  r=-0.0903  ██
+           formation_energy  r=+0.1264  ███
+                   is_metal  r=+0.1054  ███
+                  num_atoms  r=-0.2391  ███████
+                 spacegroup  r=+0.2605  ███████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0036
+                   band_gap  cos=-0.0646
+               e_above_hull  cos=-0.0046
+                  num_atoms  cos=+0.0301
+
+Enriched elements (vs dataset baseline):
+   Hg  19.80x
+   Au  11.94x
+   Cd  9.41x
+   Pu  8.22x
+   Pd  4.89x
+
+Top co-occurring features:
+  Feature 2516  co-occur=6.5%
+  Feature 3066  co-occur=5.9%
+  Feature  873  co-occur=5.9%
+  Feature 3309  co-occur=5.4%
+  Feature 2447  co-occur=5.2%
+
+============================================================
+FEATURE 404
+============================================================
+Fire rate:  9.6%
+Mean act:   1.1391
+Std act:    0.6481
+Max act:    4.2495
+
+Property correlations:
+                   band_gap  r=-0.1307  ███
+             crystal_system  r=+0.1054  ███
+               e_above_hull  r=+0.0180  
+           formation_energy  r=+0.2397  ███████
+                   is_metal  r=+0.1838  █████
+                  num_atoms  r=-0.2723  ████████
+                 spacegroup  r=+0.1145  ███
+
+Probe direction alignment:
+           formation_energy  cos=+0.0216
+                   band_gap  cos=-0.0417
+               e_above_hull  cos=+0.0060
+                  num_atoms  cos=-0.0476
+
+Enriched elements (vs dataset baseline):
+   Tc  7.39x
+   Pm  6.10x
+   Ir  5.07x
+   Zn  3.21x
+   Pd  2.93x
+
+Top co-occurring features:
+  Feature 3175  co-occur=4.9%
+  Feature 3066  co-occur=4.2%
+  Feature 2114  co-occur=4.0%
+  Feature 2447  co-occur=3.9%
+  Feature 3801  co-occur=3.8%
+
+============================================================
+FEATURE 3175
+============================================================
+Fire rate:  39.9%
+Mean act:   1.4545
+Std act:    0.7941
+Max act:    5.9215
+
+Property correlations:
+                   band_gap  r=-0.1730  █████
+             crystal_system  r=-0.0151  
+               e_above_hull  r=-0.0168  
+           formation_energy  r=+0.2715  ████████
+                   is_metal  r=+0.1348  ████
+                  num_atoms  r=-0.0970  ██
+                 spacegroup  r=-0.0091  
+
+Probe direction alignment:
+           formation_energy  cos=+0.0037
+                   band_gap  cos=+0.0095
+               e_above_hull  cos=+0.0008
+                  num_atoms  cos=+0.0327
+
+Enriched elements (vs dataset baseline):
+   Ge  6.71x
+   La  5.67x
+   Zn  5.05x
+   Sb  4.45x
+   Ac  3.77x
+
+Top co-occurring features:
+  Feature 1506  co-occur=15.0%
+  Feature 2114  co-occur=14.3%
+  Feature 1672  co-occur=14.3%
+  Feature 3099  co-occur=14.2%
+  Feature 3066  co-occur=13.5%
+
+============================================================
+FEATURE 3196
+============================================================
+Fire rate:  20.4%
+Mean act:   1.2041
+Std act:    0.6132
+Max act:    4.0712
+
+Property correlations:
+                   band_gap  r=-0.2164  ██████
+             crystal_system  r=-0.1247  ███
+               e_above_hull  r=-0.1345  ████
+           formation_energy  r=+0.2330  ██████
+                   is_metal  r=+0.2714  ████████
+                  num_atoms  r=+0.0332  
+                 spacegroup  r=-0.1242  ███
+
+Probe direction alignment:
+           formation_energy  cos=-0.0232
+                   band_gap  cos=-0.0147
+               e_above_hull  cos=+0.0215
+                  num_atoms  cos=+0.0837
+
+Enriched elements (vs dataset baseline):
+   Ni  6.65x
+   Ho  5.48x
+   Pt  5.15x
+   Si  5.03x
+   Dy  4.31x
+
+Top co-occurring features:
+  Feature 3175  co-occur=11.4%
+  Feature 3099  co-occur=10.3%
+  Feature 3801  co-occur=10.1%
+  Feature  736  co-occur=9.9%
+  Feature 3066  co-occur=8.8%
+
+============================================================
+FEATURE 311
+============================================================
+Fire rate:  17.3%
+Mean act:   1.0854
+Std act:    0.5370
+Max act:    3.5220
+
+Property correlations:
+                   band_gap  r=+0.1988  █████
+             crystal_system  r=-0.1781  █████
+               e_above_hull  r=+0.1025  ███
+           formation_energy  r=-0.1515  ████
+                   is_metal  r=-0.2706  ████████
+                  num_atoms  r=+0.2099  ██████
+                 spacegroup  r=-0.1869  █████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0483
+                   band_gap  cos=-0.0099
+               e_above_hull  cos=+0.0067
+                  num_atoms  cos=+0.0516
+
+Enriched elements (vs dataset baseline):
+   Be  7.10x
+   Zn  6.89x
+    H  6.40x
+   Ag  4.93x
+   Cd  3.62x
+
+Top co-occurring features:
+  Feature  965  co-occur=10.8%
+  Feature 2171  co-occur=9.2%
+  Feature 1794  co-occur=7.9%
+  Feature 1452  co-occur=7.6%
+  Feature 3175  co-occur=7.3%
+
+============================================================
+FEATURE 3262
+============================================================
+Fire rate:  7.7%
+Mean act:   0.9466
+Std act:    0.4276
+Max act:    2.6931
+
+Property correlations:
+                   band_gap  r=+0.0319  
+             crystal_system  r=+0.0429  █
+               e_above_hull  r=+0.1052  ███
+           formation_energy  r=-0.2679  ████████
+                   is_metal  r=-0.0859  ██
+                  num_atoms  r=+0.0798  ██
+                 spacegroup  r=+0.0436  █
+
+Probe direction alignment:
+           formation_energy  cos=-0.0256
+                   band_gap  cos=-0.1568
+               e_above_hull  cos=+0.0214
+                  num_atoms  cos=-0.0110
+
+Enriched elements (vs dataset baseline):
+   Ba  14.12x
+   Re  11.17x
+   Pb  7.24x
+   Fe  5.95x
+   Bi  4.62x
+
+Top co-occurring features:
+  Feature  965  co-occur=5.7%
+  Feature 2746  co-occur=4.1%
+  Feature 3140  co-occur=3.9%
+  Feature 3289  co-occur=3.8%
+  Feature 1139  co-occur=3.7%
+
+============================================================
+FEATURE 299
+============================================================
+Fire rate:  10.9%
+Mean act:   1.0957
+Std act:    0.5855
+Max act:    4.4514
+
+Property correlations:
+                   band_gap  r=-0.1054  ███
+             crystal_system  r=+0.2641  ███████
+               e_above_hull  r=-0.0708  ██
+           formation_energy  r=+0.1876  █████
+                   is_metal  r=+0.1407  ████
+                  num_atoms  r=-0.2667  ████████
+                 spacegroup  r=+0.2514  ███████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0053
+                   band_gap  cos=+0.0284
+               e_above_hull  cos=-0.0297
+                  num_atoms  cos=+0.0014
+
+Enriched elements (vs dataset baseline):
+   Pm  24.40x
+   Ac  18.85x
+   Tl  17.47x
+   Ag  10.97x
+   Er  6.24x
+
+Top co-occurring features:
+  Feature 3066  co-occur=5.6%
+  Feature 1506  co-occur=5.2%
+  Feature 3309  co-occur=5.2%
+  Feature 2516  co-occur=4.9%
+  Feature 1672  co-occur=4.7%
+
+============================================================
+FEATURE 2144
+============================================================
+Fire rate:  11.5%
+Mean act:   0.9024
+Std act:    0.4092
+Max act:    2.6940
+
+Property correlations:
+                   band_gap  r=+0.0801  ██
+             crystal_system  r=-0.0590  █
+               e_above_hull  r=+0.1156  ███
+           formation_energy  r=-0.2663  ███████
+                   is_metal  r=-0.1160  ███
+                  num_atoms  r=+0.1946  █████
+                 spacegroup  r=-0.0601  █
+
+Probe direction alignment:
+           formation_energy  cos=-0.0413
+                   band_gap  cos=-0.0285
+               e_above_hull  cos=+0.0112
+                  num_atoms  cos=+0.0807
+
+Enriched elements (vs dataset baseline):
+   Ni  6.65x
+   Co  4.56x
+   Ca  4.00x
+    O  3.95x
+   Li  3.66x
+
+Top co-occurring features:
+  Feature  965  co-occur=8.2%
+  Feature 1139  co-occur=6.0%
+  Feature 2363  co-occur=5.8%
+  Feature 3509  co-occur=5.6%
+  Feature 2746  co-occur=5.6%
+
+============================================================
+FEATURE 469
+============================================================
+Fire rate:  3.4%
+Mean act:   0.8157
+Std act:    0.3288
+Max act:    2.3478
+
+Property correlations:
+                   band_gap  r=+0.2167  ██████
+             crystal_system  r=-0.0796  ██
+               e_above_hull  r=+0.0400  █
+           formation_energy  r=-0.2631  ███████
+                   is_metal  r=-0.1597  ████
+                  num_atoms  r=+0.0743  ██
+                 spacegroup  r=-0.0819  ██
+
+Probe direction alignment:
+           formation_energy  cos=-0.0864
+                   band_gap  cos=+0.0659
+               e_above_hull  cos=-0.0330
+                  num_atoms  cos=+0.0345
+
+Enriched elements (vs dataset baseline):
+    B  7.45x
+   Sc  5.56x
+   Bi  3.96x
+   Lu  3.95x
+    O  3.63x
+
+Top co-occurring features:
+  Feature 2363  co-occur=2.2%
+  Feature 1276  co-occur=2.2%
+  Feature 3289  co-occur=2.0%
+  Feature 3913  co-occur=2.0%
+  Feature 1452  co-occur=1.9%
+
+============================================================
+FEATURE 2085
+============================================================
+Fire rate:  7.6%
+Mean act:   1.1435
+Std act:    0.5605
+Max act:    3.4125
+
+Property correlations:
+                   band_gap  r=-0.1115  ███
+             crystal_system  r=-0.0316  
+               e_above_hull  r=+0.1013  ███
+           formation_energy  r=+0.2611  ███████
+                   is_metal  r=+0.1601  ████
+                  num_atoms  r=-0.1439  ████
+                 spacegroup  r=-0.0260  
+
+Probe direction alignment:
+           formation_energy  cos=+0.0536
+                   band_gap  cos=-0.0137
+               e_above_hull  cos=+0.0323
+                  num_atoms  cos=+0.0118
+
+Enriched elements (vs dataset baseline):
+   Mg  10.49x
+   Ce  6.36x
+   Sc  4.76x
+   Pu  4.11x
+   Cd  3.62x
+
+Top co-occurring features:
+  Feature 3175  co-occur=3.5%
+  Feature  482  co-occur=3.4%
+  Feature 2114  co-occur=3.4%
+  Feature 3961  co-occur=3.0%
+  Feature 2901  co-occur=2.7%
+
+============================================================
+FEATURE 2527
+============================================================
+Fire rate:  17.1%
+Mean act:   1.1860
+Std act:    0.7240
+Max act:    5.1738
+
+Property correlations:
+                   band_gap  r=-0.1173  ███
+             crystal_system  r=+0.2587  ███████
+               e_above_hull  r=-0.0431  █
+           formation_energy  r=+0.2407  ███████
+                   is_metal  r=+0.1301  ███
+                  num_atoms  r=-0.2360  ███████
+                 spacegroup  r=+0.2433  ███████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0196
+                   band_gap  cos=-0.0062
+               e_above_hull  cos=+0.0069
+                  num_atoms  cos=+0.0209
+
+Enriched elements (vs dataset baseline):
+   Li  12.19x
+   Be  7.10x
+   In  4.06x
+   Pd  3.91x
+   Hg  3.60x
+
+Top co-occurring features:
+  Feature 2114  co-occur=7.6%
+  Feature 2447  co-occur=7.4%
+  Feature 1506  co-occur=6.7%
+  Feature 2516  co-occur=6.3%
+  Feature 3801  co-occur=6.3%
+
+============================================================
+FEATURE 2299
+============================================================
+Fire rate:  12.7%
+Mean act:   1.0132
+Std act:    0.4838
+Max act:    3.0669
+
+Property correlations:
+                   band_gap  r=-0.1839  █████
+             crystal_system  r=+0.2567  ███████
+               e_above_hull  r=-0.0869  ██
+           formation_energy  r=+0.2493  ███████
+                   is_metal  r=+0.2458  ███████
+                  num_atoms  r=-0.2373  ███████
+                 spacegroup  r=+0.2447  ███████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0140
+                   band_gap  cos=-0.0412
+               e_above_hull  cos=-0.0011
+                  num_atoms  cos=+0.0556
+
+Enriched elements (vs dataset baseline):
+   Sm  16.27x
+   Hg  11.70x
+   Nd  8.10x
+   Tl  7.68x
+   Yb  5.40x
+
+Top co-occurring features:
+  Feature 1506  co-occur=8.4%
+  Feature 3066  co-occur=7.4%
+  Feature 2114  co-occur=6.6%
+  Feature 2516  co-occur=6.2%
+  Feature 3309  co-occur=5.9%
+
+============================================================
+FEATURE 1822
+============================================================
+Fire rate:  5.1%
+Mean act:   0.7413
+Std act:    0.2438
+Max act:    1.8587
+
+Property correlations:
+                   band_gap  r=+0.2564  ███████
+             crystal_system  r=-0.0053  
+               e_above_hull  r=-0.0011  
+           formation_energy  r=-0.1300  ███
+                   is_metal  r=-0.1504  ████
+                  num_atoms  r=-0.0297  
+                 spacegroup  r=-0.0034  
+
+Probe direction alignment:
+           formation_energy  cos=-0.0094
+                   band_gap  cos=+0.1596
+               e_above_hull  cos=-0.0234
+                  num_atoms  cos=-0.0240
+
+Enriched elements (vs dataset baseline):
+   Cs  10.02x
+    F  7.07x
+   Al  5.80x
+    H  5.60x
+   Tl  5.59x
+
+Top co-occurring features:
+  Feature 3140  co-occur=3.4%
+  Feature 1020  co-occur=3.1%
+  Feature 2171  co-occur=2.5%
+  Feature 3003  co-occur=2.2%
+  Feature 3175  co-occur=1.9%
+
+============================================================
+FEATURE 1889
+============================================================
+Fire rate:  6.5%
+Mean act:   0.7708
+Std act:    0.2990
+Max act:    2.2576
+
+Property correlations:
+                   band_gap  r=-0.0808  ██
+             crystal_system  r=+0.2540  ███████
+               e_above_hull  r=-0.0588  █
+           formation_energy  r=+0.0958  ██
+                   is_metal  r=+0.0584  █
+                  num_atoms  r=-0.2547  ███████
+                 spacegroup  r=+0.2373  ███████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0139
+                   band_gap  cos=+0.0539
+               e_above_hull  cos=+0.0081
+                  num_atoms  cos=-0.0045
+
+Enriched elements (vs dataset baseline):
+   Pt  9.01x
+   Sb  7.42x
+   Sn  7.15x
+   Be  7.10x
+   Yb  6.30x
+
+Top co-occurring features:
+  Feature 2447  co-occur=4.2%
+  Feature 2516  co-occur=3.7%
+  Feature 3801  co-occur=3.6%
+  Feature 3309  co-occur=3.2%
+  Feature  873  co-occur=3.2%
+
+============================================================
+FEATURE 2422
+============================================================
+Fire rate:  5.0%
+Mean act:   0.7810
+Std act:    0.2811
+Max act:    1.7737
+
+Property correlations:
+                   band_gap  r=+0.0416  █
+             crystal_system  r=+0.2546  ███████
+               e_above_hull  r=+0.0180  
+           formation_energy  r=+0.0441  █
+                   is_metal  r=-0.0166  
+                  num_atoms  r=-0.1496  ████
+                 spacegroup  r=+0.2392  ███████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0164
+                   band_gap  cos=-0.0856
+               e_above_hull  cos=-0.0235
+                  num_atoms  cos=+0.0742
+
+Enriched elements (vs dataset baseline):
+   Xe  45.23x
+    I  13.18x
+   Cs  11.79x
+   Rb  10.89x
+   Cl  8.56x
+
+Top co-occurring features:
+  Feature 3454  co-occur=2.8%
+  Feature 2447  co-occur=2.6%
+  Feature 3309  co-occur=2.5%
+  Feature 1849  co-occur=2.5%
+  Feature 3995  co-occur=2.3%
+
+============================================================
+FEATURE 3963
+============================================================
+Fire rate:  3.9%
+Mean act:   0.6374
+Std act:    0.1876
+Max act:    1.6612
+
+Property correlations:
+                   band_gap  r=+0.1016  ███
+             crystal_system  r=-0.0370  █
+               e_above_hull  r=+0.0708  ██
+           formation_energy  r=-0.2534  ███████
+                   is_metal  r=-0.1032  ███
+                  num_atoms  r=+0.0980  ██
+                 spacegroup  r=-0.0457  █
+
+Probe direction alignment:
+           formation_energy  cos=-0.0383
+                   band_gap  cos=-0.0031
+               e_above_hull  cos=-0.0244
+                  num_atoms  cos=-0.0075
+
+Enriched elements (vs dataset baseline):
+    W  14.55x
+   Ta  9.64x
+   Na  9.52x
+   Ac  7.54x
+    F  5.65x
+
+Top co-occurring features:
+  Feature  434  co-occur=2.6%
+  Feature  965  co-occur=2.5%
+  Feature 3003  co-occur=2.4%
+  Feature 2018  co-occur=2.3%
+  Feature 3289  co-occur=2.2%
+
+============================================================
+FEATURE 2910
+============================================================
+Fire rate:  5.0%
+Mean act:   0.7839
+Std act:    0.2979
+Max act:    2.1700
+
+Property correlations:
+                   band_gap  r=+0.1458  ████
+             crystal_system  r=-0.0960  ██
+               e_above_hull  r=+0.0274  
+           formation_energy  r=-0.2520  ███████
+                   is_metal  r=-0.1578  ████
+                  num_atoms  r=+0.1727  █████
+                 spacegroup  r=-0.0991  ██
+
+Probe direction alignment:
+           formation_energy  cos=-0.0188
+                   band_gap  cos=+0.0500
+               e_above_hull  cos=-0.0508
+                  num_atoms  cos=+0.0338
+
+Enriched elements (vs dataset baseline):
+   Bi  15.19x
+   Sr  11.31x
+   Ba  6.84x
+   Os  5.84x
+   Ca  4.45x
+
+Top co-occurring features:
+  Feature  965  co-occur=3.8%
+  Feature 2735  co-occur=3.3%
+  Feature 3289  co-occur=3.2%
+  Feature 1498  co-occur=2.9%
+  Feature 3913  co-occur=2.8%
+
+============================================================
+FEATURE 3702
+============================================================
+Fire rate:  14.1%
+Mean act:   0.9930
+Std act:    0.4467
+Max act:    3.0520
+
+Property correlations:
+                   band_gap  r=-0.1763  █████
+             crystal_system  r=+0.1554  ████
+               e_above_hull  r=-0.0842  ██
+           formation_energy  r=+0.2510  ███████
+                   is_metal  r=+0.2278  ██████
+                  num_atoms  r=-0.1657  ████
+                 spacegroup  r=+0.1567  ████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0396
+                   band_gap  cos=-0.0435
+               e_above_hull  cos=+0.0186
+                  num_atoms  cos=+0.0016
+
+Enriched elements (vs dataset baseline):
+   Ni  8.31x
+   Dy  6.46x
+   Al  4.78x
+   Nd  4.73x
+    C  3.95x
+
+Top co-occurring features:
+  Feature 3066  co-occur=8.1%
+  Feature 3175  co-occur=7.5%
+  Feature 3801  co-occur=7.5%
+  Feature 2833  co-occur=7.4%
+  Feature 1506  co-occur=7.3%
+
+============================================================
+FEATURE 144
+============================================================
+Fire rate:  9.1%
+Mean act:   0.8380
+Std act:    0.3328
+Max act:    2.5796
+
+Property correlations:
+                   band_gap  r=-0.1496  ████
+             crystal_system  r=+0.0945  ██
+               e_above_hull  r=-0.0127  
+           formation_energy  r=+0.2494  ███████
+                   is_metal  r=+0.1938  █████
+                  num_atoms  r=-0.0910  ██
+                 spacegroup  r=+0.0921  ██
+
+Probe direction alignment:
+           formation_energy  cos=+0.0401
+                   band_gap  cos=-0.0628
+               e_above_hull  cos=+0.0121
+                  num_atoms  cos=+0.0518
+
+Enriched elements (vs dataset baseline):
+   Np  15.08x
+   Os  13.62x
+   Dy  11.49x
+   Fe  8.75x
+   Re  4.47x
+
+Top co-occurring features:
+  Feature 1490  co-occur=5.7%
+  Feature 1506  co-occur=5.0%
+  Feature 3175  co-occur=4.4%
+  Feature 3066  co-occur=4.3%
+  Feature 1672  co-occur=4.2%
+
+============================================================
+FEATURE 2525
+============================================================
+Fire rate:  8.7%
+Mean act:   1.1247
+Std act:    0.5565
+Max act:    3.2836
+
+Property correlations:
+                   band_gap  r=-0.1480  ████
+             crystal_system  r=+0.1785  █████
+               e_above_hull  r=-0.0051  
+           formation_energy  r=+0.2474  ███████
+                   is_metal  r=+0.1976  █████
+                  num_atoms  r=-0.1786  █████
+                 spacegroup  r=+0.1791  █████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0417
+                   band_gap  cos=-0.0400
+               e_above_hull  cos=+0.0252
+                  num_atoms  cos=+0.0296
+
+Enriched elements (vs dataset baseline):
+   Tm  10.15x
+   Tl  9.78x
+   Gd  7.78x
+   Ce  6.36x
+   Er  5.55x
+
+Top co-occurring features:
+  Feature 2114  co-occur=5.1%
+  Feature  267  co-occur=4.3%
+  Feature 3801  co-occur=4.2%
+  Feature  482  co-occur=4.0%
+  Feature 3175  co-occur=3.9%
+
+============================================================
+FEATURE 2360
+============================================================
+Fire rate:  14.7%
+Mean act:   1.1399
+Std act:    0.5653
+Max act:    3.1170
+
+Property correlations:
+                   band_gap  r=+0.1835  █████
+             crystal_system  r=+0.1498  ████
+               e_above_hull  r=+0.0750  ██
+           formation_energy  r=-0.2429  ███████
+                   is_metal  r=-0.1706  █████
+                  num_atoms  r=+0.0954  ██
+                 spacegroup  r=+0.1434  ████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0635
+                   band_gap  cos=-0.0385
+               e_above_hull  cos=+0.0508
+                  num_atoms  cos=-0.0012
+
+Enriched elements (vs dataset baseline):
+    H  7.21x
+   Cs  7.07x
+    W  5.46x
+   Te  3.66x
+   Li  2.93x
+
+Top co-occurring features:
+  Feature 3140  co-occur=9.8%
+  Feature  965  co-occur=8.9%
+  Feature 1139  co-occur=8.6%
+  Feature 1144  co-occur=7.8%
+  Feature 2746  co-occur=7.2%
+
+============================================================
+FEATURE 1777
+============================================================
+Fire rate:  13.7%
+Mean act:   0.9652
+Std act:    0.4267
+Max act:    3.0147
+
+Property correlations:
+                   band_gap  r=-0.1638  ████
+             crystal_system  r=-0.0607  █
+               e_above_hull  r=-0.0633  █
+           formation_energy  r=+0.2427  ███████
+                   is_metal  r=+0.2066  ██████
+                  num_atoms  r=-0.0257  
+                 spacegroup  r=-0.0611  █
+
+Probe direction alignment:
+           formation_energy  cos=+0.0197
+                   band_gap  cos=+0.0150
+               e_above_hull  cos=-0.0470
+                  num_atoms  cos=+0.0422
+
+Enriched elements (vs dataset baseline):
+   Ga  17.83x
+   Pu  12.34x
+   Tb  9.65x
+   Mg  4.50x
+   Ni  2.77x
+
+Top co-occurring features:
+  Feature 2114  co-occur=7.3%
+  Feature 3099  co-occur=7.0%
+  Feature 3066  co-occur=7.0%
+  Feature 3801  co-occur=6.5%
+  Feature 1672  co-occur=6.4%
+
+============================================================
+FEATURE 1931
+============================================================
+Fire rate:  9.4%
+Mean act:   0.9834
+Std act:    0.4901
+Max act:    3.2975
+
+Property correlations:
+                   band_gap  r=-0.1207  ███
+             crystal_system  r=+0.1338  ████
+               e_above_hull  r=-0.0190  
+           formation_energy  r=+0.2419  ███████
+                   is_metal  r=+0.1766  █████
+                  num_atoms  r=-0.0762  ██
+                 spacegroup  r=+0.1376  ████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0251
+                   band_gap  cos=+0.0102
+               e_above_hull  cos=+0.0191
+                  num_atoms  cos=+0.1359
+
+Enriched elements (vs dataset baseline):
+   He  180.94x
+   Tc  25.85x
+   Pm  18.30x
+   Os  13.62x
+   Ru  7.54x
+
+Top co-occurring features:
+  Feature 1506  co-occur=5.7%
+  Feature 2833  co-occur=4.7%
+  Feature 3175  co-occur=4.6%
+  Feature 2516  co-occur=4.4%
+  Feature 2114  co-occur=4.1%
+
+============================================================
+FEATURE 1979
+============================================================
+Fire rate:  8.5%
+Mean act:   0.9163
+Std act:    0.4551
+Max act:    2.8454
+
+Property correlations:
+                   band_gap  r=+0.0389  █
+             crystal_system  r=-0.2220  ██████
+               e_above_hull  r=+0.1582  ████
+           formation_energy  r=-0.2387  ███████
+                   is_metal  r=-0.1252  ███
+                  num_atoms  r=+0.1622  ████
+                 spacegroup  r=-0.2321  ██████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0549
+                   band_gap  cos=-0.0530
+               e_above_hull  cos=+0.0370
+                  num_atoms  cos=+0.0723
+
+Enriched elements (vs dataset baseline):
+   Mn  12.24x
+   Li  8.05x
+   Co  5.22x
+    O  4.04x
+    V  2.57x
+
+Top co-occurring features:
+  Feature  434  co-occur=5.3%
+  Feature 1276  co-occur=4.7%
+  Feature  965  co-occur=4.6%
+  Feature 1452  co-occur=4.5%
+  Feature 3003  co-occur=4.5%
+
+============================================================
+FEATURE 1672
+============================================================
+Fire rate:  30.8%
+Mean act:   1.3104
+Std act:    0.6985
+Max act:    4.9333
+
+Property correlations:
+                   band_gap  r=-0.1349  ████
+             crystal_system  r=+0.0995  ██
+               e_above_hull  r=-0.1352  ████
+           formation_energy  r=+0.2377  ███████
+                   is_metal  r=+0.1200  ███
+                  num_atoms  r=-0.0933  ██
+                 spacegroup  r=+0.0960  ██
+
+Probe direction alignment:
+           formation_energy  cos=-0.0365
+                   band_gap  cos=-0.0175
+               e_above_hull  cos=-0.0018
+                  num_atoms  cos=+0.0532
+
+Enriched elements (vs dataset baseline):
+   Eu  15.14x
+   Ir  10.15x
+   In  7.67x
+   Pt  5.80x
+   Au  5.03x
+
+Top co-occurring features:
+  Feature 3175  co-occur=14.3%
+  Feature 2447  co-occur=12.5%
+  Feature 3066  co-occur=12.5%
+  Feature 1506  co-occur=12.3%
+  Feature 3099  co-occur=12.1%
+
+============================================================
+FEATURE 3166
+============================================================
+Fire rate:  20.3%
+Mean act:   1.0566
+Std act:    0.4893
+Max act:    3.3145
+
+Property correlations:
+                   band_gap  r=-0.1304  ███
+             crystal_system  r=-0.2196  ██████
+               e_above_hull  r=-0.0348  █
+           formation_energy  r=+0.2358  ███████
+                   is_metal  r=+0.1016  ███
+                  num_atoms  r=+0.1900  █████
+                 spacegroup  r=-0.2265  ██████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0398
+                   band_gap  cos=-0.0173
+               e_above_hull  cos=-0.0404
+                  num_atoms  cos=+0.1472
+
+Enriched elements (vs dataset baseline):
+    P  7.94x
+   Ir  5.07x
+    U  4.94x
+   Fe  4.90x
+   Ge  4.59x
+
+Top co-occurring features:
+  Feature 3175  co-occur=11.5%
+  Feature 3099  co-occur=10.8%
+  Feature 1672  co-occur=8.6%
+  Feature 2114  co-occur=8.2%
+  Feature 3196  co-occur=7.7%
+
+============================================================
+FEATURE 596
+============================================================
+Fire rate:  10.3%
+Mean act:   0.9127
+Std act:    0.4752
+Max act:    3.3833
+
+Property correlations:
+                   band_gap  r=+0.0275  
+             crystal_system  r=-0.0124  
+               e_above_hull  r=+0.0165  
+           formation_energy  r=-0.2337  ███████
+                   is_metal  r=-0.0296  
+                  num_atoms  r=+0.0013  
+                 spacegroup  r=-0.0041  
+
+Probe direction alignment:
+           formation_energy  cos=-0.0604
+                   band_gap  cos=-0.0242
+               e_above_hull  cos=+0.0065
+                  num_atoms  cos=+0.0208
+
+Enriched elements (vs dataset baseline):
+    N  23.15x
+   Hf  13.36x
+   Th  11.73x
+   Pa  8.62x
+   Pu  8.22x
+
+Top co-occurring features:
+  Feature 1276  co-occur=4.7%
+  Feature 2018  co-occur=4.7%
+  Feature  965  co-occur=4.3%
+  Feature 3289  co-occur=4.0%
+  Feature 3003  co-occur=3.9%
+
+============================================================
+FEATURE 326
+============================================================
+Fire rate:  6.1%
+Mean act:   0.8332
+Std act:    0.3218
+Max act:    2.2176
+
+Property correlations:
+                   band_gap  r=-0.1167  ███
+             crystal_system  r=+0.0758  ██
+               e_above_hull  r=+0.0567  █
+           formation_energy  r=+0.2327  ██████
+                   is_metal  r=+0.1379  ████
+                  num_atoms  r=-0.1204  ███
+                 spacegroup  r=+0.0740  ██
+
+Probe direction alignment:
+           formation_energy  cos=+0.0922
+                   band_gap  cos=-0.0277
+               e_above_hull  cos=+0.0490
+                  num_atoms  cos=+0.0164
+
+Enriched elements (vs dataset baseline):
+   Nb  10.50x
+   Pu  8.22x
+   Sn  6.70x
+   Pb  5.43x
+   In  5.41x
+
+Top co-occurring features:
+  Feature 2114  co-occur=3.2%
+  Feature 3175  co-occur=3.1%
+  Feature  684  co-occur=3.1%
+  Feature 3961  co-occur=2.9%
+  Feature 2447  co-occur=2.7%
+
+============================================================
+FEATURE 1987
+============================================================
+Fire rate:  11.9%
+Mean act:   0.9733
+Std act:    0.4138
+Max act:    2.7868
+
+Property correlations:
+                   band_gap  r=-0.1731  █████
+             crystal_system  r=+0.0873  ██
+               e_above_hull  r=-0.1076  ███
+           formation_energy  r=+0.2120  ██████
+                   is_metal  r=+0.2297  ██████
+                  num_atoms  r=-0.1428  ████
+                 spacegroup  r=+0.0923  ██
+
+Probe direction alignment:
+           formation_energy  cos=+0.0381
+                   band_gap  cos=+0.0428
+               e_above_hull  cos=-0.0175
+                  num_atoms  cos=+0.0207
+
+Enriched elements (vs dataset baseline):
+   Er  20.80x
+   Hf  8.50x
+   Zn  5.97x
+   Tl  5.59x
+   Sm  3.91x
+
+Top co-occurring features:
+  Feature 3066  co-occur=6.3%
+  Feature  736  co-occur=5.9%
+  Feature 2114  co-occur=5.8%
+  Feature 3196  co-occur=5.7%
+  Feature 2515  co-occur=5.4%
+
+============================================================
+FEATURE 81
+============================================================
+Fire rate:  16.3%
+Mean act:   1.3333
+Std act:    0.7357
+Max act:    5.1492
+
+Property correlations:
+                   band_gap  r=-0.1108  ███
+             crystal_system  r=+0.0156  
+               e_above_hull  r=+0.0167  
+           formation_energy  r=+0.2278  ██████
+                   is_metal  r=+0.0849  ██
+                  num_atoms  r=-0.0989  ██
+                 spacegroup  r=+0.0312  
+
+Probe direction alignment:
+           formation_energy  cos=-0.0002
+                   band_gap  cos=-0.0394
+               e_above_hull  cos=-0.0212
+                  num_atoms  cos=+0.0600
+
+Enriched elements (vs dataset baseline):
+   Xe  45.23x
+    I  7.03x
+   Te  4.71x
+    W  4.55x
+   Mo  4.16x
+
+Top co-occurring features:
+  Feature 3175  co-occur=8.4%
+  Feature 1965  co-occur=7.8%
+  Feature 3099  co-occur=6.8%
+  Feature 2114  co-occur=6.7%
+  Feature 3066  co-occur=6.4%
+
+============================================================
+FEATURE 2223
+============================================================
+Fire rate:  10.0%
+Mean act:   0.8996
+Std act:    0.4016
+Max act:    3.0230
+
+Property correlations:
+                   band_gap  r=+0.1254  ███
+             crystal_system  r=-0.1198  ███
+               e_above_hull  r=+0.1107  ███
+           formation_energy  r=-0.2251  ██████
+                   is_metal  r=-0.1692  █████
+                  num_atoms  r=+0.0671  ██
+                 spacegroup  r=-0.1222  ███
+
+Probe direction alignment:
+           formation_energy  cos=-0.0225
+                   band_gap  cos=-0.0539
+               e_above_hull  cos=+0.0225
+                  num_atoms  cos=-0.0153
+
+Enriched elements (vs dataset baseline):
+   Cu  9.93x
+   Li  5.85x
+    F  3.39x
+    O  3.07x
+   Ag  2.74x
+
+Top co-occurring features:
+  Feature  965  co-occur=5.9%
+  Feature 1794  co-occur=5.4%
+  Feature  161  co-occur=5.2%
+  Feature 3003  co-occur=5.1%
+  Feature 1498  co-occur=4.7%
+
+============================================================
+FEATURE 225
+============================================================
+Fire rate:  15.8%
+Mean act:   1.2996
+Std act:    0.7758
+Max act:    5.0277
+
+Property correlations:
+                   band_gap  r=-0.1592  ████
+             crystal_system  r=+0.1838  █████
+               e_above_hull  r=-0.0807  ██
+           formation_energy  r=+0.2249  ██████
+                   is_metal  r=+0.2113  ██████
+                  num_atoms  r=-0.1843  █████
+                 spacegroup  r=+0.1740  █████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0309
+                   band_gap  cos=-0.0651
+               e_above_hull  cos=-0.0159
+                  num_atoms  cos=-0.0013
+
+Enriched elements (vs dataset baseline):
+   Tc  51.70x
+   Re  17.87x
+   Be  17.74x
+   Ti  13.96x
+   Ru  12.82x
+
+Top co-occurring features:
+  Feature 2114  co-occur=7.2%
+  Feature 3175  co-occur=6.8%
+  Feature 1490  co-occur=6.1%
+  Feature 1020  co-occur=5.9%
+  Feature 3721  co-occur=5.9%
+
+============================================================
+FEATURE 462
+============================================================
+Fire rate:  12.9%
+Mean act:   0.9896
+Std act:    0.4473
+Max act:    3.2172
+
+Property correlations:
+                   band_gap  r=-0.1517  ████
+             crystal_system  r=+0.1363  ████
+               e_above_hull  r=-0.0673  ██
+           formation_energy  r=+0.2228  ██████
+                   is_metal  r=+0.1997  █████
+                  num_atoms  r=-0.1768  █████
+                 spacegroup  r=+0.1403  ████
+
+Probe direction alignment:
+           formation_energy  cos=+0.0067
+                   band_gap  cos=-0.0028
+               e_above_hull  cos=+0.0076
+                  num_atoms  cos=+0.0350
+
+Enriched elements (vs dataset baseline):
+   He  180.94x
+   Pm  14.23x
+   Th  13.40x
+   Zn  10.10x
+   Be  7.10x
+
+Top co-occurring features:
+  Feature 3961  co-occur=7.3%
+  Feature 1506  co-occur=7.2%
+  Feature 3175  co-occur=6.1%
+  Feature 1672  co-occur=6.0%
+  Feature 3801  co-occur=6.0%
+
+============================================================
+FEATURE 2515
+============================================================
+Fire rate:  15.2%
+Mean act:   1.1137
+Std act:    0.5648
+Max act:    3.8225
+
+Property correlations:
+                   band_gap  r=-0.1804  █████
+             crystal_system  r=+0.0450  █
+               e_above_hull  r=-0.1587  ████
+           formation_energy  r=+0.1664  ████
+                   is_metal  r=+0.2222  ██████
+                  num_atoms  r=-0.0196  
+                 spacegroup  r=+0.0398  █
+
+Probe direction alignment:
+           formation_energy  cos=-0.0353
+                   band_gap  cos=+0.0175
+               e_above_hull  cos=-0.0031
+                  num_atoms  cos=+0.0721
+
+Enriched elements (vs dataset baseline):
+   Ir  14.37x
+   Tm  10.15x
+   Er  9.71x
+   Ho  7.83x
+   Au  6.91x
+
+Top co-occurring features:
+  Feature 2114  co-occur=10.0%
+  Feature 3801  co-occur=8.0%
+  Feature 2516  co-occur=7.4%
+  Feature 1672  co-occur=6.9%
+  Feature 3196  co-occur=6.8%
+
+============================================================
+FEATURE 1210
+============================================================
+Fire rate:  3.8%
+Mean act:   0.7353
+Std act:    0.2437
+Max act:    1.5572
+
+Property correlations:
+                   band_gap  r=-0.0651  █
+             crystal_system  r=+0.2211  ██████
+               e_above_hull  r=-0.0495  █
+           formation_energy  r=+0.0848  ██
+                   is_metal  r=+0.1129  ███
+                  num_atoms  r=-0.1656  ████
+                 spacegroup  r=+0.2044  ██████
+
+Probe direction alignment:
+           formation_energy  cos=-0.0335
+                   band_gap  cos=+0.0818
+               e_above_hull  cos=-0.0225
+                  num_atoms  cos=+0.0190
+
+Enriched elements (vs dataset baseline):
+   Pm  22.36x
+   Ir  10.15x
+   Tm  8.31x
+   Rh  7.21x
+   Er  6.24x
+
+Top co-occurring features:
+  Feature 1506  co-occur=3.1%
+  Feature 3309  co-occur=2.4%
+  Feature 2516  co-occur=2.3%
+  Feature 2299  co-occur=2.2%
+  Feature 3801  co-occur=2.2%
