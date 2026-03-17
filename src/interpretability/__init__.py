@@ -49,8 +49,13 @@
 #   probes.py       - Probe model definitions (linear / MLP)
 #   train_probes.py - Training loop and evaluation for probes
 #   run_probes.py   - CLI entry point: extract activations, train, report
+#   sae_model.py    - Top-K Sparse Autoencoder model definition
+#   train_sae.py    - SAE training loop
+#   analyse_sae.py  - Post-hoc feature analysis and dashboard
+#   run_sae.py      - CLI entry point: train SAE, analyse, report
 # =============================================================================
 
 from .hooks import HookManager
 from .labels import LabelExtractor
 from .probes import LinearProbe, MLPProbe
+from .sae_model import TopKSAE, SAEConfig

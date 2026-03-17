@@ -174,6 +174,14 @@ def run_probe_pipeline(args):
             metrics = trainer.train(X_train, y_train, X_val, y_val)
             results[(prop_name, hook_name)] = metrics
 
+            # Save individual probe model (for SAE probe alignment later)
+            probe_dir = output_dir / "probes"
+            probe_dir.mkdir(exist_ok=True)
+            torch.save(
+                trainer.probe.state_dict(),
+                probe_dir / f"{prop_name}_{hook_name}_{args.probe_type}.pt",
+            )
+
             # Print inline
             if task == "regression":
                 print(f"  {prop_name:25s} @ {hook_name:10s}  R²={metrics['r2']:.4f}  MSE={metrics['mse']:.4f}")

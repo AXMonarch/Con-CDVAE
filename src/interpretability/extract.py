@@ -8,7 +8,7 @@
 #   activations_{split}.pt  — dict[hook_name -> Tensor]
 #   labels_{split}.pt       — dict[label_name -> ndarray]
 #   num_atoms_{split}.pt    — list[int] (for atom->crystal pooling)
-# =============================================================================
+#
 
 from pathlib import Path
 
