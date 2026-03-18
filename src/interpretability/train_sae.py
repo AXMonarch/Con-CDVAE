@@ -1,13 +1,17 @@
-# train_sae.py — Training loop for the Top-K Sparse Autoencoder
+# train_sae.py — Training loop for the Normalized Top-K Sparse Autoencoder
 #
 # Trains an SAE on pre-extracted activations from a specific hook point
 # (typically z_con). Reuses the activations saved by the probe pipeline.
 #
 # Training details:
+#   - Input normalization: per-dimension mean/std computed from training set,
+#     stored as frozen buffers on the SAE model
+#   - Loss is computed in normalized space so all dimensions contribute equally
 #   - Optimizer: Adam with weight decay
 #   - Decoder columns are re-normalised to unit norm after each step
 #   - Dead features are tracked and revived via an auxiliary loss
-#   - Logs reconstruction MSE, dead feature count, and % variance explained
+#   - Logs reconstruction MSE (normalized), dead feature count, and
+#     % variance explained (in both normalized and original space)
 
 import torch
 import torch.nn.functional as F
@@ -18,7 +22,7 @@ from .sae_model import TopKSAE, SAEConfig
 
 class SAETrainer:
     """
-    Trains a Top-K SAE on pre-extracted activations.
+    Trains a Normalized Top-K SAE on pre-extracted activations.
 
     Parameters
     ----------
@@ -60,13 +64,21 @@ class SAETrainer:
 
         Parameters
         ----------
-        X_train : Tensor (N_train, input_dim)
-        X_val : Tensor (N_val, input_dim)
+        X_train : Tensor (N_train, input_dim) — raw activations
+        X_val : Tensor (N_val, input_dim) — raw activations
 
         Returns
         -------
-        history : dict with keys "train_loss", "val_loss", "n_dead", "var_explained"
+        history : dict with keys "train_loss", "val_loss", "n_dead",
+                  "var_explained", "var_explained_raw"
         """
+        # Compute and freeze normalization stats from training data
+        self.sae.set_norm_stats(X_train)
+        print(f"  Input normalization: μ range [{self.sae.input_mean.min():.3f}, "
+              f"{self.sae.input_mean.max():.3f}], "
+              f"σ range [{self.sae.input_std.min():.3f}, "
+              f"{self.sae.input_std.max():.3f}]")
+
         train_ds = TensorDataset(X_train)
         train_loader = DataLoader(
             train_ds, batch_size=self.batch_size, shuffle=True,
@@ -81,6 +93,7 @@ class SAETrainer:
             "val_loss": [],
             "n_dead": [],
             "var_explained": [],
+            "var_explained_raw": [],
         }
 
         for epoch in range(self.num_epochs):
@@ -92,10 +105,12 @@ class SAETrainer:
             for (x_batch,) in train_loader:
                 x_batch = x_batch.to(self.device)
 
-                x_hat, h_sparse, h_pre = self.sae(x_batch)
+                # forward() returns x_hat in normalized space
+                x_hat_norm, h_sparse, h_pre = self.sae(x_batch)
 
-                # Reconstruction loss
-                recon_loss = F.mse_loss(x_hat, x_batch)
+                # Reconstruction loss in normalized space
+                x_norm = self.sae.normalize(x_batch)
+                recon_loss = F.mse_loss(x_hat_norm, x_norm)
 
                 # Auxiliary loss for dead features
                 aux_loss = self.sae.auxiliary_loss(x_batch, h_pre)
@@ -121,12 +136,14 @@ class SAETrainer:
             history["val_loss"].append(val_metrics["mse"])
             history["n_dead"].append(self.sae.n_dead_features())
             history["var_explained"].append(val_metrics["var_explained"])
+            history["var_explained_raw"].append(val_metrics["var_explained_raw"])
 
             print(
                 f"  Epoch {epoch+1:3d}/{self.num_epochs}  "
                 f"train_MSE={avg_train_loss:.6f}  "
                 f"val_MSE={val_metrics['mse']:.6f}  "
                 f"var_expl={val_metrics['var_explained']:.4f}  "
+                f"var_expl_raw={val_metrics['var_explained_raw']:.4f}  "
                 f"dead={self.sae.n_dead_features()}"
             )
 
@@ -137,21 +154,36 @@ class SAETrainer:
         """
         Evaluate reconstruction quality on a dataset.
 
-        Returns dict with "mse" and "var_explained".
+        Returns dict with:
+            "mse"               — MSE in normalized space (matches training loss)
+            "var_explained"     — VE in normalized space
+            "var_explained_raw" — VE in original (raw) space
         """
         self.sae.eval()
 
-        preds = []
+        norm_preds = []
+        raw_preds = []
         for i in range(0, len(X), self.batch_size):
             x_batch = X[i : i + self.batch_size].to(self.device)
-            x_hat, _, _ = self.sae(x_batch)
-            preds.append(x_hat.cpu())
+            x_hat_norm, _, _ = self.sae(x_batch)
+            norm_preds.append(x_hat_norm.cpu())
+            raw_preds.append(self.sae.denormalize(x_hat_norm).cpu())
 
-        x_hat_all = torch.cat(preds, dim=0)
-        mse = F.mse_loss(x_hat_all, X).item()
+        x_hat_norm_all = torch.cat(norm_preds, dim=0)
+        x_hat_raw_all = torch.cat(raw_preds, dim=0)
 
-        # Variance explained: 1 - Var(residual) / Var(input)
-        residual = X - x_hat_all
-        var_explained = 1.0 - residual.var().item() / X.var().item()
+        # Normalized-space metrics (consistent with training loss)
+        X_norm = self.sae.normalize(X)
+        mse = F.mse_loss(x_hat_norm_all, X_norm).item()
+        residual_norm = X_norm - x_hat_norm_all
+        var_explained = 1.0 - residual_norm.var().item() / X_norm.var().item()
 
-        return {"mse": mse, "var_explained": var_explained}
+        # Raw-space metrics (for interpretability / comparison)
+        residual_raw = X - x_hat_raw_all
+        var_explained_raw = 1.0 - residual_raw.var().item() / X.var().item()
+
+        return {
+            "mse": mse,
+            "var_explained": var_explained,
+            "var_explained_raw": var_explained_raw,
+        }

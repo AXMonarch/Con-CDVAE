@@ -1,18 +1,26 @@
-# sae_model.py — Top-K Sparse Autoencoder for Con-CDVAE representations
+# sae_model.py — Normalized Top-K Sparse Autoencoder for Con-CDVAE
 #
 # A Sparse Autoencoder (SAE) decomposes a dense representation (e.g. z_con)
 # into a much wider, sparse set of features. The sparsity is enforced by
 # keeping only the top-K activations per input, setting all others to zero.
 #
+# Input normalization (NSAE):
+#   The SAE stores per-dimension mean (μ) and std (σ) computed from the
+#   training set as frozen buffers. All encoding/decoding operates in
+#   normalized space, ensuring every input dimension contributes equally
+#   to the reconstruction loss regardless of its original scale.
+#
 # Architecture:
 #   Input  x       (batch, input_dim)       e.g. (batch, 256)
-#   Pre-bias        x_centered = x - b_dec  (subtract decoder bias)
+#   Normalize       x_norm = (x - μ) / σ
+#   Pre-bias        x_centered = x_norm - b_dec
 #   Encode          h = W_enc @ x_centered + b_enc    (batch, n_features)
 #   Top-K           keep only K largest values in h, zero the rest
-#   Decode          x_hat = W_dec @ h_sparse + b_dec  (batch, input_dim)
+#   Decode          x_hat_norm = W_dec @ h_sparse + b_dec  (batch, input_dim)
+#   Denormalize     x_hat = x_hat_norm * σ + μ
 #
 # Loss:
-#   L = MSE(x, x_hat)   +   aux_loss (dead feature revival)
+#   L = MSE(x_norm, x_hat_norm)  +  aux_loss (dead feature revival)
 #
 # Reference: Gao et al. "Scaling and evaluating sparse autoencoders" (2024)
 #
@@ -37,12 +45,12 @@ class SAEConfig:
 
 class TopKSAE(nn.Module):
     """
-    Top-K Sparse Autoencoder.
+    Normalized Top-K Sparse Autoencoder.
 
-    Instead of using an L1 penalty to encourage sparsity (which requires
-    tuning a coefficient), Top-K simply keeps only the K largest hidden
-    activations and zeros out the rest. This gives exact, predictable
-    sparsity: every input activates exactly K out of n_features features.
+    Input activations are standardized (zero mean, unit variance per
+    dimension) using statistics computed from the training set. The
+    normalization parameters are stored as frozen buffers and travel
+    with the checkpoint, ensuring train/inference consistency.
 
     Parameters
     ----------
@@ -77,19 +85,56 @@ class TopKSAE(nn.Module):
             "steps_since_active", torch.zeros(n, dtype=torch.long),
         )
 
-    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        # Input normalization buffers — set via set_norm_stats() before training
+        self.register_buffer("input_mean", torch.zeros(d))
+        self.register_buffer("input_std", torch.ones(d))
+
+    # -- Input normalization ----------------------------------------------------
+
+    @torch.no_grad()
+    def set_norm_stats(self, X_train: torch.Tensor) -> None:
         """
-        Encode input to pre-TopK hidden activations.
+        Compute and freeze per-dimension mean and std from the training set.
+
+        Must be called once before training begins. The statistics are stored
+        as buffers and saved with the checkpoint.
 
         Parameters
         ----------
-        x : Tensor (batch, input_dim)
+        X_train : Tensor (N, input_dim) — full training set activations
+        """
+        self.input_mean.copy_(X_train.mean(dim=0))
+        std = X_train.std(dim=0)
+        # Clamp to avoid division by zero for constant dimensions
+        std = std.clamp(min=1e-6)
+        self.input_std.copy_(std)
+
+    def normalize(self, x: torch.Tensor) -> torch.Tensor:
+        """Standardize input: (x - μ) / σ."""
+        return (x - self.input_mean) / self.input_std
+
+    def denormalize(self, x_norm: torch.Tensor) -> torch.Tensor:
+        """Invert standardization: x_norm * σ + μ."""
+        return x_norm * self.input_std + self.input_mean
+
+    # -- Core forward pass ------------------------------------------------------
+
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Encode raw input to pre-TopK hidden activations.
+
+        Normalizes the input, then applies the encoder.
+
+        Parameters
+        ----------
+        x : Tensor (batch, input_dim) — raw (unnormalized) activations
 
         Returns
         -------
         h : Tensor (batch, n_features) — dense, before top-k selection
         """
-        x_centered = x - self.b_dec
+        x_norm = self.normalize(x)
+        x_centered = x_norm - self.b_dec
         return x_centered @ self.W_enc.T + self.b_enc
 
     def topk_mask(self, h: torch.Tensor) -> torch.Tensor:
@@ -112,7 +157,7 @@ class TopKSAE(nn.Module):
 
     def decode(self, h_sparse: torch.Tensor) -> torch.Tensor:
         """
-        Decode sparse features back to input space.
+        Decode sparse features back to normalized space.
 
         Parameters
         ----------
@@ -120,30 +165,48 @@ class TopKSAE(nn.Module):
 
         Returns
         -------
-        x_hat : Tensor (batch, input_dim)
+        x_hat_norm : Tensor (batch, input_dim) — reconstruction in
+                     normalized space (for loss computation)
         """
         return h_sparse @ self.W_dec.T + self.b_dec
+
+    def decode_denorm(self, h_sparse: torch.Tensor) -> torch.Tensor:
+        """
+        Decode sparse features back to original (raw) space.
+
+        Use this for analysis and inference — NOT for computing the
+        training loss (use decode() for that).
+
+        Parameters
+        ----------
+        h_sparse : Tensor (batch, n_features)
+
+        Returns
+        -------
+        x_hat : Tensor (batch, input_dim) — reconstruction in original scale
+        """
+        return self.denormalize(self.decode(h_sparse))
 
     def forward(
         self, x: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
-        Full forward pass: encode -> top-k -> decode.
+        Full forward pass: normalize -> encode -> top-k -> decode.
 
         Parameters
         ----------
-        x : Tensor (batch, input_dim)
+        x : Tensor (batch, input_dim) — raw (unnormalized) activations
 
         Returns
         -------
-        x_hat    : Tensor (batch, input_dim) — reconstruction
-        h_sparse : Tensor (batch, n_features) — sparse activations
-        h_pre    : Tensor (batch, n_features) — pre-topk activations
+        x_hat_norm : Tensor (batch, input_dim) — reconstruction in normalized space
+        h_sparse   : Tensor (batch, n_features) — sparse activations
+        h_pre      : Tensor (batch, n_features) — pre-topk activations
         """
         h_pre = self.encode(x)
         h_sparse = self.topk_mask(h_pre)
-        x_hat = self.decode(h_sparse)
-        return x_hat, h_sparse, h_pre
+        x_hat_norm = self.decode(h_sparse)
+        return x_hat_norm, h_sparse, h_pre
 
     # -- Dead feature tracking and auxiliary loss --------------------------------
 
@@ -177,7 +240,7 @@ class TopKSAE(nn.Module):
 
         Parameters
         ----------
-        x : Tensor (batch, input_dim) — original input
+        x : Tensor (batch, input_dim) — raw input
         h_pre : Tensor (batch, n_features) — pre-topk activations
 
         Returns
@@ -188,6 +251,9 @@ class TopKSAE(nn.Module):
         n_dead = dead_mask.sum().item()
         if n_dead == 0:
             return torch.tensor(0.0, device=x.device)
+
+        # Target is in normalized space (consistent with training loss)
+        x_norm = self.normalize(x)
 
         # Take top-k among dead features only
         h_dead = h_pre[:, dead_mask]
@@ -202,7 +268,7 @@ class TopKSAE(nn.Module):
         W_dec_dead = self.W_dec[:, dead_mask]  # (input_dim, n_dead)
         x_hat_dead = h_dead_sparse @ W_dec_dead.T + self.b_dec
 
-        return F.mse_loss(x_hat_dead, x)
+        return F.mse_loss(x_hat_dead, x_norm)
 
     # -- Utility ----------------------------------------------------------------
 

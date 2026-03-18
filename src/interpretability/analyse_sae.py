@@ -11,9 +11,15 @@
 #   6. Element enrichment: which elements are over-represented in top exemplars
 #   7. Probe alignment: cosine similarity between SAE directions and probe weights
 #   8. Feature dashboard: unified summary table for manual inspection
+#   9. Variance explained: how much reconstruction variance a feature subset captures
 #
 # These analyses let us label features post-hoc and identify which ones
 # correspond to physically meaningful properties.
+#
+# Note: the SAE normalizes inputs internally. Analysis methods that compare
+# reconstructions against raw inputs use decode_denorm() to undo the
+# normalization. Feature activations (H) are unaffected by normalization
+# — they live in the SAE's own latent space.
 
 import numpy as np
 import torch
@@ -49,7 +55,7 @@ class SAEAnalyser:
     Parameters
     ----------
     sae : TopKSAE
-        A trained SAE model.
+        A trained SAE model (with normalization stats already set).
     device : str
         "cuda" or "cpu".
     batch_size : int
@@ -75,7 +81,7 @@ class SAEAnalyser:
 
         Parameters
         ----------
-        X : Tensor (N, input_dim)
+        X : Tensor (N, input_dim) — raw (unnormalized) activations
 
         Returns
         -------
@@ -88,11 +94,11 @@ class SAEAnalyser:
             _, h_sparse, _ = self.sae(x_batch)
             parts.append(h_sparse.cpu())
         return torch.cat(parts, dim=0)
-    
+
     # ------------------------------------ #
     # 1. Per-feature activation statistics #
     # ------------------------------------ #
-    
+
     def activation_stats(self, H: torch.Tensor) -> dict[str, np.ndarray]:
         """
         Compute per-feature activation statistics.
@@ -217,9 +223,9 @@ class SAEAnalyser:
 
         return correlations
 
-    # ------------------------------------ # 
+    # ------------------------------------ #
     # 3. Top exemplar crystals per feature #
-    # ------------------------------------ # 
+    # ------------------------------------ #
 
     def top_exemplars(
         self,
@@ -329,9 +335,9 @@ class SAEAnalyser:
         Cosine similarity between all pairs of decoder weight columns.
 
         Each column of W_dec is the "direction" of one SAE feature in
-        z_con space. High similarity means two features point in nearly
-        the same direction — possibly redundant or fine-grained variants
-        of the same concept.
+        normalized z_con space. High similarity means two features point
+        in nearly the same direction — possibly redundant or fine-grained
+        variants of the same concept.
 
         Returns
         -------
@@ -667,9 +673,12 @@ class SAEAnalyser:
         """
         Compute variance explained when decoding with only a subset of features.
 
+        Reconstructions are denormalized back to raw space before comparing
+        against the raw input X.
+
         Parameters
         ----------
-        X : Tensor (N, input_dim) — original activations
+        X : Tensor (N, input_dim) — original raw activations
         H : Tensor (N, n_features) — sparse SAE activations
         feature_indices : list of int
             Which features to include in the reconstruction.
@@ -685,25 +694,20 @@ class SAEAnalyser:
             "marginals" : dict[int, float] — per-feature variance explained
                           (only if per_feature=True)
         """
-        W_dec = self.sae.W_dec.data.cpu()  # (input_dim, n_features)
-        b_dec = self.sae.b_dec.data.cpu()  # (input_dim,)
         var_x = X.var().item()
 
-        # Joint variance explained by the full subset
-        H_masked = torch.zeros_like(H)
-        H_masked[:, feature_indices] = H[:, feature_indices]
-        x_hat = H_masked @ W_dec.T + b_dec
-        joint_ve = 1.0 - (X - x_hat).var().item() / var_x
+        def _ve_for_subset(indices: list[int]) -> float:
+            H_masked = torch.zeros_like(H)
+            H_masked[:, indices] = H[:, indices]
+            x_hat = self.sae.decode_denorm(H_masked)
+            return 1.0 - (X - x_hat).var().item() / var_x
 
-        result = {"joint": joint_ve}
+        result = {"joint": _ve_for_subset(feature_indices)}
 
         if per_feature:
             marginals = {}
             for j in feature_indices:
-                H_single = torch.zeros_like(H)
-                H_single[:, j] = H[:, j]
-                x_hat_j = H_single @ W_dec.T + b_dec
-                marginals[j] = 1.0 - (X - x_hat_j).var().item() / var_x
+                marginals[j] = _ve_for_subset([j])
             result["marginals"] = marginals
 
         return result
@@ -723,7 +727,7 @@ class SAEAnalyser:
 
         Parameters
         ----------
-        X : Tensor (N, input_dim) — original activations
+        X : Tensor (N, input_dim) — original raw activations
         H : Tensor (N, n_features) — sparse SAE activations
 
         Returns
@@ -736,21 +740,18 @@ class SAEAnalyser:
             "cumulative"    : list[float] — cumulative VE when adding
                               features one at a time in sorted order
         """
-        W_dec = self.sae.W_dec.data.cpu()
-        b_dec = self.sae.b_dec.data.cpu()
         var_x = X.var().item()
         n_features = H.shape[1]
 
         # Step 1: compute marginal VE for every feature
-        # Vectorised: for each feature j, x_hat_j = h_j * W_dec[:, j]^T + b_dec
-        # residual variance = Var(X - x_hat_j)
         marginals = np.zeros(n_features)
         for j in range(n_features):
             h_j = H[:, j]  # (N,)
             if h_j.abs().max() == 0:
                 continue  # dead feature, VE = 0
-            # x_hat_j = outer(h_j, W_dec[:, j]) + b_dec
-            x_hat_j = h_j.unsqueeze(1) * W_dec[:, j].unsqueeze(0) + b_dec
+            H_single = torch.zeros_like(H)
+            H_single[:, j] = h_j
+            x_hat_j = self.sae.decode_denorm(H_single)
             marginals[j] = 1.0 - (X - x_hat_j).var().item() / var_x
 
         # Step 2: sort by descending marginal VE
@@ -763,7 +764,7 @@ class SAEAnalyser:
         for j in order:
             j = int(j)
             H_accum[:, j] = H[:, j]
-            x_hat = H_accum @ W_dec.T + b_dec
+            x_hat = self.sae.decode_denorm(H_accum)
             ve = 1.0 - (X - x_hat).var().item() / var_x
             cumulative.append(ve)
 
@@ -791,7 +792,7 @@ class SAEAnalyser:
 
         Parameters
         ----------
-        X : Tensor (N, input_dim) — activations to analyse
+        X : Tensor (N, input_dim) — raw activations to analyse
         labels : dict of property labels
         probe_weights : optional linear probe weights
         dataset : optional CrystDataset for element enrichment

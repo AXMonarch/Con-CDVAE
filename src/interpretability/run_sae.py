@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-# run_sae.py — CLI entry point for SAE training and analysis
+# run_sae.py — CLI entry point for Normalized SAE training and analysis
 #
 # End-to-end SAE pipeline:
 #   1. Load pre-extracted activations (from probe pipeline)
-#   2. Train a Top-K SAE on a chosen hook point (default: z_con)
+#   2. Train a Normalized Top-K SAE on a chosen hook point (default: z_con)
+#      (input standardization computed from training set, stored as buffers)
 #   3. Run full analysis: stats, correlations, co-occurrence, decoder
-#      similarity, element enrichment, probe alignment
+#      similarity, element enrichment, probe alignment, variance explained
 #   4. Print feature dashboard and save results
 #
 # Usage
@@ -141,9 +142,9 @@ def run_sae_pipeline(args):
     print(f"  Hook: {hook}")
     print(f"  Train: {X_train.shape}, Val: {X_val.shape}")
 
-    # -- Step 2: Train SAE -----------------------------------------------------
+    # -- Step 2: Train Normalized SAE ------------------------------------------
     print(f"\n{'=' * 70}")
-    print(f"Training Top-K SAE (K={args.k}, {args.n_features} features)...")
+    print(f"Training Normalized Top-K SAE (K={args.k}, {args.n_features} features)...")
 
     config = SAEConfig(
         input_dim=input_dim,
@@ -201,7 +202,8 @@ def run_sae_pipeline(args):
 
     # Print full report
     analyser.print_full_report(results)
-    print(f"Final variance explained: {history['var_explained'][-1]:.4f}")
+    print(f"Final variance explained (normalized): {history['var_explained'][-1]:.4f}")
+    print(f"Final variance explained (raw):        {history['var_explained_raw'][-1]:.4f}")
 
     # -- Save all results ------------------------------------------------------
     # Remove large tensors from saved results to keep file size manageable
