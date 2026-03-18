@@ -192,8 +192,9 @@ def run_probe_pipeline(args):
     print_results_table(results)
 
     # -- Save results ---------------------------------------------------------
-    torch.save(results, output_dir / "probe_results.pt")
-    print(f"\nResults saved to {output_dir / 'probe_results.pt'}")
+    results_path = output_dir / f"probe_results_{args.probe_type}.pt"
+    torch.save(results, results_path)
+    print(f"\nResults saved to {results_path}")
 
 
 # ---- Pretty printing --------------------------------------------------------

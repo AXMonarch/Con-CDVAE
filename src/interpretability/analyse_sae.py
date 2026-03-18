@@ -652,6 +652,127 @@ class SAEAnalyser:
 
         print(f"{'=' * 90}")
 
+    # ----------------------------------------- #
+    # 9. Variance explained by feature subsets  #
+    # ----------------------------------------- #
+
+    @torch.no_grad()
+    def variance_explained_by_features(
+        self,
+        X: torch.Tensor,
+        H: torch.Tensor,
+        feature_indices: list[int],
+        per_feature: bool = False,
+    ) -> dict:
+        """
+        Compute variance explained when decoding with only a subset of features.
+
+        Parameters
+        ----------
+        X : Tensor (N, input_dim) — original activations
+        H : Tensor (N, n_features) — sparse SAE activations
+        feature_indices : list of int
+            Which features to include in the reconstruction.
+        per_feature : bool
+            If True, also compute each feature's marginal variance explained
+            (decoding with that single feature alone). Note: marginals don't
+            sum to the joint value because features can share variance.
+
+        Returns
+        -------
+        result : dict with keys:
+            "joint"     : float — variance explained by all features together
+            "marginals" : dict[int, float] — per-feature variance explained
+                          (only if per_feature=True)
+        """
+        W_dec = self.sae.W_dec.data.cpu()  # (input_dim, n_features)
+        b_dec = self.sae.b_dec.data.cpu()  # (input_dim,)
+        var_x = X.var().item()
+
+        # Joint variance explained by the full subset
+        H_masked = torch.zeros_like(H)
+        H_masked[:, feature_indices] = H[:, feature_indices]
+        x_hat = H_masked @ W_dec.T + b_dec
+        joint_ve = 1.0 - (X - x_hat).var().item() / var_x
+
+        result = {"joint": joint_ve}
+
+        if per_feature:
+            marginals = {}
+            for j in feature_indices:
+                H_single = torch.zeros_like(H)
+                H_single[:, j] = H[:, j]
+                x_hat_j = H_single @ W_dec.T + b_dec
+                marginals[j] = 1.0 - (X - x_hat_j).var().item() / var_x
+            result["marginals"] = marginals
+
+        return result
+
+    def cumulative_variance_curve(
+        self,
+        X: torch.Tensor,
+        H: torch.Tensor,
+    ) -> dict:
+        """
+        Sort all features by marginal variance explained and compute
+        the cumulative variance curve as features are added one by one.
+
+        This reveals how concentrated the representation is — if a small
+        fraction of features captures most variance, the SAE has found
+        a compact basis.
+
+        Parameters
+        ----------
+        X : Tensor (N, input_dim) — original activations
+        H : Tensor (N, n_features) — sparse SAE activations
+
+        Returns
+        -------
+        result : dict with keys:
+            "feature_order" : list[int] — feature indices sorted by
+                              descending marginal variance explained
+            "marginals"     : list[float] — marginal VE for each feature
+                              (in the same sorted order)
+            "cumulative"    : list[float] — cumulative VE when adding
+                              features one at a time in sorted order
+        """
+        W_dec = self.sae.W_dec.data.cpu()
+        b_dec = self.sae.b_dec.data.cpu()
+        var_x = X.var().item()
+        n_features = H.shape[1]
+
+        # Step 1: compute marginal VE for every feature
+        # Vectorised: for each feature j, x_hat_j = h_j * W_dec[:, j]^T + b_dec
+        # residual variance = Var(X - x_hat_j)
+        marginals = np.zeros(n_features)
+        for j in range(n_features):
+            h_j = H[:, j]  # (N,)
+            if h_j.abs().max() == 0:
+                continue  # dead feature, VE = 0
+            # x_hat_j = outer(h_j, W_dec[:, j]) + b_dec
+            x_hat_j = h_j.unsqueeze(1) * W_dec[:, j].unsqueeze(0) + b_dec
+            marginals[j] = 1.0 - (X - x_hat_j).var().item() / var_x
+
+        # Step 2: sort by descending marginal VE
+        order = np.argsort(marginals)[::-1]
+        sorted_marginals = marginals[order].tolist()
+
+        # Step 3: cumulative VE — greedily add features in sorted order
+        cumulative = []
+        H_accum = torch.zeros_like(H)
+        for j in order:
+            j = int(j)
+            H_accum[:, j] = H[:, j]
+            x_hat = H_accum @ W_dec.T + b_dec
+            ve = 1.0 - (X - x_hat).var().item() / var_x
+            cumulative.append(ve)
+
+        return {
+            "feature_order": [int(j) for j in order],
+            "marginals": sorted_marginals,
+            "cumulative": cumulative,
+        }
+
     # --------------------------- #
     # (*) Full analysis pipeline  #
     # --------------------------- #
@@ -725,6 +846,39 @@ class SAEAnalyser:
         n_dead = int((stats["fire_rate"] == 0).sum())
         n_rare = int((stats["fire_rate"] < 0.01).sum())
 
+        # Variance explained by feature subsets
+        print("Computing variance explained by feature subsets...")
+        dashboard_indices = [e["feature_idx"] for e in dashboard]
+        dashboard_ve = self.variance_explained_by_features(
+            X, H, dashboard_indices, per_feature=True,
+        )
+
+        # Rare features: fire rate < 1%
+        rare_indices = [
+            j for j in range(H.shape[1])
+            if 0 < stats["fire_rate"][j] < 0.01
+        ]
+        rare_ve = self.variance_explained_by_features(
+            X, H, rare_indices,
+        ) if rare_indices else {"joint": 0.0}
+
+        # Dead features (sanity check — should be 0)
+        dead_indices = [
+            j for j in range(H.shape[1]) if stats["fire_rate"][j] == 0
+        ]
+        dead_ve = self.variance_explained_by_features(
+            X, H, dead_indices,
+        ) if dead_indices else {"joint": 0.0}
+
+        # Decoder similarity cluster VE
+        cluster_ve = {}
+        for i, cluster_members in enumerate(clusters):
+            cve = self.variance_explained_by_features(X, H, cluster_members)
+            cluster_ve[i] = {
+                "features": cluster_members,
+                "joint_ve": cve["joint"],
+            }
+
         return {
             "H": H,
             "stats": stats,
@@ -740,6 +894,12 @@ class SAEAnalyser:
             "n_dead": n_dead,
             "n_rare": n_rare,
             "sim_threshold": sim_threshold,
+            "variance_explained": {
+                "dashboard": dashboard_ve,
+                "rare": rare_ve,
+                "dead": dead_ve,
+                "decoder_clusters": cluster_ve,
+            },
         }
 
     def print_full_report(self, results: dict) -> None:
@@ -752,6 +912,32 @@ class SAEAnalyser:
         print(f"\nFeature health:")
         print(f"  Dead (0% fire rate):  {results['n_dead']}")
         print(f"  Rare (<1% fire rate): {results['n_rare']}")
+
+        # Variance explained by feature subsets
+        ve = results.get("variance_explained")
+        if ve:
+            n_dash = len(results["dashboard"])
+            n_total = results["stats"]["fire_rate"].shape[0]
+            print(f"\nVariance explained by feature subsets:")
+            print(f"  Dashboard (top {n_dash} by corr):  {ve['dashboard']['joint']:.4f}")
+            if "marginals" in ve["dashboard"]:
+                marginals = ve["dashboard"]["marginals"]
+                top5 = sorted(marginals.items(), key=lambda kv: kv[1], reverse=True)[:5]
+                print(f"  Top 5 individual contributors:")
+                for feat_idx, mve in top5:
+                    print(f"    Feature {feat_idx:5d}:  {mve:.4f}")
+            print(f"  Rare (<1% fire rate, n={results['n_rare']}):  {ve['rare']['joint']:.4f}")
+            print(f"  Dead (n={results['n_dead']}):  {ve['dead']['joint']:.4f}  (sanity: should be ~0)")
+
+            cluster_ve = ve.get("decoder_clusters", {})
+            if cluster_ve:
+                print(f"\n  Decoder similarity cluster variance:")
+                for i, cinfo in sorted(cluster_ve.items()):
+                    members = cinfo["features"]
+                    print(
+                        f"    Cluster {i} ({len(members)} features): "
+                        f" VE={cinfo['joint_ve']:.4f}  features={members}"
+                    )
 
         # Top co-occurring pairs
         print(f"\nTop co-occurring feature pairs:")
