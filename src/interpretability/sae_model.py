@@ -93,49 +93,22 @@ class TopKSAE(nn.Module):
 
     @torch.no_grad()
     def set_norm_stats(self, X_train: torch.Tensor) -> None:
-        """
-        Compute and freeze per-dimension mean and std from the training set.
-
-        Must be called once before training begins. The statistics are stored
-        as buffers and saved with the checkpoint.
-
-        Parameters
-        ----------
-        X_train : Tensor (N, input_dim) — full training set activations
-        """
-        self.input_mean.copy_(X_train.mean(dim=0))
-        std = X_train.std(dim=0)
-        # Clamp to avoid division by zero for constant dimensions
-        std = std.clamp(min=1e-6)
-        self.input_std.copy_(std)
+        self.input_mean.copy_(X_train.mean(dim=0).to(self.input_mean.device))
+        std = X_train.std(dim=0).clamp(min=1e-6)
+        self.input_std.copy_(std.to(self.input_std.device))
 
     def normalize(self, x: torch.Tensor) -> torch.Tensor:
-        """Standardize input: (x - μ) / σ."""
-        return (x - self.input_mean) / self.input_std
+        return (x - self.input_mean.to(x.device)) / self.input_std.to(x.device)
 
     def denormalize(self, x_norm: torch.Tensor) -> torch.Tensor:
-        """Invert standardization: x_norm * σ + μ."""
-        return x_norm * self.input_std + self.input_mean
+        return x_norm * self.input_std.to(x_norm.device) + self.input_mean.to(x_norm.device)
 
     # -- Core forward pass ------------------------------------------------------
 
     def encode(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Encode raw input to pre-TopK hidden activations.
-
-        Normalizes the input, then applies the encoder.
-
-        Parameters
-        ----------
-        x : Tensor (batch, input_dim) — raw (unnormalized) activations
-
-        Returns
-        -------
-        h : Tensor (batch, n_features) — dense, before top-k selection
-        """
         x_norm = self.normalize(x)
-        x_centered = x_norm - self.b_dec
-        return x_centered @ self.W_enc.T + self.b_enc
+        x_centered = x_norm - self.b_dec.to(x.device)
+        return x_centered @ self.W_enc.to(x.device).T + self.b_enc.to(x.device)
 
     def topk_mask(self, h: torch.Tensor) -> torch.Tensor:
         """
@@ -168,7 +141,8 @@ class TopKSAE(nn.Module):
         x_hat_norm : Tensor (batch, input_dim) — reconstruction in
                      normalized space (for loss computation)
         """
-        return h_sparse @ self.W_dec.T + self.b_dec
+        return h_sparse @ self.W_dec.to(h_sparse.device).T + self.b_dec.to(h_sparse.device)
+
 
     def decode_denorm(self, h_sparse: torch.Tensor) -> torch.Tensor:
         """
