@@ -353,41 +353,40 @@ class SteeringManager:
     # ── Core hook ────────────────────────────────────────────────────────
 
     def _make_steering_hook(self):
-        """Create the forward hook closure.
-
-        Returns
-        -------
-        callable
-            A forward hook function compatible with
-            ``nn.Module.register_forward_hook``.  The hook encodes
-            z_con through the SAE, applies steering, decodes back,
-            and returns the steered tensor.  The returned tensor is
-            NOT detached — it replaces the module output via PyTorch
-            forward hook return semantics.
-        """
         sae = self.sae
         manager = self
+        call_count = [0]
 
         def hook_fn(module, input, output):
-            z_con = output  # (batch, 256)
+            call_count[0] += 1
+            z_con = output
 
-            # Encode through SAE
-            h_pre = sae.encode(z_con)            # (batch, 4096)
-            h_sparse = sae.topk_mask(h_pre)      # (batch, 4096) top-k only
+            h_pre = sae.encode(z_con)
+            h_sparse = sae.topk_mask(h_pre)
 
-            # Apply steering
+            for d in manager.config.directives:
+                active = (h_sparse[:, d.feature_idx] > 0).float().mean()
+                val_before = h_sparse[:, d.feature_idx].mean()
+                h_temp = manager._apply_steering(h_sparse)
+                val_after = h_temp[:, d.feature_idx].mean()
+                print(
+                    f"  [hook call {call_count[0]}] "
+                    f"feat {d.feature_idx}: "
+                    f"active={active:.2f} "
+                    f"before={val_before:.4f} "
+                    f"after={val_after:.4f}"
+                )
+                break
+
             h_steered = manager._apply_steering(h_sparse)
+            z_con_steered = sae.decode_denorm(h_steered)
 
-            # Decode back to raw z_con space
-            z_con_steered = sae.decode_denorm(h_steered)  # (batch, 256)
-
-            # Optional: capture for diagnostics
             if manager._capture:
                 manager._captured_features.append(h_steered.detach().cpu())
 
             return z_con_steered
 
-        return hook_fn
+        return hook_fn  # ← must be indented inside _make_steering_hook, not outside
 
     def _apply_steering(self, h_sparse: torch.Tensor) -> torch.Tensor:
         """Apply all steering directives to sparse feature activations.

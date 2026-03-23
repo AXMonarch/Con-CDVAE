@@ -88,29 +88,26 @@ def load_sae(sae_path: str | Path, device: str = "cpu") -> TopKSAE:
     return sae
 
 
+def safe_get_crystals_list(frac_coords, atom_types, lengths, angles, num_atoms):
+    num_atoms = num_atoms.squeeze()   # guard against (1,N) shape
+    expected = num_atoms.sum().item()
+    if frac_coords.size(0) == expected and atom_types.size(0) == expected:
+        return get_crystals_list(frac_coords, atom_types, lengths, angles, num_atoms)
+    starts = torch.cat([torch.tensor([0]), torch.cumsum(num_atoms[:-1], dim=0)])
+    valid = [
+        i for i, (s, n) in enumerate(zip(starts, num_atoms))
+        if (s + n) <= frac_coords.size(0) and (s + n) <= atom_types.size(0)
+    ]
+    print(f"  WARNING: dropping {len(num_atoms) - len(valid)} malformed samples")
+    valid_t = torch.tensor(valid)
+    new_num_atoms = num_atoms[valid_t]
+    new_fc = torch.cat([frac_coords[starts[i]:starts[i]+num_atoms[i]] for i in valid])
+    new_at = torch.cat([atom_types[starts[i]:starts[i]+num_atoms[i]] for i in valid])
+    return get_crystals_list(new_fc, new_at, lengths[valid_t], angles[valid_t], new_num_atoms)
+
 # ── Generation wrapper ───────────────────────────────────────────────────────
 
 def run_generation(model, prior, prop_dict, gen_cfg, ld_kwargs):
-    """Run crystal generation, returning per-sample tensors.
-
-    Parameters
-    ----------
-    model : nn.Module
-        The Con-CDVAE model.
-    prior : nn.Module
-        The prior model for z sampling.
-    prop_dict : dict
-        Condition properties (e.g. ``{"formation_energy_per_atom": tensor}``).
-    gen_cfg : OmegaConf
-        Generation config with batch_size, down_sample, etc.
-    ld_kwargs : SimpleNamespace
-        Langevin dynamics keyword arguments.
-
-    Returns
-    -------
-    tuple of Tensor
-        ``(frac_coords, num_atoms, atom_types, lengths, angles)``
-    """
     frac_coords, num_atoms, atom_types, lengths, angles, _, _ = generation(
         model, prior, prop_dict,
         batch_size=gen_cfg.batch_size,
@@ -118,10 +115,14 @@ def run_generation(model, prior, prop_dict, gen_cfg, ld_kwargs):
         num_batches_to_sample=gen_cfg.num_batches_to_samples,
         ld_kwargs=ld_kwargs,
     )
-    # generation() returns shape (num_samples_per_z, total, ...) — take first
-    return frac_coords[0], num_atoms[0], atom_types[0], lengths[0], angles[0]
-
-
+    # generation() stacks into (num_samples_per_z, total, ...) — take first and flatten
+    return (
+        frac_coords[0],
+        atom_types[0],
+        lengths[0],
+        angles[0],
+        num_atoms[0].squeeze(),   # was (1, N), now (N,)
+    )
 # ── Metric computation ───────────────────────────────────────────────────────
 
 def compute_element_distribution(crystal_list: list[dict]) -> Counter:
@@ -477,7 +478,7 @@ def run_single_feature_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwar
     results = run_generation(model, prior, prop_dict, gen_cfg, ld_kwargs)
     manager.remove()
 
-    crystal_list = get_crystals_list(*results)
+    crystal_list = safe_get_crystals_list(*results)
     elem_dist = compute_element_distribution(crystal_list)
     validity = compute_validity(crystal_list)
     num_atoms = compute_num_atoms_stats(crystal_list)
@@ -529,7 +530,7 @@ def run_amplify_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     print("\nRunning baseline generation (no steering)...")
     torch.manual_seed(args.seed)
     baseline_results = run_generation(model, prior, prop_dict, gen_cfg, ld_kwargs)
-    baseline_crystals = get_crystals_list(*baseline_results)
+    baseline_crystals = safe_get_crystals_list(*baseline_results)
 
     # ── Build steering manager ───────────────────────────────────────────
     if args.cluster:
@@ -560,7 +561,7 @@ def run_amplify_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     steered_results = run_generation(model, prior, prop_dict, gen_cfg, ld_kwargs)
     manager.remove()
 
-    steered_crystals = get_crystals_list(*steered_results)
+    steered_crystals = safe_get_crystals_list(*steered_results)
 
     # ── Compute metrics ──────────────────────────────────────────────────
     baseline_elem = compute_element_distribution(baseline_crystals)
@@ -601,28 +602,6 @@ def run_amplify_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
 
 
 def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
-    """Sweep amplification scale, collect metrics at each level.
-
-    Parameters
-    ----------
-    args : argparse.Namespace
-        CLI arguments.  ``scales`` is a comma-separated string of floats.
-    model, prior : nn.Module
-        Con-CDVAE model and prior.
-    sae : TopKSAE
-        Trained SAE.
-    prop_dict : dict
-        Condition properties.
-    gen_cfg : OmegaConf
-        Generation config.
-    ld_kwargs : SimpleNamespace
-        Langevin dynamics kwargs.
-
-    Returns
-    -------
-    dict
-        Per-scale metrics.
-    """
     scales = [0.5, 1.0, 1.5, 2.0, 3.0, 5.0]
     if args.scales:
         scales = [float(s) for s in args.scales.split(",")]
@@ -636,19 +615,26 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     else:
         raise ValueError("Sweep mode requires --feature or --cluster")
 
+    # Set up output dir here so per-scale saves work
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    target_name = args.feature or args.cluster or "unknown"
+
     print(f"\n{'=' * 70}")
     print(f"Sweep: {target_desc} ({label})")
     print(f"Scales: {scales}")
     print(f"{'=' * 70}")
 
-    # Baseline at scale=1.0 (no modification = SAE roundtrip only)
     results_per_scale = {}
 
     for scale in scales:
         print(f"\n--- Scale {scale:.1f}x ---")
 
         if args.feature is not None:
-            manager = SteeringManager.from_features(sae, {args.feature: scale})
+            config = SteeringConfig(directives=[
+                SteerDirective(args.feature, SteerOp.CLAMP, scale)
+            ])
+            manager = SteeringManager(sae, config)
         else:
             manager = SteeringManager.from_cluster(sae, args.cluster, scale)
 
@@ -657,7 +643,7 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
         gen_results = run_generation(model, prior, prop_dict, gen_cfg, ld_kwargs)
         manager.remove()
 
-        crystal_list = get_crystals_list(*gen_results)
+        crystal_list = safe_get_crystals_list(*gen_results)
         validity = compute_validity(crystal_list)
         elem_dist = compute_element_distribution(crystal_list)
         num_atoms = compute_num_atoms_stats(crystal_list)
@@ -676,6 +662,18 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
         top_elems = elem_dist.most_common(5)
         top_str = ", ".join(f"{e}({c})" for e, c in top_elems)
         print(f"  Top elements: {top_str}")
+
+        # Save this scale immediately
+        scale_str = f"{scale:.1f}".replace(".", "_")
+        out_path = output_dir / f"steer_sweep_{target_name}_scale{scale_str}.pt"
+        torch.save({
+            "mode": "sweep",
+            "target": target_desc,
+            "label": label,
+            "scale": scale,
+            "results": results_per_scale[scale],
+        }, out_path)
+        print(f"  Saved: {out_path.name}")
 
     # Summary table
     print(f"\n{'=' * 70}")
