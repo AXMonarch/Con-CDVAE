@@ -59,3 +59,4 @@ from .hooks import HookManager
 from .labels import LabelExtractor
 from .probes import LinearProbe, MLPProbe
 from .sae_model import TopKSAE, SAEConfig
+from .steer import SteeringConfig, SteeringManager, SteerDirective, SteerOp

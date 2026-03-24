@@ -37,6 +37,7 @@ import numpy as np
 import torch
 from omegaconf import OmegaConf
 import pandas as pd
+import re
 
 # Add scripts/ to path for eval_utils imports
 _script_dir = Path(__file__).resolve().parents[2] / "scripts"
@@ -616,7 +617,7 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
         raise ValueError("Sweep mode requires --feature or --cluster")
 
     # Set up output dir here so per-scale saves work
-    output_dir = Path(args.output_dir)
+    output_dir = Path(args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     target_name = args.feature or args.cluster or "unknown"
 
@@ -636,7 +637,12 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
             ])
             manager = SteeringManager(sae, config)
         else:
-            manager = SteeringManager.from_cluster(sae, args.cluster, scale)
+            feature_ids = CLUSTER_TO_FEATURES[args.cluster]
+            config = SteeringConfig(directives=[
+                SteerDirective(fid, SteerOp.CLAMP, scale)
+                for fid in feature_ids
+            ])
+            manager = SteeringManager(sae, config)
 
         manager.register(model)
         torch.manual_seed(args.seed)
@@ -664,8 +670,11 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
         print(f"  Top elements: {top_str}")
 
         # Save this scale immediately
+        # replace the filename block inside the for loop:
         scale_str = f"{scale:.1f}".replace(".", "_")
-        out_path = output_dir / f"steer_sweep_{target_name}_scale{scale_str}.pt"
+        safe_name = re.sub(r'[^a-zA-Z0-9_]', '_', str(target_name))
+        out_path = output_dir / f"steer_sweep_{safe_name}_scale{scale_str}.pt"
+
         torch.save({
             "mode": "sweep",
             "target": target_desc,
@@ -903,8 +912,15 @@ def main():
         )
 
     # Save results
-    output_dir = Path(args.output_dir)
+    output_dir = Path(args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
+
+
+    safe_target = re.sub(r'[^a-zA-Z0-9_]', '_', 
+        str(args.feature or args.cluster or args.property or "unknown"))
+    out_path = output_dir / f"steer_{args.mode}_{safe_target}.pt"
+    torch.save(results, out_path)
+    print(f"Saved results to {out_path}")
 
     target_name = args.feature or args.cluster or args.property or "unknown"
     out_path = output_dir / f"steer_{args.mode}_{target_name}.pt"
