@@ -38,7 +38,7 @@ import torch
 import torch.nn as nn
 
 from .sae_model import TopKSAE, SAEConfig
-from .mapping_exported import feature_to_cluster, feature_labels
+from .mapping_exported import feature_to_cluster
 
 
 # ── Steering primitives ──────────────────────────────────────────────────────
