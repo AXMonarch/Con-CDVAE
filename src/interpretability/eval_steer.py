@@ -531,6 +531,142 @@ def get_baseline_z_con(
     raise RuntimeError("No z_con captured — generation may have failed")
 
 
+# ── Feature activation diagnostics ────────────────────────────────────────────
+
+@torch.no_grad()
+def diagnose_feature_activations(
+    model, sae: TopKSAE, z_con: torch.Tensor,
+    clusters: list[str] | None = None,
+) -> dict:
+    """Check which labeled features actually fire for the given z_con.
+
+    For each cluster, reports:
+      - Per-feature activation rate (fraction of samples where feature is in top-k)
+      - Per-feature mean activation (when active)
+      - Element enrichment when cluster features are CLAMPed on
+      - Whether enriched elements match the cluster name
+
+    Parameters
+    ----------
+    model : nn.Module
+        Con-CDVAE model (for fast_evaluate).
+    sae : TopKSAE
+        Trained SAE.
+    z_con : torch.Tensor
+        Baseline z_con of shape (batch, 256).
+    clusters : list of str, optional
+        Clusters to diagnose. Defaults to all clusters.
+
+    Returns
+    -------
+    dict
+        Per-cluster diagnostics.
+    """
+    device = z_con.device
+    sae = sae.to(device)
+    k = sae.config.k
+
+    # Encode and get top-k mask
+    h_pre = sae.encode(z_con)
+    _, topk_idx = torch.topk(h_pre, k, dim=-1)  # (batch, k)
+
+    # Set of all labeled feature indices
+    all_labeled = set(feature_to_cluster.keys())
+
+    # Global stats
+    topk_set_per_sample = [set(row.tolist()) for row in topk_idx]
+    labeled_in_topk = [len(s & all_labeled) for s in topk_set_per_sample]
+
+    print(f"\n{'=' * 70}")
+    print(f"FEATURE ACTIVATION DIAGNOSTICS (k={k}, {z_con.shape[0]} samples)")
+    print(f"{'=' * 70}")
+    print(f"  Total labeled features: {len(all_labeled)} / {sae.config.n_features}")
+    print(f"  Labeled features in top-{k} per sample: "
+          f"{np.mean(labeled_in_topk):.1f} ± {np.std(labeled_in_topk):.1f} "
+          f"(range {min(labeled_in_topk)}-{max(labeled_in_topk)})")
+
+    # Baseline composition for comparison
+    baseline_fast = fast_evaluate(model, z_con)
+    baseline_comp = baseline_fast["composition"]
+
+    if clusters is None:
+        clusters = list(CLUSTER_TO_FEATURES.keys())
+
+    results = {}
+    for cluster in clusters:
+        feature_ids = CLUSTER_TO_FEATURES[cluster]
+
+        # Per-feature activation rate and mean value
+        feat_stats = []
+        for fid in feature_ids:
+            active_mask = torch.zeros(z_con.shape[0], dtype=torch.bool, device=device)
+            for i, s in enumerate(topk_set_per_sample):
+                if fid in s:
+                    active_mask[i] = True
+            rate = active_mask.float().mean().item()
+            if active_mask.any():
+                mean_val = h_pre[active_mask, fid].mean().item()
+            else:
+                mean_val = 0.0
+            feat_stats.append((fid, rate, mean_val))
+
+        # Sort by activation rate descending
+        feat_stats.sort(key=lambda x: -x[1])
+        cluster_rate = np.mean([s[1] for s in feat_stats])
+
+        # CLAMP test: force all cluster features to median active value
+        # to see what elements this cluster *would* produce
+        median_val = np.median([s[2] for s in feat_stats if s[2] > 0]) if any(s[2] > 0 for s in feat_stats) else 1.0
+        clamp_directives = [
+            SteerDirective(fid, SteerOp.CLAMP, float(median_val))
+            for fid in feature_ids
+        ]
+        clamp_manager = SteeringManager(
+            sae, SteeringConfig(directives=clamp_directives), verbose=False,
+        )
+        z_clamped = clamp_manager.steer_z_con(z_con)
+        clamped_fast = fast_evaluate(model, z_clamped)
+        clamped_comp = clamped_fast["composition"]
+        comp_diff = compare_element_distributions(baseline_comp, clamped_comp)
+
+        # Check if enriched elements match cluster name
+        label_elements = set()
+        for sym in chemical_symbols[1:]:
+            if sym in cluster.split("/") or sym in cluster:
+                label_elements.add(sym)
+        top_enriched = [e for e, _ in comp_diff.get("top_enriched", [])[:5]]
+        selectivity = (
+            sum(1 for e in top_enriched if e in label_elements) / max(len(top_enriched), 1)
+        ) if label_elements else float("nan")
+
+        # Print
+        print(f"\n  Cluster: {cluster} ({len(feature_ids)} features)")
+        print(f"    Avg activation rate: {cluster_rate:.1%}")
+        print(f"    Per-feature breakdown:")
+        for fid, rate, mean_val in feat_stats:
+            bar = "█" * int(rate * 20) + "░" * (20 - int(rate * 20))
+            print(f"      {fid:5d}  {bar} {rate:5.1%}  (mean={mean_val:.4f})")
+        print(f"    CLAMP test (force features to {median_val:.4f}):")
+        print(f"      KL from baseline: {comp_diff['kl_divergence']:.4f}")
+        print(f"      Top enriched: {top_enriched}")
+        if label_elements:
+            print(f"      Expected elements (from name): {label_elements}")
+            print(f"      Selectivity: {selectivity:.0%}")
+        else:
+            print(f"      (no element symbols found in cluster name)")
+
+        results[cluster] = {
+            "feature_stats": feat_stats,
+            "cluster_activation_rate": cluster_rate,
+            "clamp_kl": comp_diff["kl_divergence"],
+            "top_enriched": top_enriched,
+            "selectivity": selectivity,
+        }
+
+    print(f"\n{'=' * 70}")
+    return results
+
+
 # ── Verification metrics ─────────────────────────────────────────────────────
 
 @torch.no_grad()
@@ -943,6 +1079,9 @@ def run_grid_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     print(f"  Baseline top elements: {baseline_comp.most_common(5)}")
     print(f"  Baseline num_atoms: {baseline_fast['num_atoms_mean']:.1f} ± {baseline_fast['num_atoms_std']:.1f}")
 
+    # Step 2.5: feature activation diagnostics
+    diag = diagnose_feature_activations(model, sae, z_con_baseline, clusters)
+
     # Step 3: verification metrics per cluster
     print("\nRunning verification checks...")
     verification = {}
@@ -1187,7 +1326,7 @@ def parse_args():
     # Steering mode
     p.add_argument(
         "--mode", type=str, required=True,
-        choices=["single_feature", "amplify", "sweep", "grid"],
+        choices=["single_feature", "amplify", "sweep", "grid", "diagnose"],
         help="Steering evaluation mode",
     )
 
@@ -1295,19 +1434,32 @@ def main():
         results = run_grid_mode(
             args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs,
         )
+    elif args.mode == "diagnose":
+        # Capture baseline z_con, then run diagnostics
+        print("\nCapturing baseline z_con...")
+        z_con_baseline = get_baseline_z_con(
+            model, prior, prop_dict, gen_cfg, ld_kwargs, sae, args.device,
+        )
+        print(f"  Captured z_con: {z_con_baseline.shape}")
+        clusters = None
+        if args.clusters:
+            clusters = [c.strip() for c in args.clusters.split(",")]
+        results = diagnose_feature_activations(
+            model, sae, z_con_baseline, clusters,
+        )
 
     # Save results
     output_dir = Path(args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    if args.mode == "grid":
-        safe_target = "grid"
+    if args.mode in ("grid", "diagnose"):
+        safe_target = args.mode
     else:
         safe_target = re.sub(r'[^a-zA-Z0-9_]', '_',
             str(args.feature or args.cluster or args.property or "unknown"))
     out_path = output_dir / f"steer_{args.mode}_{safe_target}.pt"
     torch.save(results, out_path)
-    print(f"Saved results to {out_path}")
+    print(f"\nSaved results to {out_path}")
 
 
 if __name__ == "__main__":
