@@ -101,6 +101,9 @@ feature_labels = {
     467:  "U/La/Ba heavy alkaline oxide",
 }
 
+# Primary cluster assignment — each feature belongs to exactly one cluster.
+# Cross-cutting tags (Chalcogenides, Heavy complex oxides, Structurally
+# complex/low-symmetry) are stored in feature_secondary_clusters below.
 feature_to_cluster = {
     # Early transition-metal oxides/fluorides
     3479: "Early transition-metal oxides/fluorides",
@@ -202,8 +205,6 @@ feature_to_cluster = {
 
     # Carbides/silicides/borides
     2105: "Carbides/silicides/borides",
-    3727: "Carbides/silicides/borides",
-    1574: "Carbides/silicides/borides",
     983:  "Carbides/silicides/borides",
 
     # Polyanionic networks
@@ -215,28 +216,46 @@ feature_to_cluster = {
     403:  "Polyanionic networks",
     3926: "Polyanionic networks",
 
-    # Chalcogenides
-    2460: "Chalcogenides",
-    407:  "Chalcogenides",
+    # Chalcogenides (features whose primary identity is chalcogenide)
     1595: "Chalcogenides",
     1224: "Chalcogenides",
-    1369: "Chalcogenides",
 
-    # Heavy complex oxides
+    # Heavy complex oxides (features whose primary identity is heavy oxide)
     1488: "Heavy complex oxides",
     997:  "Heavy complex oxides",
-    2425: "Heavy complex oxides",
-    1154: "Heavy complex oxides",
-    2465: "Heavy complex oxides",
-    1486: "Heavy complex oxides",
+
+    # Structurally complex/low-symmetry (primary identity)
+    135:  "Structurally complex/low-symmetry",
+
+    # Previously unassigned features
+    2421: "Rare-earth/lanthanide compounds",   # Heavy lanthanide/Hf compound
+    2374: "Early transition-metal oxides/fluorides",  # Cu/Li/Fe magnetic oxide
+}
+
+# Secondary/cross-cutting cluster tags for features that span categories.
+# These do NOT override the primary assignment above.
+feature_secondary_clusters: dict[int, list[str]] = {
+    # Chalcogenides (also assigned to a primary chemistry cluster)
+    2460: ["Chalcogenides"],            # primary: Rare-earth/lanthanide compounds
+    407:  ["Chalcogenides"],            # primary: Intermetallics and post-transition metals
+    1369: ["Chalcogenides"],            # primary: Actinide compounds
+
+    # Heavy complex oxides
+    2425: ["Heavy complex oxides"],     # primary: Actinide compounds
+    1154: ["Heavy complex oxides"],     # primary: Rare-earth/lanthanide compounds
+    2465: ["Heavy complex oxides"],     # primary: Rare-earth/lanthanide compounds
+    1486: ["Heavy complex oxides"],     # primary: Alkali/alkaline-earth halides
 
     # Structurally complex/low-symmetry
-    135:  "Structurally complex/low-symmetry",
-    1258: "Structurally complex/low-symmetry",
-    1310: "Structurally complex/low-symmetry",
-    2174: "Structurally complex/low-symmetry",
-    3464: "Structurally complex/low-symmetry",
-    2871: "Structurally complex/low-symmetry",
+    1258: ["Structurally complex/low-symmetry"],  # primary: Actinide compounds
+    1310: ["Structurally complex/low-symmetry"],  # primary: Refractory transition metals
+    2174: ["Structurally complex/low-symmetry"],  # primary: Refractory transition metals
+    3464: ["Structurally complex/low-symmetry"],  # primary: Refractory transition metals
+    2871: ["Structurally complex/low-symmetry"],  # primary: Early transition-metal oxides/fluorides
+
+    # Carbides/silicides/borides (also actinide)
+    3727: ["Carbides/silicides/borides"],  # primary: Actinide compounds
+    1574: ["Carbides/silicides/borides"],  # primary: Actinide compounds
 }
 
 label_to_cluster = {

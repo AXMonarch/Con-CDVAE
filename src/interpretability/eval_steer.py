@@ -436,6 +436,202 @@ def print_element_table(elem_dist: Counter, title: str, top_n: int = 15) -> None
         print(f"  {elem:<8s} {count:>8d} {count / max(total, 1):>10.1%}")
 
 
+# ── Fast evaluation (output heads only, no generation) ───────────────────────
+
+@torch.no_grad()
+def fast_evaluate(model, z_con: torch.Tensor) -> dict:
+    """Run z_con through model output heads without Langevin dynamics.
+
+    Returns predicted composition distribution, num_atoms distribution,
+    and lattice parameters — all from a single forward pass through the
+    MLP heads.  Orders of magnitude faster than full generation.
+
+    Parameters
+    ----------
+    model : nn.Module
+        The Con-CDVAE model (frozen, eval mode).
+    z_con : torch.Tensor
+        Steered (or baseline) z_con of shape ``(batch, 256)``.
+
+    Returns
+    -------
+    dict with keys:
+        ``composition`` : Counter of element symbols
+        ``num_atoms_mean`` : float
+        ``num_atoms_std`` : float
+        ``lattice_means`` : dict with a, b, c, alpha, beta, gamma
+    """
+    device = z_con.device
+
+    # Predict num_atoms: (batch, max_atoms+1) logits → argmax
+    num_atoms_logits = model.predict_num_atoms(z_con)
+    num_atoms = num_atoms_logits.argmax(dim=-1)  # (batch,)
+    num_atoms = num_atoms.clamp(min=1)  # avoid zero-atom crystals
+
+    # Predict composition: z_con repeated per atom → (total_atoms, 100) logits
+    z_per_atom = z_con.repeat_interleave(num_atoms, dim=0)
+    comp_logits = model.fc_composition(z_per_atom)  # (total_atoms, MAX_ATOMIC_NUM)
+    comp_probs = torch.softmax(comp_logits, dim=-1)
+
+    # Convert to element distribution (argmax per atom, then count)
+    pred_elements = comp_logits.argmax(dim=-1)  # (total_atoms,)
+    elem_counts = Counter()
+    for z_int in pred_elements.cpu().tolist():
+        if 0 < z_int < len(chemical_symbols):
+            elem_counts[chemical_symbols[z_int]] += 1
+
+    # Also compute soft composition: mean probability per element
+    mean_probs = comp_probs.mean(dim=0).cpu()  # (MAX_ATOMIC_NUM,)
+
+    # Lattice parameters
+    try:
+        model.lattice_scaler.match_device(z_con)
+        lat_pred = model.fc_lattice(z_con)
+        lat_scaled = model.lattice_scaler.inverse_transform(lat_pred)
+        lat_means = lat_scaled.mean(dim=0).cpu()
+        lattice = {
+            "a": float(lat_means[0]), "b": float(lat_means[1]),
+            "c": float(lat_means[2]), "alpha": float(lat_means[3]),
+            "beta": float(lat_means[4]), "gamma": float(lat_means[5]),
+        }
+    except Exception:
+        lattice = {}
+
+    na = num_atoms.float()
+    return {
+        "composition": elem_counts,
+        "composition_probs": mean_probs,
+        "num_atoms_mean": float(na.mean()),
+        "num_atoms_std": float(na.std()),
+        "lattice": lattice,
+    }
+
+
+def get_baseline_z_con(
+    model, prior, prop_dict, gen_cfg, ld_kwargs, sae, device: str,
+) -> torch.Tensor:
+    """Get a batch of baseline z_con by running generation with a capture hook.
+
+    Registers a passive hook on model.z_condition that captures z_con
+    without modifying it. Returns the concatenated captured tensors.
+    """
+    captured = []
+
+    def _capture_hook(module, input, output):
+        captured.append(output.detach())
+        return output
+
+    handle = model.z_condition.register_forward_hook(_capture_hook)
+    torch.manual_seed(42)
+    run_generation(model, prior, prop_dict, gen_cfg, ld_kwargs)
+    handle.remove()
+
+    if captured:
+        return torch.cat(captured, dim=0).to(device)
+    raise RuntimeError("No z_con captured — generation may have failed")
+
+
+# ── Verification metrics ─────────────────────────────────────────────────────
+
+@torch.no_grad()
+def compute_verification_metrics(
+    model, sae, z_con_baseline: torch.Tensor,
+    cluster_name: str, scales: list[float], k_values: list[int],
+) -> dict:
+    """Compute steering verification metrics for one cluster.
+
+    Returns metrics that answer: "is steering this cluster actually working?"
+
+    Checks
+    ------
+    1. Reconstruction fidelity: cosine sim(original, SAE-roundtripped z_con)
+    2. Baseline identity: at scale=1.0 the composition should match unsteered
+    3. Dose-response monotonicity: does effect grow with scale?
+    4. Selectivity: does steering this cluster primarily shift its own elements?
+    """
+    device = z_con_baseline.device
+    sae = sae.to(device)
+    feature_ids = CLUSTER_TO_FEATURES[cluster_name]
+
+    # 1. Reconstruction fidelity (no steering, just SAE roundtrip)
+    noop_manager = SteeringManager(sae, SteeringConfig())
+    z_con_recon = noop_manager.reconstruct_z_con(z_con_baseline)
+    recon_cos = torch.nn.functional.cosine_similarity(
+        z_con_baseline, z_con_recon, dim=-1,
+    ).mean().item()
+
+    # Baseline composition (no steering at all)
+    baseline_fast = fast_evaluate(model, z_con_baseline)
+    baseline_comp = baseline_fast["composition"]
+
+    # 2 & 3. Sweep scale at training k, measure composition shift
+    training_k = sae.config.k
+    composition_by_scale = {}
+    kl_by_scale = {}
+
+    for scale in sorted(scales):
+        manager = SteeringManager.from_cluster(
+            sae, cluster_name, scale, k_override=training_k,
+        )
+        z_steered = manager.steer_z_con(z_con_baseline)
+        result = fast_evaluate(model, z_steered)
+        composition_by_scale[scale] = result["composition"]
+        comp = compare_element_distributions(baseline_comp, result["composition"])
+        kl_by_scale[scale] = comp["kl_divergence"]
+
+    # Monotonicity: KL should increase with |scale - 1|
+    sorted_scales = sorted(s for s in scales if s >= 1.0)
+    kl_vals = [kl_by_scale.get(s, 0.0) for s in sorted_scales]
+    monotonic = all(b >= a - 1e-6 for a, b in zip(kl_vals, kl_vals[1:]))
+
+    # Baseline identity: KL at scale=1.0 should be near zero
+    identity_kl = kl_by_scale.get(1.0, float("nan"))
+
+    # 4. Selectivity: what fraction of the top-5 enriched elements at max scale
+    #    are elements that appear in the cluster's feature labels?
+    cluster_labels = [
+        feature_labels.get(fid, "") for fid in feature_ids
+    ]
+    # Extract element symbols mentioned in labels
+    label_elements = set()
+    for lbl in cluster_labels:
+        for sym in chemical_symbols[1:]:  # skip empty string at index 0
+            if sym in lbl.split("/") or sym in lbl:
+                label_elements.add(sym)
+
+    max_scale = max(scales)
+    max_comp = compare_element_distributions(
+        baseline_comp, composition_by_scale.get(max_scale, Counter()),
+    )
+    top_enriched = [e for e, _ in max_comp.get("top_enriched", [])[:5]]
+    selectivity = (
+        sum(1 for e in top_enriched if e in label_elements) / max(len(top_enriched), 1)
+    )
+
+    # k-sensitivity: does lowering k amplify the steering effect?
+    kl_by_k = {}
+    for k in k_values:
+        manager = SteeringManager.from_cluster(
+            sae, cluster_name, max_scale, k_override=k,
+        )
+        z_steered = manager.steer_z_con(z_con_baseline)
+        result = fast_evaluate(model, z_steered)
+        comp = compare_element_distributions(baseline_comp, result["composition"])
+        kl_by_k[k] = comp["kl_divergence"]
+
+    return {
+        "reconstruction_cosine_sim": recon_cos,
+        "identity_kl": identity_kl,
+        "dose_response_monotonic": monotonic,
+        "kl_by_scale": kl_by_scale,
+        "kl_by_k": kl_by_k,
+        "selectivity": selectivity,
+        "top_enriched_at_max_scale": top_enriched,
+        "label_elements": sorted(label_elements),
+        "n_cluster_features": len(feature_ids),
+    }
+
+
 # ── Mode runners ─────────────────────────────────────────────────────────────
 
 def run_single_feature_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
@@ -637,12 +833,9 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
             ])
             manager = SteeringManager(sae, config)
         else:
-            feature_ids = CLUSTER_TO_FEATURES[args.cluster]
-            config = SteeringConfig(directives=[
-                SteerDirective(fid, SteerOp.CLAMP, scale)
-                for fid in feature_ids
-            ])
-            manager = SteeringManager(sae, config)
+            # Use AMPLIFY for clusters: scales relative to natural activation,
+            # so inactive features stay at 0 and active ones scale proportionally.
+            manager = SteeringManager.from_cluster(sae, args.cluster, scale)
 
         manager.register(model)
         torch.manual_seed(args.seed)
@@ -706,6 +899,188 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
         "label": label,
         "scales": scales,
         "results": results_per_scale,
+    }
+
+
+# ── Grid mode ────────────────────────────────────────────────────────────────
+
+def run_grid_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
+    """3D ablation grid: cluster × scale × k.
+
+    Uses fast evaluation (output heads) for the full grid. Optionally runs
+    full generation on selected points.
+    """
+    # Parse grid axes
+    if args.clusters:
+        clusters = [c.strip() for c in args.clusters.split(",")]
+    else:
+        clusters = list(CLUSTER_TO_FEATURES.keys())
+
+    scales = [0.0, 0.5, 1.0, 2.0, 3.0, 5.0]
+    if args.scales:
+        scales = [float(s) for s in args.scales.split(",")]
+
+    k_values = [8, 16, 32, 64, 128]
+    if args.k_values:
+        k_values = [int(k) for k in args.k_values.split(",")]
+
+    # Validate clusters
+    for c in clusters:
+        if c not in CLUSTER_TO_FEATURES:
+            available = list(CLUSTER_TO_FEATURES.keys())
+            raise ValueError(f"Unknown cluster '{c}'. Available: {available}")
+
+    n_cells = len(clusters) * len(scales) * len(k_values)
+    print(f"\n{'=' * 70}")
+    print(f"Grid ablation: {len(clusters)} clusters × {len(scales)} scales × {len(k_values)} k values = {n_cells} cells")
+    print(f"Clusters: {clusters}")
+    print(f"Scales:   {scales}")
+    print(f"k values: {k_values}")
+    print(f"{'=' * 70}")
+
+    # Step 1: get baseline z_con
+    print("\nCapturing baseline z_con...")
+    z_con_baseline = get_baseline_z_con(
+        model, prior, prop_dict, gen_cfg, ld_kwargs, sae, args.device,
+    )
+    print(f"  Captured z_con: {z_con_baseline.shape}")
+
+    # Step 2: baseline fast evaluation (no steering)
+    baseline_fast = fast_evaluate(model, z_con_baseline)
+    baseline_comp = baseline_fast["composition"]
+    print(f"  Baseline top elements: {baseline_comp.most_common(5)}")
+    print(f"  Baseline num_atoms: {baseline_fast['num_atoms_mean']:.1f} ± {baseline_fast['num_atoms_std']:.1f}")
+
+    # Step 3: verification metrics per cluster
+    print("\nRunning verification checks...")
+    verification = {}
+    for cluster in clusters:
+        print(f"  Verifying: {cluster}")
+        v = compute_verification_metrics(
+            model, sae, z_con_baseline, cluster, scales, k_values,
+        )
+        verification[cluster] = v
+        print(f"    Recon cosine sim:  {v['reconstruction_cosine_sim']:.4f}")
+        print(f"    Identity KL:      {v['identity_kl']:.6f}")
+        print(f"    Dose-response OK: {v['dose_response_monotonic']}")
+        print(f"    Selectivity:      {v['selectivity']:.2f}")
+
+    # Step 4: full grid (fast path)
+    print("\nRunning full grid (fast evaluation)...")
+    grid = {}
+    for ci, cluster in enumerate(clusters):
+        grid[cluster] = {}
+        feature_ids = CLUSTER_TO_FEATURES[cluster]
+        for scale in scales:
+            grid[cluster][scale] = {}
+            for k in k_values:
+                manager = SteeringManager.from_cluster(
+                    sae, cluster, scale, k_override=k,
+                )
+                z_steered = manager.steer_z_con(z_con_baseline)
+                result = fast_evaluate(model, z_steered)
+                comp = compare_element_distributions(baseline_comp, result["composition"])
+                grid[cluster][scale][k] = {
+                    "composition": dict(result["composition"]),
+                    "num_atoms_mean": result["num_atoms_mean"],
+                    "num_atoms_std": result["num_atoms_std"],
+                    "lattice": result["lattice"],
+                    "kl_divergence": comp["kl_divergence"],
+                    "top_enriched": comp["top_enriched"][:5],
+                    "top_depleted": comp["top_depleted"][:5],
+                }
+
+        # Print per-cluster heatmap
+        print(f"\n  Cluster: {cluster} ({len(feature_ids)} features)")
+        print(f"  {'':>8s}", end="")
+        for k in k_values:
+            print(f"  k={k:<4d}", end="")
+        print()
+        for scale in scales:
+            print(f"  s={scale:<5.1f}", end="")
+            for k in k_values:
+                kl = grid[cluster][scale][k]["kl_divergence"]
+                print(f"  {kl:>6.4f}", end="")
+            print()
+
+    # Step 5: optional full generation on interesting points
+    full_gen_results = {}
+    if not args.fast_only:
+        # Auto-select: highest KL point per cluster (most effect)
+        print("\nRunning full generation on high-impact points...")
+        for cluster in clusters:
+            best_kl = 0.0
+            best_point = (scales[-1], k_values[0])
+            for scale in scales:
+                for k in k_values:
+                    kl = grid[cluster][scale][k]["kl_divergence"]
+                    if kl > best_kl:
+                        best_kl = kl
+                        best_point = (scale, k)
+
+            scale, k = best_point
+            print(f"  {cluster}: scale={scale}, k={k} (KL={best_kl:.4f})")
+
+            manager = SteeringManager.from_cluster(
+                sae, cluster, scale, k_override=k, verbose=False,
+            )
+            manager.register(model)
+            torch.manual_seed(args.seed)
+            gen_results = run_generation(model, prior, prop_dict, gen_cfg, ld_kwargs)
+            manager.remove()
+
+            crystal_list = safe_get_crystals_list(*gen_results)
+            validity = compute_validity(crystal_list)
+            elem_dist = compute_element_distribution(crystal_list)
+            num_atoms_stats = compute_num_atoms_stats(crystal_list)
+
+            full_gen_results[cluster] = {
+                "scale": scale, "k": k,
+                "validity": validity,
+                "element_distribution": dict(elem_dist),
+                "num_atoms": num_atoms_stats,
+                "n_crystals": len(crystal_list),
+            }
+
+            print(f"    Validity: SMACT={validity['smact_rate']:.1%}  "
+                  f"Struct={validity['struct_rate']:.1%}  "
+                  f"Both={validity['both_rate']:.1%}")
+            top_str = ", ".join(f"{e}({c})" for e, c in elem_dist.most_common(5))
+            print(f"    Top elements: {top_str}")
+
+    # Summary
+    print(f"\n{'=' * 70}")
+    print("GRID ABLATION SUMMARY")
+    print(f"{'=' * 70}")
+    print(f"\n{'Cluster':<40s} {'Recon':>6s} {'Ident':>7s} {'Mono':>5s} {'Select':>7s}")
+    print("-" * 70)
+    for cluster in clusters:
+        v = verification[cluster]
+        print(f"{cluster:<40s} {v['reconstruction_cosine_sim']:>6.3f} "
+              f"{v['identity_kl']:>7.5f} "
+              f"{'Y' if v['dose_response_monotonic'] else 'N':>5s} "
+              f"{v['selectivity']:>6.2f}")
+    print(f"{'=' * 70}\n")
+
+    return {
+        "mode": "grid",
+        "clusters": clusters,
+        "scales": scales,
+        "k_values": k_values,
+        "baseline": {
+            "composition": dict(baseline_comp),
+            "num_atoms_mean": baseline_fast["num_atoms_mean"],
+            "num_atoms_std": baseline_fast["num_atoms_std"],
+        },
+        "grid": {
+            c: {
+                str(s): {
+                    str(k): grid[c][s][k] for k in k_values
+                } for s in scales
+            } for c in clusters
+        },
+        "verification": verification,
+        "full_generation": full_gen_results,
     }
 
 
@@ -820,7 +1195,7 @@ def parse_args():
     # Steering mode
     p.add_argument(
         "--mode", type=str, required=True,
-        choices=["single_feature", "amplify", "sweep"],
+        choices=["single_feature", "amplify", "sweep", "grid"],
         help="Steering evaluation mode",
     )
 
@@ -854,6 +1229,20 @@ def parse_args():
     p.add_argument(
         "--scales", type=str, default=None,
         help="Comma-separated scales for sweep mode (default: 0.5,1,1.5,2,3,5)",
+    )
+
+    # Grid mode parameters
+    p.add_argument(
+        "--clusters", type=str, default=None,
+        help="Comma-separated cluster names for grid mode (default: all clusters)",
+    )
+    p.add_argument(
+        "--k_values", type=str, default=None,
+        help="Comma-separated k values for grid mode (default: 8,16,32,64,128)",
+    )
+    p.add_argument(
+        "--fast_only", action="store_true",
+        help="Grid mode: skip full generation, only run fast output-head evaluation",
     )
 
     # Optional
@@ -910,20 +1299,21 @@ def main():
         results = run_sweep_mode(
             args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs,
         )
+    elif args.mode == "grid":
+        results = run_grid_mode(
+            args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs,
+        )
 
     # Save results
     output_dir = Path(args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-
-    safe_target = re.sub(r'[^a-zA-Z0-9_]', '_', 
-        str(args.feature or args.cluster or args.property or "unknown"))
+    if args.mode == "grid":
+        safe_target = "grid"
+    else:
+        safe_target = re.sub(r'[^a-zA-Z0-9_]', '_',
+            str(args.feature or args.cluster or args.property or "unknown"))
     out_path = output_dir / f"steer_{args.mode}_{safe_target}.pt"
-    torch.save(results, out_path)
-    print(f"Saved results to {out_path}")
-
-    target_name = args.feature or args.cluster or args.property or "unknown"
-    out_path = output_dir / f"steer_{args.mode}_{target_name}.pt"
     torch.save(results, out_path)
     print(f"Saved results to {out_path}")
 

@@ -94,9 +94,14 @@ class SteeringConfig:
     ablate_all_except : list of int or None
         If set, zero all features except these indices before applying
         directives.
+    k_override : int or None
+        If set, override the SAE's trained top-k value at inference time.
+        Lower k = fewer active features = each steered feature has
+        proportionally more influence.  None uses the SAE's training k.
     """
     directives: list[SteerDirective] = field(default_factory=list)
     ablate_all_except: list[int] | None = None
+    k_override: int | None = None
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -136,9 +141,10 @@ class SteeringManager:
         Specification of which features to modify and how.
     """
 
-    def __init__(self, sae: TopKSAE, config: SteeringConfig):
+    def __init__(self, sae: TopKSAE, config: SteeringConfig, verbose: bool = True):
         self.sae = sae
         self.config = config
+        self.verbose = verbose
         self._handle: torch.utils.hooks.RemovableHook | None = None
         self._captured_features: list[torch.Tensor] = []
         self._capture = False
@@ -180,6 +186,8 @@ class SteeringManager:
         cls,
         sae: TopKSAE,
         feature_multipliers: dict[int, float],
+        k_override: int | None = None,
+        verbose: bool = True,
     ) -> SteeringManager:
         """Create a manager from a dict of feature multipliers.
 
@@ -190,6 +198,10 @@ class SteeringManager:
         feature_multipliers : dict of int -> float
             Feature index to scale factor.  Values > 1 amplify, 0 suppresses,
             values between 0 and 1 dampen.
+        k_override : int or None
+            Override SAE top-k at inference time.
+        verbose : bool
+            Print per-hook-call diagnostics.
 
         Returns
         -------
@@ -201,7 +213,7 @@ class SteeringManager:
                 directives.append(SteerDirective(idx, SteerOp.SUPPRESS))
             else:
                 directives.append(SteerDirective(idx, SteerOp.AMPLIFY, scale))
-        return cls(sae, SteeringConfig(directives=directives))
+        return cls(sae, SteeringConfig(directives=directives, k_override=k_override), verbose=verbose)
 
     @classmethod
     def from_cluster(
@@ -209,6 +221,8 @@ class SteeringManager:
         sae: TopKSAE,
         cluster_name: str,
         scale: float,
+        k_override: int | None = None,
+        verbose: bool = True,
     ) -> SteeringManager:
         """Apply uniform scaling to all labeled features in a cluster.
 
@@ -237,7 +251,7 @@ class SteeringManager:
             )
         feature_ids = CLUSTER_TO_FEATURES[cluster_name]
         multipliers = {fid: scale for fid in feature_ids}
-        return cls.from_features(sae, multipliers)
+        return cls.from_features(sae, multipliers, k_override=k_override, verbose=verbose)
 
     @classmethod
     def from_property(
@@ -352,6 +366,14 @@ class SteeringManager:
 
     # ── Core hook ────────────────────────────────────────────────────────
 
+    @staticmethod
+    def _topk_with_k(h: torch.Tensor, k: int) -> torch.Tensor:
+        """Apply top-k masking with an explicit k value."""
+        topk_vals, topk_idx = torch.topk(h, k, dim=-1)
+        mask = torch.zeros_like(h)
+        mask.scatter_(-1, topk_idx, 1.0)
+        return h * mask
+
     def _make_steering_hook(self):
         sae = self.sae
         manager = self
@@ -362,9 +384,11 @@ class SteeringManager:
             z_con = output
 
             h_pre = sae.encode(z_con)
-            h_sparse = sae.topk_mask(h_pre)
+            k = manager.config.k_override or sae.config.k
+            h_sparse = manager._topk_with_k(h_pre, k)
 
-            for d in manager.config.directives:
+            if manager.verbose and manager.config.directives:
+                d = manager.config.directives[0]
                 active = (h_sparse[:, d.feature_idx] > 0).float().mean()
                 val_before = h_sparse[:, d.feature_idx].mean()
                 h_temp = manager._apply_steering(h_sparse)
@@ -375,8 +399,8 @@ class SteeringManager:
                     f"active={active:.2f} "
                     f"before={val_before:.4f} "
                     f"after={val_after:.4f}"
+                    f"  (k={k})"
                 )
-                break
 
             h_steered = manager._apply_steering(h_sparse)
             z_con_steered = sae.decode_denorm(h_steered)
@@ -386,7 +410,7 @@ class SteeringManager:
 
             return z_con_steered
 
-        return hook_fn  # ← must be indented inside _make_steering_hook, not outside
+        return hook_fn
 
     def _apply_steering(self, h_sparse: torch.Tensor) -> torch.Tensor:
         """Apply all steering directives to sparse feature activations.
@@ -424,6 +448,46 @@ class SteeringManager:
                 h[:, d.feature_idx] = d.value
 
         return h
+
+    # ── Offline steering (no hook, for fast evaluation) ─────────────────
+
+    @torch.no_grad()
+    def steer_z_con(self, z_con: torch.Tensor) -> torch.Tensor:
+        """Apply steering to a z_con tensor offline (no hook needed).
+
+        Encodes through SAE, applies top-k (with optional k_override),
+        applies steering directives, decodes back to z_con space.
+
+        Parameters
+        ----------
+        z_con : torch.Tensor
+            Raw z_con tensor of shape ``(batch, 256)``.
+
+        Returns
+        -------
+        torch.Tensor
+            Steered z_con, same shape as input.
+        """
+        device = z_con.device
+        sae = self.sae.to(device)
+        h_pre = sae.encode(z_con)
+        k = self.config.k_override or sae.config.k
+        h_sparse = self._topk_with_k(h_pre, k)
+        h_steered = self._apply_steering(h_sparse)
+        return sae.decode_denorm(h_steered)
+
+    @torch.no_grad()
+    def reconstruct_z_con(self, z_con: torch.Tensor) -> torch.Tensor:
+        """Encode and decode z_con through the SAE without steering.
+
+        Useful for measuring reconstruction fidelity (the no-op baseline).
+        """
+        device = z_con.device
+        sae = self.sae.to(device)
+        h_pre = sae.encode(z_con)
+        k = self.config.k_override or sae.config.k
+        h_sparse = self._topk_with_k(h_pre, k)
+        return sae.decode_denorm(h_sparse)
 
     # ── Diagnostics ──────────────────────────────────────────────────────
 
