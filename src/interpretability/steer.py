@@ -403,7 +403,11 @@ class SteeringManager:
                 )
 
             h_steered = manager._apply_steering(h_sparse)
-            z_con_steered = sae.decode_denorm(h_steered)
+
+            # Delta steering: only add the change caused by steering,
+            # so SAE reconstruction error cancels out.
+            delta = sae.decode_denorm(h_steered) - sae.decode_denorm(h_sparse)
+            z_con_steered = z_con + delta
 
             if manager._capture:
                 manager._captured_features.append(h_steered.detach().cpu())
@@ -453,10 +457,11 @@ class SteeringManager:
 
     @torch.no_grad()
     def steer_z_con(self, z_con: torch.Tensor) -> torch.Tensor:
-        """Apply steering to a z_con tensor offline (no hook needed).
+        """Apply delta steering to a z_con tensor offline (no hook needed).
 
-        Encodes through SAE, applies top-k (with optional k_override),
-        applies steering directives, decodes back to z_con space.
+        Encodes through SAE, applies top-k and steering, then adds only
+        the steering delta back to the original z_con.  SAE reconstruction
+        error cancels out in the subtraction.
 
         Parameters
         ----------
@@ -474,20 +479,23 @@ class SteeringManager:
         k = self.config.k_override or sae.config.k
         h_sparse = self._topk_with_k(h_pre, k)
         h_steered = self._apply_steering(h_sparse)
-        return sae.decode_denorm(h_steered)
+        delta = sae.decode_denorm(h_steered) - sae.decode_denorm(h_sparse)
+        return z_con + delta
 
     @torch.no_grad()
     def reconstruct_z_con(self, z_con: torch.Tensor) -> torch.Tensor:
         """Encode and decode z_con through the SAE without steering.
 
-        Useful for measuring reconstruction fidelity (the no-op baseline).
+        With delta steering this returns z_con unchanged (delta=0).
+        Useful for verifying the identity property.
         """
         device = z_con.device
         sae = self.sae.to(device)
         h_pre = sae.encode(z_con)
         k = self.config.k_override or sae.config.k
         h_sparse = self._topk_with_k(h_pre, k)
-        return sae.decode_denorm(h_sparse)
+        # No steering → delta is zero → returns z_con unchanged
+        return z_con
 
     # ── Diagnostics ──────────────────────────────────────────────────────
 
