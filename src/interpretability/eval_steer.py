@@ -60,7 +60,7 @@ from .steer import (
     SteerOp,
     CLUSTER_TO_FEATURES,
 )
-from .mapping_exported import feature_labels, feature_to_cluster
+from .mapping_exported import feature_to_cluster
 
 
 # ── SAE loading ──────────────────────────────────────────────────────────────
@@ -588,16 +588,11 @@ def compute_verification_metrics(
     identity_kl = kl_by_scale.get(1.0, float("nan"))
 
     # 4. Selectivity: what fraction of the top-5 enriched elements at max scale
-    #    are elements that appear in the cluster's feature labels?
-    cluster_labels = [
-        feature_labels.get(fid, "") for fid in feature_ids
-    ]
-    # Extract element symbols mentioned in labels
+    #    are elements that appear in the cluster name?
     label_elements = set()
-    for lbl in cluster_labels:
-        for sym in chemical_symbols[1:]:  # skip empty string at index 0
-            if sym in lbl.split("/") or sym in lbl:
-                label_elements.add(sym)
+    for sym in chemical_symbols[1:]:  # skip empty string at index 0
+        if sym in cluster_name.split("/") or sym in cluster_name:
+            label_elements.add(sym)
 
     max_scale = max(scales)
     max_comp = compare_element_distributions(
@@ -658,12 +653,10 @@ def run_single_feature_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwar
         Results including element distribution and validity.
     """
     feature_idx = args.feature
-    label = feature_labels.get(feature_idx, "unlabeled")
     cluster = feature_to_cluster.get(feature_idx, "unknown")
 
     print(f"\n{'=' * 70}")
     print(f"Single-feature test: feature {feature_idx}")
-    print(f"  Label:   {label}")
     print(f"  Cluster: {cluster}")
     print(f"{'=' * 70}")
 
@@ -680,7 +673,7 @@ def run_single_feature_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwar
     validity = compute_validity(crystal_list)
     num_atoms = compute_num_atoms_stats(crystal_list)
 
-    print_element_table(elem_dist, f"Feature {feature_idx}: {label}")
+    print_element_table(elem_dist, f"Feature {feature_idx}: {cluster}")
     print(f"\nValidity:")
     print(f"  SMACT:     {validity['smact_rate']:.1%}")
     print(f"  Structure: {validity['struct_rate']:.1%}")
@@ -690,7 +683,6 @@ def run_single_feature_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwar
     return {
         "mode": "single_feature",
         "feature_idx": feature_idx,
-        "label": label,
         "cluster": cluster,
         "element_distribution": dict(elem_dist),
         "validity": validity,
@@ -734,8 +726,8 @@ def run_amplify_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
         config_desc = f"cluster '{args.cluster}' × {args.scale}"
         manager = SteeringManager.from_cluster(sae, args.cluster, args.scale)
     elif args.feature is not None:
-        label = feature_labels.get(args.feature, "unlabeled")
-        config_desc = f"feature {args.feature} ({label}) × {args.scale}"
+        cluster = feature_to_cluster.get(args.feature, "unknown")
+        config_desc = f"feature {args.feature} ({cluster}) × {args.scale}"
         manager = SteeringManager.from_features(sae, {args.feature: args.scale})
     elif args.property:
         config_desc = (
@@ -805,7 +797,7 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
 
     if args.feature is not None:
         target_desc = f"feature {args.feature}"
-        label = feature_labels.get(args.feature, "unlabeled")
+        label = feature_to_cluster.get(args.feature, "unknown")
     elif args.cluster:
         target_desc = f"cluster '{args.cluster}'"
         label = args.cluster
