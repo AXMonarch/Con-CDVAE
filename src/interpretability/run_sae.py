@@ -113,13 +113,13 @@ def load_dataset_for_enrichment(data_dir: str, model_dir: str, split: str = "val
     return dataset
 
 
-def plot_sae_training_curves(history: dict, output_dir: Path) -> None:
+def plot_sae_training_curves(history: dict, fig_dir: Path) -> None:
     """Plot SAE training curves: loss, variance explained, dead features."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    fig_dir = output_dir / "figures"
+    fig_dir = Path(fig_dir)
     fig_dir.mkdir(parents=True, exist_ok=True)
 
     epochs = range(1, len(history["train_loss"]) + 1)
@@ -214,7 +214,8 @@ def run_sae_pipeline(args):
 
     # Visualise training curves
     if args.visualise:
-        plot_sae_training_curves(history, output_dir)
+        fig_dir = Path(args.fig_dir) if args.fig_dir else output_dir / "figures"
+        plot_sae_training_curves(history, fig_dir)
 
     # -- Step 3: Full analysis -------------------------------------------------
     print(f"\n{'=' * 70}")
@@ -314,7 +315,9 @@ def parse_args():
                    help="Early stopping patience (epochs without val loss improvement). "
                         "Disabled by default.")
     p.add_argument("--visualise", action="store_true",
-                   help="Save training curve plots to output_dir/figures/")
+                   help="Save training curve plots")
+    p.add_argument("--fig_dir", type=str, default=None,
+                   help="Directory for figure output (default: <output_dir>/figures/)")
 
     return p.parse_args()
 

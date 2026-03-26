@@ -194,7 +194,8 @@ def run_probe_pipeline(args):
 
     # -- Step 6: Visualise training curves ------------------------------------
     if args.visualise:
-        plot_probe_training_curves(results, output_dir)
+        fig_dir = Path(args.fig_dir) if args.fig_dir else output_dir / "figures"
+        plot_probe_training_curves(results, fig_dir)
 
     # -- Save results ---------------------------------------------------------
     results_path = output_dir / f"probe_results_{args.probe_type}.pt"
@@ -204,13 +205,13 @@ def run_probe_pipeline(args):
 
 # ---- Visualisation ----------------------------------------------------------
 
-def plot_probe_training_curves(results: dict, output_dir: Path) -> None:
+def plot_probe_training_curves(results: dict, fig_dir: Path) -> None:
     """Plot per-epoch training curves for all probes."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    fig_dir = output_dir / "figures"
+    fig_dir = Path(fig_dir)
     fig_dir.mkdir(parents=True, exist_ok=True)
 
     # Group by property for subplot layout
@@ -338,7 +339,9 @@ def parse_args():
                    help="Early stopping patience (epochs without improvement). "
                         "Disabled by default.")
     p.add_argument("--visualise", action="store_true",
-                   help="Save per-epoch training curve plots to output_dir/figures/")
+                   help="Save per-epoch training curve plots")
+    p.add_argument("--fig_dir", type=str, default=None,
+                   help="Directory for figure output (default: <output_dir>/figures/)")
     return p.parse_args()
 
 
