@@ -703,13 +703,15 @@ class SAEAnalyser:
             "marginals" : dict[int, float] — per-feature variance explained
                           (only if per_feature=True)
         """
-        var_x = X.var().item()
+        # SS_tot: total variance per dimension, averaged (proper R² denominator)
+        ss_tot = X.var(dim=0, correction=0).mean().item()
 
         def _ve_for_subset(indices: list[int]) -> float:
             H_masked = torch.zeros_like(H)
             H_masked[:, indices] = H[:, indices]
             x_hat = self.sae.decode_denorm(H_masked)
-            return 1.0 - (X - x_hat).var().item() / var_x
+            mse = (X - x_hat).pow(2).mean().item()
+            return 1.0 - mse / ss_tot
 
         result = {"joint": _ve_for_subset(feature_indices)}
 
@@ -749,7 +751,7 @@ class SAEAnalyser:
             "cumulative"    : list[float] — cumulative VE when adding
                               features one at a time in sorted order
         """
-        var_x = X.var().item()
+        ss_tot = X.var(dim=0, correction=0).mean().item()
         n_features = H.shape[1]
 
         # Step 1: compute marginal VE for every feature
@@ -761,7 +763,8 @@ class SAEAnalyser:
             H_single = torch.zeros_like(H)
             H_single[:, j] = h_j
             x_hat_j = self.sae.decode_denorm(H_single)
-            marginals[j] = 1.0 - (X - x_hat_j).var().item() / var_x
+            mse_j = (X - x_hat_j).pow(2).mean().item()
+            marginals[j] = 1.0 - mse_j / ss_tot
 
         # Step 2: sort by descending marginal VE
         order = np.argsort(marginals)[::-1]
@@ -774,7 +777,8 @@ class SAEAnalyser:
             j = int(j)
             H_accum[:, j] = H[:, j]
             x_hat = self.sae.decode_denorm(H_accum)
-            ve = 1.0 - (X - x_hat).var().item() / var_x
+            mse = (X - x_hat).pow(2).mean().item()
+            ve = 1.0 - mse / ss_tot
             cumulative.append(ve)
 
         return {

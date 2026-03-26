@@ -199,12 +199,15 @@ class SAETrainer:
         # Normalized-space metrics (consistent with training loss)
         X_norm = self.sae.normalize(X)
         mse = F.mse_loss(x_hat_norm_all, X_norm).item()
-        residual_norm = X_norm - x_hat_norm_all
-        var_explained = 1.0 - residual_norm.var().item() / X_norm.var().item()
+
+        # R² = 1 - SS_res / SS_tot  (per-dimension means for SS_tot)
+        ss_tot_norm = X_norm.var(dim=0, correction=0).mean().item()
+        var_explained = 1.0 - mse / ss_tot_norm
 
         # Raw-space metrics (for interpretability / comparison)
-        residual_raw = X - x_hat_raw_all
-        var_explained_raw = 1.0 - residual_raw.var().item() / X.var().item()
+        mse_raw = F.mse_loss(x_hat_raw_all, X).item()
+        ss_tot_raw = X.var(dim=0, correction=0).mean().item()
+        var_explained_raw = 1.0 - mse_raw / ss_tot_raw
 
         return {
             "mse": mse,
