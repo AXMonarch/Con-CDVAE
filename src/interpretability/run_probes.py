@@ -169,6 +169,7 @@ def run_probe_pipeline(args):
                 num_epochs=args.num_epochs,
                 batch_size=args.probe_batch_size,
                 device=args.device,
+                early_stop_patience=args.early_stop if args.early_stop else None,
             )
 
             metrics = trainer.train(X_train, y_train, X_val, y_val)
@@ -191,10 +192,78 @@ def run_probe_pipeline(args):
     # -- Step 5: Print summary table ------------------------------------------
     print_results_table(results)
 
+    # -- Step 6: Visualise training curves ------------------------------------
+    if args.visualise:
+        plot_probe_training_curves(results, output_dir)
+
     # -- Save results ---------------------------------------------------------
     results_path = output_dir / f"probe_results_{args.probe_type}.pt"
     torch.save(results, results_path)
     print(f"\nResults saved to {results_path}")
+
+
+# ---- Visualisation ----------------------------------------------------------
+
+def plot_probe_training_curves(results: dict, output_dir: Path) -> None:
+    """Plot per-epoch training curves for all probes."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig_dir = output_dir / "figures"
+    fig_dir.mkdir(parents=True, exist_ok=True)
+
+    # Group by property for subplot layout
+    props_seen = {}
+    for (prop, hook), m in results.items():
+        if "history" not in m:
+            continue
+        props_seen.setdefault(prop, []).append((hook, m["history"]))
+
+    if not props_seen:
+        print("  No training history found, skipping visualisation.")
+        return
+
+    for prop, hook_histories in props_seen.items():
+        n_hooks = len(hook_histories)
+        fig, axes = plt.subplots(1, n_hooks, figsize=(5 * n_hooks, 4), squeeze=False)
+        fig.suptitle(prop, fontsize=14)
+
+        for col, (hook, hist) in enumerate(hook_histories):
+            ax = axes[0, col]
+            epochs = range(1, len(hist["train_loss"]) + 1)
+
+            # Primary axis: loss
+            ax.plot(epochs, hist["train_loss"], label="train loss", color="tab:blue")
+            ax.plot(epochs, hist["val_loss"], label="val loss", color="tab:orange")
+            ax.set_xlabel("Epoch")
+            ax.set_ylabel("Loss")
+            ax.set_title(hook)
+
+            # Secondary axis: metric
+            ax2 = ax.twinx()
+            if "val_r2" in hist:
+                ax2.plot(epochs, hist["val_r2"], label="val R²",
+                         color="tab:green", linestyle="--")
+                ax2.set_ylabel("R²")
+            elif "val_accuracy" in hist:
+                ax2.plot(epochs, hist["val_accuracy"], label="val acc",
+                         color="tab:green", linestyle="--")
+                ax2.set_ylabel("Accuracy")
+
+            # Combine legends
+            lines1, labels1 = ax.get_legend_handles_labels()
+            lines2, labels2 = ax2.get_legend_handles_labels()
+            ax.legend(lines1 + lines2, labels1 + labels2,
+                      loc="center right", fontsize=8)
+
+        plt.tight_layout()
+        save_path = fig_dir / f"probe_{prop}.png"
+        fig.savefig(save_path, dpi=150)
+        plt.close(fig)
+        print(f"  Saved {save_path}")
+
+    print(f"  Probe training curves saved to {fig_dir}/")
 
 
 # ---- Pretty printing --------------------------------------------------------
@@ -265,6 +334,11 @@ def parse_args():
                    help="Batch size for probe training")
     p.add_argument("--force_extract", action="store_true",
                    help="Re-extract activations even if cache exists")
+    p.add_argument("--early_stop", type=int, default=None,
+                   help="Early stopping patience (epochs without improvement). "
+                        "Disabled by default.")
+    p.add_argument("--visualise", action="store_true",
+                   help="Save per-epoch training curve plots to output_dir/figures/")
     return p.parse_args()
 
 

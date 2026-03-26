@@ -113,6 +113,48 @@ def load_dataset_for_enrichment(data_dir: str, model_dir: str, split: str = "val
     return dataset
 
 
+def plot_sae_training_curves(history: dict, output_dir: Path) -> None:
+    """Plot SAE training curves: loss, variance explained, dead features."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig_dir = output_dir / "figures"
+    fig_dir.mkdir(parents=True, exist_ok=True)
+
+    epochs = range(1, len(history["train_loss"]) + 1)
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+    # Panel 1: Loss
+    axes[0].plot(epochs, history["train_loss"], label="train MSE")
+    axes[0].plot(epochs, history["val_loss"], label="val MSE")
+    axes[0].set_xlabel("Epoch")
+    axes[0].set_ylabel("MSE (normalized)")
+    axes[0].set_title("Reconstruction Loss")
+    axes[0].legend()
+
+    # Panel 2: Variance explained
+    axes[1].plot(epochs, history["var_explained"], label="normalized")
+    axes[1].plot(epochs, history["var_explained_raw"], label="raw")
+    axes[1].set_xlabel("Epoch")
+    axes[1].set_ylabel("Variance Explained")
+    axes[1].set_title("Variance Explained")
+    axes[1].legend()
+
+    # Panel 3: Dead features
+    axes[2].plot(epochs, history["n_dead"], color="tab:red")
+    axes[2].set_xlabel("Epoch")
+    axes[2].set_ylabel("Count")
+    axes[2].set_title("Dead Features")
+
+    plt.tight_layout()
+    save_path = fig_dir / "sae_training.png"
+    fig.savefig(save_path, dpi=150)
+    plt.close(fig)
+    print(f"  Saved SAE training curves to {save_path}")
+
+
 def run_sae_pipeline(args):
     """Full SAE pipeline: load data -> train -> analyse -> report."""
 
@@ -157,6 +199,7 @@ def run_sae_pipeline(args):
         num_epochs=args.num_epochs,
         batch_size=args.batch_size,
         device=args.device,
+        early_stop_patience=args.early_stop if args.early_stop else None,
     )
     history = trainer.train(X_train, X_val)
 
@@ -168,6 +211,10 @@ def run_sae_pipeline(args):
         "history": history,
     }, sae_path)
     print(f"\nSaved SAE to {sae_path}")
+
+    # Visualise training curves
+    if args.visualise:
+        plot_sae_training_curves(history, output_dir)
 
     # -- Step 3: Full analysis -------------------------------------------------
     print(f"\n{'=' * 70}")
@@ -261,6 +308,13 @@ def parse_args():
                    help="Path to model dir (for loading dataset config)")
     p.add_argument("--data_dir", type=str, default=None,
                    help="Path to data dir (for element enrichment)")
+
+    # Training control
+    p.add_argument("--early_stop", type=int, default=None,
+                   help="Early stopping patience (epochs without val loss improvement). "
+                        "Disabled by default.")
+    p.add_argument("--visualise", action="store_true",
+                   help="Save training curve plots to output_dir/figures/")
 
     return p.parse_args()
 

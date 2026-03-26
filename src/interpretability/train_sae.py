@@ -45,12 +45,14 @@ class SAETrainer:
         num_epochs: int = 20,
         batch_size: int = 4096,
         device: str = "cpu",
+        early_stop_patience: int | None = None,
     ):
         self.config = config
         self.lr = lr
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.device = torch.device(device)
+        self.early_stop_patience = early_stop_patience
 
         self.sae = TopKSAE(config).to(self.device)
 
@@ -95,6 +97,10 @@ class SAETrainer:
             "var_explained": [],
             "var_explained_raw": [],
         }
+
+        best_val_loss = None
+        best_state = None
+        epochs_without_improvement = 0
 
         for epoch in range(self.num_epochs):
             # -- Training ---------------------------------------------------------
@@ -146,6 +152,24 @@ class SAETrainer:
                 f"var_expl_raw={val_metrics['var_explained_raw']:.4f}  "
                 f"dead={self.sae.n_dead_features()}"
             )
+
+            # -- Early stopping bookkeeping ---------------------------------------
+            if best_val_loss is None or val_metrics["mse"] < best_val_loss:
+                best_val_loss = val_metrics["mse"]
+                best_state = {k: v.clone() for k, v in self.sae.state_dict().items()}
+                epochs_without_improvement = 0
+            else:
+                epochs_without_improvement += 1
+
+            if (self.early_stop_patience is not None
+                    and epochs_without_improvement >= self.early_stop_patience):
+                print(f"  Early stopping at epoch {epoch+1} "
+                      f"(no improvement for {self.early_stop_patience} epochs)")
+                break
+
+        # Restore best model if early stopping was enabled
+        if self.early_stop_patience is not None and best_state is not None:
+            self.sae.load_state_dict(best_state)
 
         return history
 
