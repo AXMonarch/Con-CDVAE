@@ -198,6 +198,7 @@ def run_sae_pipeline(args):
         probe_weights=probe_weights if probe_weights else None,
         dataset=dataset,
         n_top_features=100,
+        top_p=args.top_p,
     )
 
     # Print full report
@@ -245,6 +246,11 @@ def parse_args():
                    help="Learning rate")
     p.add_argument("--batch_size", type=int, default=4096,
                    help="Batch size for SAE training")
+
+    # Dashboard feature selection
+    p.add_argument("--top_p", type=float, default=None,
+                   help="Include top p%% of features in dashboard (e.g. 0.10 for 10%%). "
+                        "Overrides the default n_top_features=100.")
 
     # Optional: for probe alignment
     p.add_argument("--probe_results", type=str, default=None,

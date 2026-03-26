@@ -529,6 +529,7 @@ class SAEAnalyser:
         H: torch.Tensor,
         labels: dict[str, np.ndarray],
         n_top_features: int = 20,
+        top_p: float | None = None,
         stats: dict[str, np.ndarray] | None = None,
         corrs: dict[str, np.ndarray] | None = None,
         align: dict[str, np.ndarray] | None = None,
@@ -544,6 +545,10 @@ class SAEAnalyser:
         H : Tensor (N, n_features)
         labels : dict of property labels
         n_top_features : int
+            Absolute number of features to include. Ignored if top_p is set.
+        top_p : float or None
+            If set, include the top ``top_p`` fraction of all features
+            (e.g. 0.10 for 10%). Overrides ``n_top_features``.
         stats : pre-computed activation stats (avoids recomputation)
         corrs : pre-computed property correlations (avoids recomputation)
         align : pre-computed probe alignment
@@ -564,6 +569,10 @@ class SAEAnalyser:
 
         # Find peak |correlation| per feature across all properties
         n_features = H.shape[1]
+
+        # Resolve how many features to include
+        if top_p is not None:
+            n_top_features = max(1, int(top_p * n_features))
         peak_corr = np.zeros(n_features)
         peak_prop = [""] * n_features
 
@@ -785,6 +794,7 @@ class SAEAnalyser:
         probe_weights: dict[str, torch.Tensor] | None = None,
         dataset=None,
         n_top_features: int = 30,
+        top_p: float | None = None,
         sim_threshold: float = 0.8,
     ) -> dict:
         """
@@ -797,6 +807,12 @@ class SAEAnalyser:
         probe_weights : optional linear probe weights
         dataset : optional CrystDataset for element enrichment
         n_top_features : int
+            Absolute number of features for the dashboard. Ignored if
+            top_p is set.
+        top_p : float or None
+            If set, include the top ``top_p`` fraction of all features
+            in the dashboard (e.g. 0.10 for 10%). Overrides
+            ``n_top_features``.
 
         Returns
         -------
@@ -837,6 +853,7 @@ class SAEAnalyser:
         dashboard = self.feature_dashboard(
             H, labels,
             n_top_features=n_top_features,
+            top_p=top_p,
             stats=stats,
             corrs=corrs,
             align=align,
