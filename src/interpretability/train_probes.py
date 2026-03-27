@@ -16,8 +16,6 @@ from .probes import create_probe
 from .hooks import HOOK_POINTS
 
 
-# ---- Metrics ----------------------------------------------------------------
-
 def compute_regression_metrics(
     y_true: np.ndarray, y_pred: np.ndarray,
 ) -> dict[str, float]:
@@ -35,7 +33,6 @@ def compute_classification_metrics(
     return {"accuracy": acc}
 
 
-# ---- Per-atom -> per-crystal pooling ----------------------------------------
 
 def pool_atom_activations(
     activations: torch.Tensor,
@@ -61,8 +58,6 @@ def pool_atom_activations(
         offset += n
     return torch.stack(pooled)
 
-
-# ---- Single probe trainer ---------------------------------------------------
 
 class ProbeTrainer:
     """
@@ -139,7 +134,6 @@ class ProbeTrainer:
         dict with final metric names -> values (r2/mse or accuracy)
         plus "history" -> dict of per-epoch lists
         """
-        # -- Build data loaders -----------------------------------------------
         if self.task == "regression":
             y_train_t = y_train.float().unsqueeze(-1)
             y_val_t = y_val.float()
@@ -152,7 +146,6 @@ class ProbeTrainer:
             train_ds, batch_size=self.batch_size, shuffle=True,
         )
 
-        # -- Training loop with per-epoch tracking ----------------------------
         optimiser = torch.optim.Adam(self.probe.parameters(), lr=self.lr)
 
         history = {"train_loss": [], "val_loss": []}
@@ -167,7 +160,6 @@ class ProbeTrainer:
         epochs_without_improvement = 0
 
         for epoch in range(self.num_epochs):
-            # -- Train --------------------------------------------------------
             self.probe.train()
             epoch_loss = 0.0
             n_batches = 0
@@ -187,7 +179,6 @@ class ProbeTrainer:
             avg_train_loss = epoch_loss / n_batches
             history["train_loss"].append(avg_train_loss)
 
-            # -- Validate -----------------------------------------------------
             val_metrics = self.evaluate(X_val, y_val_t)
 
             if self.task == "regression":
@@ -204,7 +195,6 @@ class ProbeTrainer:
                 current_metric = val_metrics["accuracy"]
                 is_better = best_val_metric is None or current_metric > best_val_metric
 
-            # -- Early stopping bookkeeping -----------------------------------
             if is_better:
                 best_val_metric = current_metric
                 best_state = {k: v.clone() for k, v in self.probe.state_dict().items()}
@@ -220,7 +210,6 @@ class ProbeTrainer:
         if self.early_stop_patience is not None and best_state is not None:
             self.probe.load_state_dict(best_state)
 
-        # -- Final evaluation -------------------------------------------------
         final_metrics = self.evaluate(X_val, y_val_t)
         final_metrics["history"] = history
         return final_metrics

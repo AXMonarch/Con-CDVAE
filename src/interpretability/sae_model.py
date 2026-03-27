@@ -89,7 +89,6 @@ class TopKSAE(nn.Module):
         self.register_buffer("input_mean", torch.zeros(d))
         self.register_buffer("input_std", torch.ones(d))
 
-    # -- Input normalization ----------------------------------------------------
 
     @torch.no_grad()
     def set_norm_stats(self, X_train: torch.Tensor) -> None:
@@ -103,7 +102,6 @@ class TopKSAE(nn.Module):
     def denormalize(self, x_norm: torch.Tensor) -> torch.Tensor:
         return x_norm * self.input_std.to(x_norm.device) + self.input_mean.to(x_norm.device)
 
-    # -- Core forward pass ------------------------------------------------------
 
     def encode(self, x: torch.Tensor) -> torch.Tensor:
         x_norm = self.normalize(x)
@@ -182,8 +180,6 @@ class TopKSAE(nn.Module):
         x_hat_norm = self.decode(h_sparse)
         return x_hat_norm, h_sparse, h_pre
 
-    # -- Dead feature tracking and auxiliary loss --------------------------------
-
     @torch.no_grad()
     def update_dead_tracker(self, h_sparse: torch.Tensor) -> None:
         """
@@ -243,8 +239,6 @@ class TopKSAE(nn.Module):
         x_hat_dead = h_dead_sparse @ W_dec_dead.T + self.b_dec
 
         return F.mse_loss(x_hat_dead, x_norm)
-
-    # -- Utility ----------------------------------------------------------------
 
     @torch.no_grad()
     def normalise_decoder(self) -> None:

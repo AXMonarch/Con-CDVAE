@@ -103,7 +103,6 @@ class SAETrainer:
         epochs_without_improvement = 0
 
         for epoch in range(self.num_epochs):
-            # -- Training ---------------------------------------------------------
             self.sae.train()
             epoch_loss = 0.0
             n_batches = 0
@@ -135,7 +134,6 @@ class SAETrainer:
 
             avg_train_loss = epoch_loss / n_batches
 
-            # -- Validation -------------------------------------------------------
             val_metrics = self.evaluate(X_val)
 
             history["train_loss"].append(avg_train_loss)
@@ -153,7 +151,6 @@ class SAETrainer:
                 f"dead={self.sae.n_dead_features()}"
             )
 
-            # -- Early stopping bookkeeping ---------------------------------------
             if best_val_loss is None or val_metrics["mse"] < best_val_loss:
                 best_val_loss = val_metrics["mse"]
                 best_state = {k: v.clone() for k, v in self.sae.state_dict().items()}

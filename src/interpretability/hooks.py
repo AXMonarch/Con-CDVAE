@@ -1,51 +1,8 @@
-# hooks.py — Hook registration and activation extraction
-#
-# Registers forward hooks on specific modules of the frozen Con-CDVAE model
-# and collects activations during forward passes.
-#
-# Hook points and justifications:
-#
-#   1. fc_mu  (per-crystal, 256d)
-#      The encoder's final answer after pooling + tanh + linear.
-#      Purest encoder representation — no condition info mixed in.
-#      If a property is readable here, the encoder learned it from
-#      the crystal graph alone.
-#
-#   2. z_condition (per-crystal, 256d)  [output = z_con]
-#      The fused representation of structure + condition.
-#      Central bottleneck driving ALL downstream predictions.
-#      Comparing probe accuracy here vs fc_mu tells us whether the
-#      condition embedding helps predict non-conditioned properties.
-#
-#   3. condition_model (per-crystal, 128d)  [output = condition_emb]
-#      Pure encoding of formation energy input.
-#      NEGATIVE CONTROL: should predict formation_energy perfectly
-#      and nothing else. If it predicts band_gap, that is correlation
-#      in the data, not learned representation.
-#
-#   4. encoder.output_blocks[0] (per-atom, 256d)
-#      First output block — reads initial atom embeddings before any
-#      message passing. Baseline for what is knowable from element
-#      identity + immediate bond distances alone.
-#
-#   5. encoder.output_blocks[4] (per-atom, 256d)
-#      Last output block — reads atom representations after all 4
-#      rounds of message passing. Comparing with output_blocks[0]
-#      directly measures the value added by message passing.
-#
-# NOT hooked (and why):
-#   - interaction_blocks: output (N_edges, 128), edge-level not atom-level
-#   - decoder blocks: contaminated by random diffusion noise each pass
-#   - z_var: encodes uncertainty, not crystal identity
-#   - fusion intermediates: not interpretatively meaningful
-#   - output heads: low-dim final predictions, probing them is circular
-
 import torch
 import torch.nn as nn
 from dataclasses import dataclass, field
 
 
-# ---- Hook point identifiers ------------------------------------------------
 
 HOOK_POINTS = {
     "fc_mu":       {"level": "crystal", "dim": 256},
@@ -56,7 +13,6 @@ HOOK_POINTS = {
 }
 
 
-# ---- Hook manager -----------------------------------------------------------
 
 class HookManager:
     """
@@ -80,8 +36,6 @@ class HookManager:
         self.model = model
         self._handles: list[torch.utils.hooks.RemovableHook] = []
         self._activations: dict[str, torch.Tensor] = {}
-
-    # -- Registration ---------------------------------------------------------
 
     def register_hooks(self) -> None:
         """Attach forward hooks to all 5 probe points."""
@@ -114,7 +68,6 @@ class HookManager:
                         break
         return hook_fn
 
-    # -- Access ---------------------------------------------------------------
 
     def get_activations(self) -> dict[str, torch.Tensor]:
         """Return a copy of all captured activations."""
@@ -123,8 +76,6 @@ class HookManager:
     def clear(self) -> None:
         """Clear stored activations (call between batches)."""
         self._activations.clear()
-
-    # -- Cleanup --------------------------------------------------------------
 
     def remove_hooks(self) -> None:
         """Remove all registered hooks from the model."""

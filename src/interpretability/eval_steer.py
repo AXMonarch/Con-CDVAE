@@ -531,7 +531,6 @@ def get_baseline_z_con(
     raise RuntimeError("No z_con captured — generation may have failed")
 
 
-# ── Feature activation diagnostics ────────────────────────────────────────────
 
 @torch.no_grad()
 def diagnose_feature_activations(
@@ -568,12 +567,11 @@ def diagnose_feature_activations(
 
     # Encode and get top-k mask
     h_pre = sae.encode(z_con)
-    _, topk_idx = torch.topk(h_pre, k, dim=-1)  # (batch, k)
+    _, topk_idx = torch.topk(h_pre, k, dim=-1) 
 
-    # Set of all labeled feature indices
+
     all_labeled = set(feature_to_cluster.keys())
 
-    # Global stats
     topk_set_per_sample = [set(row.tolist()) for row in topk_idx]
     labeled_in_topk = [len(s & all_labeled) for s in topk_set_per_sample]
 
@@ -585,7 +583,6 @@ def diagnose_feature_activations(
           f"{np.mean(labeled_in_topk):.1f} ± {np.std(labeled_in_topk):.1f} "
           f"(range {min(labeled_in_topk)}-{max(labeled_in_topk)})")
 
-    # Baseline composition for comparison
     baseline_fast = fast_evaluate(model, z_con)
     baseline_comp = baseline_fast["composition"]
 
@@ -596,7 +593,6 @@ def diagnose_feature_activations(
     for cluster in clusters:
         feature_ids = CLUSTER_TO_FEATURES[cluster]
 
-        # Per-feature activation rate and mean value
         feat_stats = []
         for fid in feature_ids:
             active_mask = torch.zeros(z_con.shape[0], dtype=torch.bool, device=device)
@@ -667,7 +663,6 @@ def diagnose_feature_activations(
     return results
 
 
-# ── Verification metrics ─────────────────────────────────────────────────────
 
 @torch.no_grad()
 def compute_verification_metrics(
@@ -763,8 +758,6 @@ def compute_verification_metrics(
     }
 
 
-# ── Mode runners ─────────────────────────────────────────────────────────────
-
 def run_single_feature_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     """Ablate all features except one, generate, check chemistry.
 
@@ -851,13 +844,11 @@ def run_amplify_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     dict
         Baseline and steered metrics plus comparison.
     """
-    # ── Baseline (no steering) ───────────────────────────────────────────
     print("\nRunning baseline generation (no steering)...")
     torch.manual_seed(args.seed)
     baseline_results = run_generation(model, prior, prop_dict, gen_cfg, ld_kwargs)
     baseline_crystals = safe_get_crystals_list(*baseline_results)
 
-    # ── Build steering manager ───────────────────────────────────────────
     if args.cluster:
         config_desc = f"cluster '{args.cluster}' × {args.scale}"
         manager = SteeringManager.from_cluster(sae, args.cluster, args.scale)
@@ -878,7 +869,6 @@ def run_amplify_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     else:
         raise ValueError("Must specify --feature, --cluster, or --property")
 
-    # ── Steered generation ───────────────────────────────────────────────
     print(f"Running steered generation: {config_desc}...")
     manager.enable_capture()
     manager.register(model)
@@ -888,7 +878,6 @@ def run_amplify_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
 
     steered_crystals = safe_get_crystals_list(*steered_results)
 
-    # ── Compute metrics ──────────────────────────────────────────────────
     baseline_elem = compute_element_distribution(baseline_crystals)
     steered_elem = compute_element_distribution(steered_crystals)
     comparison = compare_element_distributions(baseline_elem, steered_elem)
@@ -1030,7 +1019,6 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     }
 
 
-# ── Grid mode ────────────────────────────────────────────────────────────────
 
 def run_grid_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     """3D ablation grid: cluster × scale × k.
@@ -1215,8 +1203,6 @@ def run_grid_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     }
 
 
-# ── Model + generation setup ────────────────────────────────────────────────
-
 def setup_generation(gen_cfg, device: str):
     """Load model, prior, conditions, and build ld_kwargs.
 
@@ -1288,8 +1274,6 @@ def setup_generation(gen_cfg, device: str):
 
     return model, prior, prop_dict, ld_kwargs
 
-
-# ── CLI ──────────────────────────────────────────────────────────────────────
 
 def parse_args():
     """Parse command-line arguments.

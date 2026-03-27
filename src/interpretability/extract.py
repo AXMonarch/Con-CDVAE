@@ -57,15 +57,10 @@ def extract_activations(
     model.to(device_obj)
     model.eval()
 
-    # -- Register hooks -------------------------------------------------------
     hook_mgr = HookManager(model)
     hook_mgr.register_hooks()
 
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=0)
-
-    # -- Accumulators ---------------------------------------------------------
-    # Per-crystal hooks: accumulate directly
-    # Per-atom hooks: accumulate raw, pool later
     all_activations = {name: [] for name in HOOK_POINTS}
     all_num_atoms = []
 
@@ -76,7 +71,6 @@ def extract_activations(
             batch = batch.to(device_obj)
             hook_mgr.clear()
 
-            # Full forward pass to trigger all hooks
             model(batch, teacher_forcing=False, training=False)
 
             acts = hook_mgr.get_activations()
@@ -92,7 +86,6 @@ def extract_activations(
                 level = HOOK_POINTS[name]["level"]
 
                 if level == "atom":
-                    # Pool per-atom -> per-crystal now to save memory
                     act = pool_atom_activations(act, num_atoms_batch)
 
                 all_activations[name].append(act)
@@ -101,19 +94,16 @@ def extract_activations(
                 n_done = min((batch_idx + 1) * batch_size, len(dataset))
                 print(f"  {n_done}/{len(dataset)} crystals processed")
 
-    # -- Concatenate and save -------------------------------------------------
     final_activations = {}
     for name in HOOK_POINTS:
         if all_activations[name]:
             final_activations[name] = torch.cat(all_activations[name], dim=0)
             print(f"  {name}: {final_activations[name].shape}")
 
-    # -- Extract labels -------------------------------------------------------
     print(f"Extracting labels from dataset + CSV...")
     label_extractor = LabelExtractor(dataset, csv_path)
     labels = label_extractor.get_all_labels()
 
-    # -- Save -----------------------------------------------------------------
     acts_path = output_dir / f"activations_{split}.pt"
     labels_path = output_dir / f"labels_{split}.pt"
     num_atoms_path = output_dir / f"num_atoms_{split}.pt"

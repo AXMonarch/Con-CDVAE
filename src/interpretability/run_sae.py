@@ -162,7 +162,6 @@ def run_sae_pipeline(args):
     output_dir.mkdir(parents=True, exist_ok=True)
     acts_dir = Path(args.activations_dir)
 
-    # -- Step 1: Load pre-extracted activations --------------------------------
     print("=" * 70)
     print(f"Loading activations from {acts_dir}...")
 
@@ -184,7 +183,6 @@ def run_sae_pipeline(args):
     print(f"  Hook: {hook}")
     print(f"  Train: {X_train.shape}, Val: {X_val.shape}")
 
-    # -- Step 2: Train Normalized SAE ------------------------------------------
     print(f"\n{'=' * 70}")
     print(f"Training Normalized Top-K SAE (K={args.k}, {args.n_features} features)...")
 
@@ -239,7 +237,6 @@ def run_sae_pipeline(args):
         print("Loading dataset for element enrichment...")
         dataset = load_dataset_for_enrichment(args.data_dir, args.model_dir)
 
-    # Run the full analysis pipeline
     results = analyser.full_analysis(
         X=X_val,
         labels=val_labels,
@@ -249,13 +246,10 @@ def run_sae_pipeline(args):
         top_p=args.top_p,
     )
 
-    # Print full report
     analyser.print_full_report(results)
     print(f"Final variance explained (normalized): {history['var_explained'][-1]:.4f}")
     print(f"Final variance explained (raw):        {history['var_explained_raw'][-1]:.4f}")
 
-    # -- Save all results ------------------------------------------------------
-    # Remove large tensors from saved results to keep file size manageable
     save_results = {k: v for k, v in results.items() if k != "H"}
     save_results["H_val"] = results["H"]
     save_results["history"] = history

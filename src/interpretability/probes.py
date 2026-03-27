@@ -1,10 +1,3 @@
-# probes.py — Probe model definitions
-#
-# A probe is a small, separately-trained model that reads a frozen
-# intermediate representation and predicts a property. The probe's
-# simplicity is the point: if a LINEAR probe succeeds, the property
-# is linearly encoded in that representation.
-#
 # Two probe types:
 #   LinearProbe : single linear layer (W @ x + b)
 #   MLPProbe    : one hidden layer (Linear -> ReLU -> Linear)

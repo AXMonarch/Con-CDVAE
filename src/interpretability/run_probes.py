@@ -24,7 +24,6 @@ from pathlib import Path
 import torch
 import numpy as np
 
-# ---- Ensure repo root is on path -------------------------------------------
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
@@ -34,7 +33,6 @@ from .hooks import HOOK_POINTS
 from .train_probes import ProbeTrainer
 
 
-# ---- Model loading ----------------------------------------------------------
 
 def load_frozen_model(model_dir: str, device: str = "cpu"):
     """
@@ -92,20 +90,16 @@ def load_dataset(data_dir: str, cfg, split: str = "train"):
     return dataset, csv_path
 
 
-# ---- Main pipeline ----------------------------------------------------------
 
 def run_probe_pipeline(args):
     """Full probe pipeline: extract -> train -> evaluate -> report."""
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-
-    # -- Step 1: Load model ---------------------------------------------------
     print("=" * 70)
     print("Loading frozen Con-CDVAE model...")
     model, cfg = load_frozen_model(args.model_dir, args.device)
 
-    # -- Step 2: Extract activations (or load from cache) ---------------------
     for split in ["train", "val"]:
         acts_path = output_dir / f"activations_{split}.pt"
         if acts_path.exists() and not args.force_extract:
@@ -124,7 +118,6 @@ def run_probe_pipeline(args):
             device=args.device,
         )
 
-    # -- Step 3: Load extracted data ------------------------------------------
     print(f"\n{'=' * 70}")
     print("Loading extracted activations and labels...")
 
@@ -137,7 +130,6 @@ def run_probe_pipeline(args):
     n_val = len(next(iter(val_labels.values())))
     print(f"  Train: {n_train} crystals, Val: {n_val} crystals")
 
-    # -- Step 4: Train probes -------------------------------------------------
     print(f"\n{'=' * 70}")
     print(f"Training {args.probe_type} probes ({args.num_epochs} epochs)...\n")
 
@@ -189,21 +181,16 @@ def run_probe_pipeline(args):
             else:
                 print(f"  {prop_name:25s} @ {hook_name:10s}  Acc={metrics['accuracy']:.4f}")
 
-    # -- Step 5: Print summary table ------------------------------------------
     print_results_table(results)
 
-    # -- Step 6: Visualise training curves ------------------------------------
     if args.visualise:
         fig_dir = Path(args.fig_dir) if args.fig_dir else output_dir / "figures"
         plot_probe_training_curves(results, fig_dir)
 
-    # -- Save results ---------------------------------------------------------
     results_path = output_dir / f"probe_results_{args.probe_type}.pt"
     torch.save(results, results_path)
     print(f"\nResults saved to {results_path}")
 
-
-# ---- Visualisation ----------------------------------------------------------
 
 def plot_probe_training_curves(results: dict, fig_dir: Path) -> None:
     """Plot per-epoch training curves for all probes."""
@@ -267,7 +254,6 @@ def plot_probe_training_curves(results: dict, fig_dir: Path) -> None:
     print(f"  Probe training curves saved to {fig_dir}/")
 
 
-# ---- Pretty printing --------------------------------------------------------
 
 def print_results_table(results: dict) -> None:
     """Print the probe matrix as a formatted table."""
@@ -310,7 +296,6 @@ def print_results_table(results: dict) -> None:
     print(f"{'=' * 70}")
 
 
-# ---- CLI --------------------------------------------------------------------
 
 def parse_args():
     p = argparse.ArgumentParser(

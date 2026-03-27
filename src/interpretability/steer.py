@@ -41,8 +41,6 @@ from .sae_model import TopKSAE, SAEConfig
 from .mapping_exported import feature_to_cluster
 
 
-# ── Steering primitives ──────────────────────────────────────────────────────
-
 class SteerOp(Enum):
     """Operation to apply to a single SAE feature.
 
@@ -104,8 +102,6 @@ class SteeringConfig:
     k_override: int | None = None
 
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
-
 def _build_cluster_to_features() -> dict[str, list[int]]:
     """Build reverse mapping from cluster name to feature indices.
 
@@ -122,8 +118,6 @@ def _build_cluster_to_features() -> dict[str, list[int]]:
 
 CLUSTER_TO_FEATURES = _build_cluster_to_features()
 
-
-# ── SteeringManager ─────────────────────────────────────────────────────────
 
 class SteeringManager:
     """Attach a modifying forward hook to ``model.z_condition`` that steers
@@ -149,7 +143,6 @@ class SteeringManager:
         self._captured_features: list[torch.Tensor] = []
         self._capture = False
 
-    # ── Factory constructors ─────────────────────────────────────────────
 
     @classmethod
     def from_checkpoint(
@@ -330,7 +323,6 @@ class SteeringManager:
         multipliers = {int(idx): scale for idx in top_indices}
         return cls.from_features(sae, multipliers)
 
-    # ── Hook lifecycle ───────────────────────────────────────────────────
 
     def register(self, model: nn.Module) -> None:
         """Attach the modifying hook to ``model.z_condition``.
@@ -364,7 +356,6 @@ class SteeringManager:
             self._handle.remove()
             self._handle = None
 
-    # ── Core hook ────────────────────────────────────────────────────────
 
     @staticmethod
     def _topk_with_k(h: torch.Tensor, k: int) -> torch.Tensor:
@@ -453,7 +444,6 @@ class SteeringManager:
 
         return h
 
-    # ── Offline steering (no hook, for fast evaluation) ─────────────────
 
     @torch.no_grad()
     def steer_z_con(self, z_con: torch.Tensor) -> torch.Tensor:
@@ -497,7 +487,6 @@ class SteeringManager:
         # No steering → delta is zero → returns z_con unchanged
         return z_con
 
-    # ── Diagnostics ──────────────────────────────────────────────────────
 
     def enable_capture(self) -> None:
         """Start capturing steered feature vectors for later analysis."""
@@ -521,7 +510,6 @@ class SteeringManager:
         """Clear accumulated captured features."""
         self._captured_features.clear()
 
-    # ── Context manager ──────────────────────────────────────────────────
 
     def __enter__(self) -> SteeringManager:
         return self

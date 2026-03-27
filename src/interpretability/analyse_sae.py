@@ -1,26 +1,3 @@
-# analyse_sae.py — Post-hoc analysis of trained SAE features
-#
-# After training, each of the n_features learned directions in the SAE
-# dictionary needs to be understood. This module provides:
-#
-#   1. Activation statistics: fire rate, mean/max magnitude, full histograms
-#   2. Property correlations: Pearson r between features and ground-truth labels
-#   3. Top exemplars: which crystals maximally activate each feature
-#   4. Feature co-occurrence: which features fire together
-#   5. Decoder similarity: cosine similarity between decoder weight columns
-#   6. Element enrichment: which elements are over-represented in top exemplars
-#   7. Probe alignment: cosine similarity between SAE directions and probe weights
-#   8. Feature dashboard: unified summary table for manual inspection
-#   9. Variance explained: how much reconstruction variance a feature subset captures
-#
-# These analyses let us label features post-hoc and identify which ones
-# correspond to physically meaningful properties.
-#
-# Note: the SAE normalizes inputs internally. Analysis methods that compare
-# reconstructions against raw inputs use decode_denorm() to undo the
-# normalization. Feature activations (H) are unaffected by normalization
-# — they live in the SAE's own latent space.
-
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -30,7 +7,7 @@ from collections import Counter
 from .sae_model import TopKSAE
 
 
-# ---- Periodic table lookup (atomic number -> symbol) -------------------------
+# ---- Periodic table lookup 
 # Only need the first 100 elements (matches Con-CDVAE's 100-class atom types)
 
 ELEMENT_SYMBOLS = [
@@ -72,8 +49,6 @@ class SAEAnalyser:
         self.device = torch.device(device)
         self.batch_size = batch_size
 
-    # -- Encode full dataset through SAE ----------------------------------------
-
     @torch.no_grad()
     def encode_dataset(self, X: torch.Tensor) -> torch.Tensor:
         """
@@ -95,9 +70,6 @@ class SAEAnalyser:
             parts.append(h_sparse.cpu())
         return torch.cat(parts, dim=0)
 
-    # ------------------------------------ #
-    # 1. Per-feature activation statistics #
-    # ------------------------------------ #
 
     def activation_stats(self, H: torch.Tensor) -> dict[str, np.ndarray]:
         """
@@ -118,14 +90,11 @@ class SAEAnalyser:
         is_active = (H.abs() > 0).float()
         fire_rate = is_active.mean(dim=0).numpy()
 
-        # Mean and std only counting nonzero entries
-        # Use abs() consistently — activations can be negative
         H_abs = H.abs()
         sum_act = (H_abs * is_active).sum(dim=0)
         count_act = is_active.sum(dim=0).clamp(min=1)
         mean_act = (sum_act / count_act).numpy()
 
-        # Std when active: sqrt(E[|x|^2] - E[|x|]^2)
         sum_sq = (H_abs ** 2 * is_active).sum(dim=0)
         mean_sq = (sum_sq / count_act).numpy()
         std_act = np.sqrt(np.maximum(mean_sq - mean_act ** 2, 0.0))
@@ -176,10 +145,6 @@ class SAEAnalyser:
             }
         return histograms
 
-    # ------------------------ #
-    # 2. Property correlations #
-    # ------------------------ #
-
     def property_correlations(
         self,
         H: torch.Tensor,
@@ -223,9 +188,7 @@ class SAEAnalyser:
 
         return correlations
 
-    # ------------------------------------ #
-    # 3. Top exemplar crystals per feature #
-    # ------------------------------------ #
+
 
     def top_exemplars(
         self,
@@ -276,7 +239,7 @@ class SAEAnalyser:
         -------
         cooc : ndarray (n_features, n_features) — values in [0, 1]
         """
-        binary = (H.abs() > 0).float()  # (N, n_features)
+        binary = (H.abs() > 0).float()  
         n_samples = binary.shape[0]
 
         # Co-occurrence = (binary^T @ binary) / N
@@ -287,8 +250,8 @@ class SAEAnalyser:
         chunk_size = 512
         for i in range(0, n_features, chunk_size):
             i_end = min(i + chunk_size, n_features)
-            chunk_i = binary[:, i:i_end]  # (N, chunk)
-            block = (chunk_i.T @ binary).numpy() / n_samples  # (chunk, n_features)
+            chunk_i = binary[:, i:i_end]  
+            block = (chunk_i.T @ binary).numpy() / n_samples 
             cooc[i:i_end, :] = block
 
         return cooc
@@ -310,7 +273,6 @@ class SAEAnalyser:
         -------
         pairs : list of (feature_i, feature_j, co-occurrence rate)
         """
-        # Zero out diagonal and lower triangle to avoid duplicates
         mask = np.triu(np.ones_like(cooc, dtype=bool), k=1)
         vals = cooc[mask]
         n_top = min(n_top, len(vals))
@@ -325,9 +287,6 @@ class SAEAnalyser:
             pairs.append((int(rows[idx]), int(cols[idx]), float(vals[idx])))
         return pairs
 
-    # ------------------------------------ #
-    # 5. Decoder weight cosine similarity  #
-    # ------------------------------------ #
 
     @torch.no_grad()
     def decoder_similarity(self) -> np.ndarray:
@@ -343,9 +302,9 @@ class SAEAnalyser:
         -------
         sim : ndarray (n_features, n_features) — values in [-1, 1]
         """
-        W = self.sae.W_dec.data  # (input_dim, n_features)
-        W_norm = F.normalize(W, dim=0)  # unit-norm columns
-        sim = (W_norm.T @ W_norm).cpu().numpy()  # (n_features, n_features)
+        W = self.sae.W_dec.data 
+        W_norm = F.normalize(W, dim=0)  
+        sim = (W_norm.T @ W_norm).cpu().numpy() 
         return sim
 
     def decoder_similarity_clusters(
@@ -385,10 +344,6 @@ class SAEAnalyser:
 
         return clusters
 
-    # ---------------------- #
-    # 6. Element enrichment  #
-    # ---------------------- #
-
     def element_enrichment(
         self,
         H: torch.Tensor,
@@ -421,9 +376,9 @@ class SAEAnalyser:
         enrichment : dict mapping feature_idx -> list of (element_symbol, ratio)
                      sorted by enrichment ratio, descending.
         """
-        # Build global element frequency from full dataset
+
         global_counts = Counter()
-        crystal_elements = []  # list of sets, one per crystal
+        crystal_elements = [] 
         for entry in dataset.cached_data:
             _, atom_types, _, _, _, _, _ = entry["graph_arrays"]
             elements = set(int(a) for a in atom_types)
@@ -435,10 +390,9 @@ class SAEAnalyser:
             elem: count / n_total for elem, count in global_counts.items()
         }
 
-        # Per-feature enrichment (only for features that actually fire)
         n_features = H.shape[1]
         enrichment = {}
-        fire_mask = (H.abs() > 0).any(dim=0)  # skip dead features
+        fire_mask = (H.abs() > 0).any(dim=0) 
 
         for j in range(n_features):
             if not fire_mask[j]:
@@ -452,7 +406,6 @@ class SAEAnalyser:
                 enrichment[j] = []
                 continue
 
-            # Element frequency in this feature's top crystals
             feat_counts = Counter()
             for ci in top_idx:
                 feat_counts.update(crystal_elements[ci])
@@ -471,9 +424,7 @@ class SAEAnalyser:
 
         return enrichment
 
-    # ----------------------------- #
-    # 7. Probe direction alignment  #
-    # ----------------------------- #
+
 
     @torch.no_grad()
     def probe_alignment(
@@ -505,8 +456,6 @@ class SAEAnalyser:
 
         alignment = {}
         for prop_name, w_probe in probe_weights.items():
-            # Classification probes have shape (num_classes, input_dim) with
-            # num_classes > 1 — they don't define a single direction, so skip
             if w_probe.dim() > 1 and w_probe.shape[0] != 1:
                 continue
             if w_probe.dim() > 1:
@@ -519,10 +468,6 @@ class SAEAnalyser:
             alignment[prop_name] = cos_sim
 
         return alignment
-
-    # --------------------- #
-    # 8. Feature dashboard  #
-    # --------------------- #
 
     def feature_dashboard(
         self,
@@ -567,10 +512,8 @@ class SAEAnalyser:
         if corrs is None:
             corrs = self.property_correlations(H, labels)
 
-        # Find peak |correlation| per feature across all properties
         n_features = H.shape[1]
 
-        # Resolve how many features to include
         if top_p is not None:
             n_top_features = max(1, int(top_p * n_features))
         peak_corr = np.zeros(n_features)
@@ -583,7 +526,6 @@ class SAEAnalyser:
             for j in np.where(better)[0]:
                 peak_prop[j] = prop_name
 
-        # Sort by |peak correlation|, take top N
         top_idx = np.argsort(np.abs(peak_corr))[::-1][:n_top_features]
 
         dashboard = []
@@ -624,7 +566,6 @@ class SAEAnalyser:
         print("SAE FEATURE DASHBOARD — Top features by property correlation")
         print(f"{'=' * 90}")
 
-        # Build header
         header = (
             f"{'Feat':>5s}  {'Fire%':>6s}  {'MeanAct':>8s}  "
             f"{'TopProp':>20s}  {'Corr':>7s}"
@@ -667,9 +608,6 @@ class SAEAnalyser:
 
         print(f"{'=' * 90}")
 
-    # ----------------------------------------- #
-    # 9. Variance explained by feature subsets  #
-    # ----------------------------------------- #
 
     @torch.no_grad()
     def variance_explained_by_features(
@@ -703,7 +641,6 @@ class SAEAnalyser:
             "marginals" : dict[int, float] — per-feature variance explained
                           (only if per_feature=True)
         """
-        # SS_tot: total variance per dimension, averaged (proper R² denominator)
         ss_tot = X.var(dim=0, correction=0).mean().item()
 
         def _ve_for_subset(indices: list[int]) -> float:
@@ -754,23 +691,20 @@ class SAEAnalyser:
         ss_tot = X.var(dim=0, correction=0).mean().item()
         n_features = H.shape[1]
 
-        # Step 1: compute marginal VE for every feature
         marginals = np.zeros(n_features)
         for j in range(n_features):
             h_j = H[:, j]  # (N,)
             if h_j.abs().max() == 0:
-                continue  # dead feature, VE = 0
+                continue  
             H_single = torch.zeros_like(H)
             H_single[:, j] = h_j
             x_hat_j = self.sae.decode_denorm(H_single)
             mse_j = (X - x_hat_j).pow(2).mean().item()
             marginals[j] = 1.0 - mse_j / ss_tot
 
-        # Step 2: sort by descending marginal VE
         order = np.argsort(marginals)[::-1]
         sorted_marginals = marginals[order].tolist()
 
-        # Step 3: cumulative VE — greedily add features in sorted order
         cumulative = []
         H_accum = torch.zeros_like(H)
         for j in order:
@@ -786,10 +720,6 @@ class SAEAnalyser:
             "marginals": sorted_marginals,
             "cumulative": cumulative,
         }
-
-    # --------------------------- #
-    # (*) Full analysis pipeline  #
-    # --------------------------- #
 
     def full_analysis(
         self,
@@ -864,18 +794,15 @@ class SAEAnalyser:
             enrich=enrich,
         )
 
-        # Summary statistics
         n_dead = int((stats["fire_rate"] == 0).sum())
         n_rare = int((stats["fire_rate"] < 0.01).sum())
 
-        # Variance explained by feature subsets
         print("Computing variance explained by feature subsets...")
         dashboard_indices = [e["feature_idx"] for e in dashboard]
         dashboard_ve = self.variance_explained_by_features(
             X, H, dashboard_indices, per_feature=True,
         )
 
-        # Rare features: fire rate < 1%
         rare_indices = [
             j for j in range(H.shape[1])
             if 0 < stats["fire_rate"][j] < 0.01
@@ -884,7 +811,6 @@ class SAEAnalyser:
             X, H, rare_indices,
         ) if rare_indices else {"joint": 0.0}
 
-        # Dead features (sanity check — should be 0)
         dead_indices = [
             j for j in range(H.shape[1]) if stats["fire_rate"][j] == 0
         ]
@@ -892,7 +818,6 @@ class SAEAnalyser:
             X, H, dead_indices,
         ) if dead_indices else {"joint": 0.0}
 
-        # Decoder similarity cluster VE
         cluster_ve = {}
         for i, cluster_members in enumerate(clusters):
             cve = self.variance_explained_by_features(X, H, cluster_members)
@@ -927,15 +852,12 @@ class SAEAnalyser:
     def print_full_report(self, results: dict) -> None:
         """Print a comprehensive report from full_analysis results."""
 
-        # Dashboard
         self.print_dashboard(results["dashboard"])
 
-        # Feature health
         print(f"\nFeature health:")
         print(f"  Dead (0% fire rate):  {results['n_dead']}")
         print(f"  Rare (<1% fire rate): {results['n_rare']}")
 
-        # Variance explained by feature subsets
         ve = results.get("variance_explained")
         if ve:
             n_dash = len(results["dashboard"])
@@ -961,12 +883,10 @@ class SAEAnalyser:
                         f" VE={cinfo['joint_ve']:.4f}  features={members}"
                     )
 
-        # Top co-occurring pairs
         print(f"\nTop co-occurring feature pairs:")
         for fi, fj, rate in results["top_cooccurring_pairs"][:10]:
             print(f"  Feature {fi:4d} + Feature {fj:4d}  co-occur {rate*100:.1f}%")
 
-        # Decoder similarity clusters
         clusters = results["decoder_clusters"]
         threshold = results.get("sim_threshold", "?")
         if clusters:
