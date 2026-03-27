@@ -914,7 +914,6 @@ def run_amplify_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
         "steered": steered_metrics,
     }
 
-
 def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     scales = [0.5, 1.0, 1.5, 2.0, 3.0, 5.0]
     if args.scales:
@@ -926,13 +925,15 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
     elif args.cluster:
         target_desc = f"cluster '{args.cluster}'"
         label = args.cluster
+    elif args.property:
+        target_desc = f"property '{args.property}' {args.direction} top{args.top_n}"
+        label = f"{args.property}_{args.direction}_top{args.top_n}"
     else:
-        raise ValueError("Sweep mode requires --feature or --cluster")
+        raise ValueError("Sweep mode requires --feature, --cluster, or --property")
 
-    # Set up output dir here so per-scale saves work
     output_dir = Path(args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    target_name = args.feature or args.cluster or "unknown"
+    target_name = args.feature or args.cluster or args.property or "unknown"
 
     print(f"\n{'=' * 70}")
     print(f"Sweep: {target_desc} ({label})")
@@ -949,10 +950,14 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
                 SteerDirective(args.feature, SteerOp.CLAMP, scale)
             ])
             manager = SteeringManager(sae, config)
-        else:
-            # Use AMPLIFY for clusters: scales relative to natural activation,
-            # so inactive features stay at 0 and active ones scale proportionally.
+        elif args.cluster:
             manager = SteeringManager.from_cluster(sae, args.cluster, scale)
+        elif args.property:
+            manager = SteeringManager.from_property(
+                sae, args.property, args.direction,
+                top_n=args.top_n, scale=scale,
+                analysis_path=args.analysis_path,
+            )
 
         manager.register(model)
         torch.manual_seed(args.seed)
@@ -979,8 +984,6 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
         top_str = ", ".join(f"{e}({c})" for e, c in top_elems)
         print(f"  Top elements: {top_str}")
 
-        # Save this scale immediately
-        # replace the filename block inside the for loop:
         scale_str = f"{scale:.1f}".replace(".", "_")
         safe_name = re.sub(r'[^a-zA-Z0-9_]', '_', str(target_name))
         out_path = output_dir / f"steer_sweep_{safe_name}_scale{scale_str}.pt"
@@ -994,7 +997,6 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
         }, out_path)
         print(f"  Saved: {out_path.name}")
 
-    # Summary table
     print(f"\n{'=' * 70}")
     print(f"Sweep summary: {target_desc} ({label})")
     print(f"{'Scale':>8s} {'SMACT':>8s} {'Struct':>8s} {'Both':>8s} "
@@ -1017,7 +1019,6 @@ def run_sweep_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
         "scales": scales,
         "results": results_per_scale,
     }
-
 
 
 def run_grid_mode(args, model, prior, sae, prop_dict, gen_cfg, ld_kwargs):
